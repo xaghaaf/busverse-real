@@ -1,0 +1,14 @@
+{
+  "name": "@busverse/ws",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BusVerse ws service",
+  "scripts": {
+    "dev": "echo dev ws",
+    "build": "echo build ws",
+    "test": "echo test ws",
+    "lint": "echo lint ws",
+    "typecheck": "echo typecheck ws",
+    "clean": "echo clean ws"
+  }
+}

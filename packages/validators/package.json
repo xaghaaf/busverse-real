@@ -1,0 +1,15 @@
+{
+  "name": "@busverse/validators",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BusVerse validators package",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "echo build validators",
+    "test": "echo test validators",
+    "lint": "echo lint validators",
+    "typecheck": "echo typecheck validators",
+    "clean": "echo clean validators"
+  }
+}

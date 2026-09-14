@@ -1,0 +1,14 @@
+{
+  "name": "@busverse/support-panel",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BusVerse support-panel",
+  "scripts": {
+    "dev": "echo dev support-panel",
+    "build": "echo build support-panel",
+    "test": "echo test support-panel",
+    "lint": "echo lint support-panel",
+    "typecheck": "echo typecheck support-panel",
+    "clean": "echo clean support-panel"
+  }
+}

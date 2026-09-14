@@ -1,0 +1,14 @@
+{
+  "name": "@busverse/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BusVerse api service",
+  "scripts": {
+    "dev": "echo dev api",
+    "build": "echo build api",
+    "test": "echo test api",
+    "lint": "echo lint api",
+    "typecheck": "echo typecheck api",
+    "clean": "echo clean api"
+  }
+}

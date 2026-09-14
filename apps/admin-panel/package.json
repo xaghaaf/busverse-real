@@ -1,0 +1,14 @@
+{
+  "name": "@busverse/admin-panel",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BusVerse admin-panel",
+  "scripts": {
+    "dev": "echo dev admin-panel",
+    "build": "echo build admin-panel",
+    "test": "echo test admin-panel",
+    "lint": "echo lint admin-panel",
+    "typecheck": "echo typecheck admin-panel",
+    "clean": "echo clean admin-panel"
+  }
+}

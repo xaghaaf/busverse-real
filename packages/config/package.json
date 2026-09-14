@@ -1,0 +1,13 @@
+{
+  "name": "@busverse/config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BusVerse shared tooling presets",
+  "scripts": {
+    "build": "echo build config",
+    "test": "echo test config",
+    "lint": "echo lint config",
+    "typecheck": "echo typecheck config",
+    "clean": "echo clean config"
+  }
+}

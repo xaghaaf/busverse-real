@@ -1,0 +1,14 @@
+{
+  "name": "@busverse/driver-app",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BusVerse driver mobile app",
+  "scripts": {
+    "dev": "echo dev driver-app",
+    "build": "echo build driver-app",
+    "test": "echo test driver-app",
+    "lint": "echo lint driver-app",
+    "typecheck": "echo typecheck driver-app",
+    "clean": "echo clean driver-app"
+  }
+}

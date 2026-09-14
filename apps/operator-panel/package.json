@@ -1,0 +1,14 @@
+{
+  "name": "@busverse/operator-panel",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BusVerse operator-panel",
+  "scripts": {
+    "dev": "echo dev operator-panel",
+    "build": "echo build operator-panel",
+    "test": "echo test operator-panel",
+    "lint": "echo lint operator-panel",
+    "typecheck": "echo typecheck operator-panel",
+    "clean": "echo clean operator-panel"
+  }
+}

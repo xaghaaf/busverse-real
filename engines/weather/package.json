@@ -1,0 +1,15 @@
+{
+  "name": "@busverse/engine-weather",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BusVerse weather engine",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "echo build engine-weather",
+    "test": "echo test engine-weather",
+    "lint": "echo lint engine-weather",
+    "typecheck": "echo typecheck engine-weather",
+    "clean": "echo clean engine-weather"
+  }
+}

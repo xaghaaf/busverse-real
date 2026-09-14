@@ -1,0 +1,15 @@
+{
+  "name": "@busverse/sdk",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BusVerse sdk package",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "echo build sdk",
+    "test": "echo test sdk",
+    "lint": "echo lint sdk",
+    "typecheck": "echo typecheck sdk",
+    "clean": "echo clean sdk"
+  }
+}

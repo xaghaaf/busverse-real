@@ -1,0 +1,15 @@
+{
+  "name": "@busverse/engine-clock",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BusVerse clock engine",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "echo build engine-clock",
+    "test": "echo test engine-clock",
+    "lint": "echo lint engine-clock",
+    "typecheck": "echo typecheck engine-clock",
+    "clean": "echo clean engine-clock"
+  }
+}

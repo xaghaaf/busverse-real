@@ -1,0 +1,15 @@
+{
+  "name": "@busverse/types",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BusVerse types package",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "echo build types",
+    "test": "echo test types",
+    "lint": "echo lint types",
+    "typecheck": "echo typecheck types",
+    "clean": "echo clean types"
+  }
+}
