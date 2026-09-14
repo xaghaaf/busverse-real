@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BusVerse — Ideation Document (Real Platform)</title>
+<style>
+    :root {
+        --black: #0a0a0a;
+        --grey-900: #1a1a1a;
+        --grey-800: #2a2a2a;
+        --grey-700: #3d3d3d;
+        --grey-600: #555;
+        --grey-500: #777;
+        --grey-400: #999;
+        --grey-300: #bbb;
+        --grey-200: #d9d9d9;
+        --grey-100: #ebebeb;
+        --grey-50: #f5f5f5;
+        --white: #ffffff;
+        --sidebar-w: 300px;
+        --border: #e0e0e0;
+        --code-bg: #f0f0f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        background: var(--white);
+        color: var(--grey-900);
+        line-height: 1.7;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* ============ SIDEBAR ============ */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: var(--sidebar-w);
+        height: 100vh;
+        background: var(--black);
+        color: var(--grey-300);
+        overflow-y: auto;
+        padding: 32px 0 60px;
+        z-index: 100;
+        transition: transform 0.3s ease;
+        border-right: 1px solid var(--grey-800);
+    }
+
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: var(--grey-900); }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--grey-700); border-radius: 3px; }
+
+    .sidebar-header {
+        padding: 0 28px 24px;
+        border-bottom: 1px solid var(--grey-800);
+        margin-bottom: 20px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--white);
+        letter-spacing: -0.5px;
+        margin-bottom: 4px;
+    }
+
+    .sidebar-header .version {
+        font-size: 0.75rem;
+        color: var(--grey-500);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 500;
+    }
+
+    .nav { list-style: none; }
+
+    .nav-item { margin: 0; }
+
+    .nav-link {
+        display: block;
+        padding: 9px 28px;
+        color: var(--grey-400);
+        text-decoration: none;
+        font-size: 0.88rem;
+        transition: all 0.15s ease;
+        border-left: 2px solid transparent;
+        line-height: 1.5;
+    }
+
+    .nav-link:hover {
+        color: var(--white);
+        background: var(--grey-900);
+        border-left-color: var(--grey-500);
+    }
+
+    .nav-link.active {
+        color: var(--white);
+        background: var(--grey-900);
+        border-left-color: var(--white);
+        font-weight: 600;
+    }
+
+    .nav-parent {
+        display: block;
+        padding: 14px 28px 6px;
+        color: var(--grey-600);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+        margin-top: 10px;
+    }
+
+    .nav-sub .nav-link {
+        padding-left: 44px;
+        font-size: 0.83rem;
+    }
+
+    /* ============ MOBILE MENU ============ */
+    .menu-btn {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 200;
+        background: var(--black);
+        color: var(--white);
+        border: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+
+    .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 99;
+    }
+
+    .overlay.active { display: block; }
+
+    /* ============ MAIN ============ */
+    .main {
+        margin-left: var(--sidebar-w);
+        max-width: 880px;
+        padding: 60px 64px 120px;
+    }
+
+    /* ============ TYPOGRAPHY ============ */
+    h1.doc-title {
+        font-size: 2.6rem;
+        font-weight: 800;
+        letter-spacing: -1.2px;
+        line-height: 1.1;
+        margin-bottom: 12px;
+        color: var(--black);
+    }
+
+    .doc-subtitle {
+        font-size: 1.05rem;
+        color: var(--grey-600);
+        margin-bottom: 6px;
+    }
+
+    .doc-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 20px 0 28px;
+        margin-bottom: 40px;
+        border-bottom: 2px solid var(--black);
+        font-size: 0.82rem;
+        color: var(--grey-500);
+    }
+
+    .doc-meta span strong {
+        color: var(--grey-900);
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 1.85rem;
+        font-weight: 800;
+        letter-spacing: -0.6px;
+        color: var(--black);
+        margin: 64px 0 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--grey-200);
+    }
+
+    h2:first-of-type { margin-top: 0; }
+
+    h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--grey-900);
+        margin: 36px 0 14px;
+        letter-spacing: -0.3px;
+    }
+
+    h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--grey-800);
+        margin: 24px 0 10px;
+    }
+
+    p {
+        margin-bottom: 16px;
+        color: var(--grey-700);
+    }
+
+    ul, ol {
+        margin: 0 0 20px 22px;
+        color: var(--grey-700);
+    }
+
+    li {
+        margin-bottom: 8px;
+        padding-left: 4px;
+    }
+
+    li::marker { color: var(--grey-400); }
+
+    strong { color: var(--grey-900); font-weight: 700; }
+
+    em { color: var(--grey-600); }
+
+    a { color: var(--grey-900); text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ============ BLOCKS ============ */
+    blockquote {
+        border-left: 3px solid var(--black);
+        padding: 16px 24px;
+        margin: 24px 0;
+        background: var(--grey-50);
+        color: var(--grey-800);
+        font-style: italic;
+        border-radius: 0 6px 6px 0;
+    }
+
+    blockquote p { margin: 0; color: var(--grey-800); }
+
+    .callout {
+        background: var(--grey-50);
+        border: 1px solid var(--grey-200);
+        border-left: 4px solid var(--black);
+        padding: 18px 22px;
+        border-radius: 0 8px 8px 0;
+        margin: 24px 0;
+    }
+
+    .callout p:last-child { margin-bottom: 0; }
+
+    .callout-dark {
+        background: var(--black);
+        color: var(--grey-200);
+        border-left-color: var(--grey-400);
+    }
+
+    .callout-dark p { color: var(--grey-200); }
+    .callout-dark strong { color: var(--white); }
+
+    /* ============ TABLE ============ */
+    .table-wrap {
+        overflow-x: auto;
+        margin: 24px 0;
+        border: 1px solid var(--grey-200);
+        border-radius: 8px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+        min-width: 480px;
+    }
+
+    th {
+        background: var(--black);
+        color: var(--white);
+        text-align: left;
+        padding: 12px 16px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--grey-100);
+        color: var(--grey-700);
+        vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--grey-50); }
+
+    /* ============ CODE / DIAGRAM ============ */
+    pre {
+        background: var(--black);
+        color: var(--grey-200);
+        padding: 20px 24px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: "SF Mono", Monaco, "Cascadia Code", Consolas, monospace;
+        font-size: 0.82rem;
+        line-height: 1.6;
+        margin: 20px 0;
+    }
+
+    code {
+        background: var(--code-bg);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "SF Mono", Monaco, Consolas, monospace;
+        font-size: 0.85em;
+        color: var(--grey-900);
+    }
+
+    pre code { background: none; padding: 0; color: inherit; }
+
+    /* ============ GRID ============ */
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 24px 0;
+    }
+
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin: 24px 0;
+    }
+
+    .card {
+        border: 1px solid var(--grey-200);
+        border-radius: 10px;
+        padding: 20px;
+        background: var(--white);
+        transition: border-color 0.2s;
+    }
+
+    .card:hover { border-color: var(--grey-400); }
+
+    .card-title {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--grey-500);
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .card-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--black);
+        margin-bottom: 4px;
+    }
+
+    .card-desc {
+        font-size: 0.85rem;
+        color: var(--grey-600);
+        line-height: 1.5;
+    }
+
+    /* ============ DIVIDER ============ */
+    .divider {
+        height: 1px;
+        background: var(--grey-200);
+        margin: 48px 0;
+    }
+
+    .divider-dots {
+        text-align: center;
+        color: var(--grey-300);
+        letter-spacing: 8px;
+        margin: 40px 0;
+        font-size: 0.8rem;
+    }
+
+    /* ============ END NOTE ============ */
+    .end-note {
+        margin-top: 80px;
+        padding: 32px;
+        background: var(--black);
+        color: var(--grey-200);
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .end-note h3 {
+        color: var(--white);
+        margin: 0 0 12px;
+        font-size: 1.4rem;
+    }
+
+    .end-note p { color: var(--grey-400); margin: 0; }
+
+    /* ============ SCROLL PROGRESS ============ */
+    .progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        background: var(--black);
+        z-index: 300;
+        transition: width 0.1s;
+        width: 0;
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 1024px) {
+        .main { padding: 60px 40px 100px; }
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            width: 280px;
+        }
+        .sidebar.open { transform: translateX(0); }
+        .menu-btn { display: flex; }
+        .main {
+            margin-left: 0;
+            padding: 76px 22px 80px;
+            max-width: 100%;
+        }
+        h1.doc-title { font-size: 2rem; }
+        h2 { font-size: 1.5rem; margin-top: 48px; }
+        h3 { font-size: 1.1rem; }
+        .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        pre { font-size: 0.75rem; padding: 16px; }
+        .doc-meta { gap: 12px; font-size: 0.78rem; }
+    }
+
+    @media (max-width: 400px) {
+        .main { padding: 70px 16px 60px; }
+        h1.doc-title { font-size: 1.7rem; }
+    }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+<div class="overlay" id="overlay"></div>
+
+<!-- ============ SIDEBAR ============ -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h1>BusVerse</h1>
+        <div class="version">Ideation · Real Platform</div>
+    </div>
+
+    <ul class="nav">
+        <li class="nav-item"><span class="nav-parent">Foundation</span></li>
+        <li class="nav-item"><a class="nav-link" href="#what">1. What is BusVerse</a></li>
+        <li class="nav-item"><a class="nav-link" href="#why">2. Why It Exists</a></li>
+        <li class="nav-item"><a class="nav-link" href="#core">3. The Core Idea</a></li>
+        <li class="nav-item"><a class="nav-link" href="#world">4. The World</a></li>
+        <li class="nav-item"><a class="nav-link" href="#experience">5. The Experience</a></li>
+
+        <li class="nav-item"><span class="nav-parent">Platforms</span></li>
+        <li class="nav-item"><a class="nav-link" href="#platforms">6. Five Platforms</a></li>
+        <li class="nav-item"><a class="nav-link" href="#passenger">6.1 Passenger App</a></li>
+        <li class="nav-item"><a class="nav-link" href="#driver-app">6.2 Driver App</a></li>
+        <li class="nav-item"><a class="nav-link" href="#operator">6.3 Operator Panel</a></li>
+        <li class="nav-item"><a class="nav-link" href="#admin">6.4 Admin Panel</a></li>
+        <li class="nav-item"><a class="nav-link" href="#support">6.5 Support Panel</a></li>
+
+        <li class="nav-item"><span class="nav-parent">Core Systems</span></li>
+        <li class="nav-item"><a class="nav-link" href="#booking">7. Booking &amp; Seat Locking</a></li>
+        <li class="nav-item"><a class="nav-link" href="#payments">8. Payments &amp; Refunds</a></li>
+        <li class="nav-item"><a class="nav-link" href="#ticketing">9. Ticketing &amp; QR</a></li>
+        <li class="nav-item"><a class="nav-link" href="#tracking">10. Live Tracking</a></li>
+        <li class="nav-item"><a class="nav-link" href="#notifications">11. Notifications</a></li>
+        <li class="nav-item"><a class="nav-link" href="#safety">12. Safety</a></li>
+
+        <li class="nav-item"><span class="nav-parent">Operations</span></li>
+        <li class="nav-item"><a class="nav-link" href="#operators">13. Operators &amp; Fleet</a></li>
+        <li class="nav-item"><a class="nav-link" href="#revenue">14. Revenue Model</a></li>
+        <li class="nav-item"><a class="nav-link" href="#legal">15. Legal &amp; Compliance</a></li>
+        <li class="nav-item"><a class="nav-link" href="#analytics">16. Analytics</a></li>
+
+        <li class="nav-item"><span class="nav-parent">Positioning</span></li>
+        <li class="nav-item"><a class="nav-link" href="#special">17. What Makes It Special</a></li>
+        <li class="nav-item"><a class="nav-link" href="#pitch">18. The One-Line Pitch</a></li>
+        <li class="nav-item"><a class="nav-link" href="#next">19. What Comes Next</a></li>
+    </ul>
+</nav>
+
+<!-- ============ MAIN ============ -->
+<main class="main">
+
+    <h1 class="doc-title">BusVerse</h1>
+    <p class="doc-subtitle">A real bus booking platform connecting verified operators with passengers across India — intercity and intracity, with real payments, live GPS tracking, and QR-based ticketing.</p>
+
+    <div class="doc-meta">
+        <span><strong>Version:</strong> 1.0</span>
+        <span><strong>Type:</strong> Real Platform · Production</span>
+        <span><strong>Status:</strong> Concept Ideation</span>
+        <span><strong>Next:</strong> Feature Specification</span>
+    </div>
+
+    <!-- ============ 1 ============ -->
+    <h2 id="what">1. What is BusVerse?</h2>
+    <p>BusVerse is a <strong>real bus booking platform</strong> that connects verified bus operators with passengers across India. It handles the full journey — from search and seat selection to payment, ticketing, live tracking, and post-trip feedback.</p>
+    <ul>
+        <li><strong>Real operators. Real buses. Real passengers.</strong></li>
+        <li><strong>Real money. Real payments. Real refunds.</strong></li>
+        <li><strong>Intercity and intracity travel.</strong></li>
+        <li><strong>Pan-India operation from day one.</strong></li>
+        <li><strong>Government buses integrated where available.</strong></li>
+        <li><strong>Driver app for real drivers with QR scanning and GPS.</strong></li>
+        <li><strong>Operator panel for fleet and route management.</strong></li>
+        <li><strong>Admin oversight with CCTV and dispute resolution.</strong></li>
+    </ul>
+    <blockquote>
+        <p>BusVerse is not a demo. It is a <strong>production platform</strong> where real passengers book real seats on real buses operated by verified partners.</p>
+    </blockquote>
+
+    <!-- ============ 2 ============ -->
+    <h2 id="why">2. Why BusVerse Exists</h2>
+
+    <h3>2.1 The Problem</h3>
+    <p>Bus travel in India is fragmented. Passengers deal with multiple operators, no unified booking, no live tracking, unclear refunds, and no reliable way to verify the quality of service before booking. Small operators have no digital presence. Government buses are hard to book online.</p>
+
+    <h3>2.2 The Purpose</h3>
+    <ul>
+        <li><strong>For passengers:</strong> A single platform to search, compare, book, and track buses across all operators.</li>
+        <li><strong>For operators:</strong> A digital storefront, a booking engine, and a settlement system — without building it themselves.</li>
+        <li><strong>For drivers:</strong> A simple app for trips, tickets, and GPS.</li>
+        <li><strong>For the ecosystem:</strong> Trust, safety, and transparency in bus travel.</li>
+    </ul>
+
+    <h3>2.3 The Hook</h3>
+    <div class="callout callout-dark">
+        <p><strong>"Every bus in India — private or government — bookable from one platform, with live tracking, verified operators, and instant refunds."</strong></p>
+    </div>
+
+    <!-- ============ 3 ============ -->
+    <h2 id="core">3. The Core Idea</h2>
+    <p>BusVerse has <strong>five platforms</strong>, each serving a distinct user:</p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Platform</th><th>Who Uses It</th><th>Purpose</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Passenger App</strong></td><td>Travelers</td><td>Search, book, pay, track, board</td></tr>
+                <tr><td><strong>Driver App</strong></td><td>Bus drivers</td><td>Trips, GPS, QR scanning, manifest</td></tr>
+                <tr><td><strong>Operator Panel</strong></td><td>Bus operators</td><td>Fleet, routes, schedules, revenue</td></tr>
+                <tr><td><strong>Admin Panel</strong></td><td>BusVerse team</td><td>Approvals, oversight, CCTV, finance</td></tr>
+                <tr><td><strong>Support Panel</strong></td><td>Support agents</td><td>Tickets, chat, refunds</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p>Every platform shares the same backend, the same database, and the same real-time infrastructure. Data flows seamlessly between them — a passenger booking appears instantly on the operator's dashboard, the driver's manifest, and the admin's analytics.</p>
+
+    <!-- ============ 4 ============ -->
+    <h2 id="world">4. The World of BusVerse</h2>
+
+    <h3>4.1 What's Real</h3>
+    <ul>
+        <li>The map (real geography, real roads, real stands)</li>
+        <li>The routes (intercity and intracity, pan-India)</li>
+        <li>The buses (registered, verified, insured)</li>
+        <li>The operators (GST-registered companies with KYC)</li>
+        <li>The drivers (licensed, verified, with valid documents)</li>
+        <li>The passengers (real users with real bookings)</li>
+        <li>The money (real INR, real payments, real refunds)</li>
+        <li>The tickets (with signed QR codes, scanned at boarding)</li>
+        <li>The GPS (from driver phones, streamed live)</li>
+        <li>The traffic (from real map APIs)</li>
+    </ul>
+
+    <h3>4.2 What's Local to India</h3>
+    <ul>
+        <li>UPI-first payments (alongside cards, netbanking, wallets)</li>
+        <li>Multi-gateway support (Razorpay, PhonePe, Paytm, Google Pay, Cashfree)</li>
+        <li>GST invoicing per booking</li>
+        <li>SMS + Email notifications in local context</li>
+        <li>Hindi + English UI</li>
+        <li>Government bus integration (state transport corporations)</li>
+        <li>Compliance with DPDP Act, Motor Vehicle Aggregator Rules, and RBI guidelines</li>
+    </ul>
+
+    <h3>4.3 The Golden Rule</h3>
+    <blockquote>
+        <p><strong>BusVerse is a marketplace. It never owns buses. It never employs drivers. It connects verified operators with passengers and takes responsibility for the transaction.</strong></p>
+    </blockquote>
+
+    <!-- ============ 5 ============ -->
+    <h2 id="experience">5. The Experience</h2>
+
+    <h3>5.1 As a Passenger</h3>
+    <ol>
+        <li>Open BusVerse. See popular routes and recent searches.</li>
+        <li>Search for a route: Delhi → Jaipur, pick a date.</li>
+        <li>Compare buses by price, time, amenities, and operator rating.</li>
+        <li>Pick a bus. See the live seat map.</li>
+        <li>Select a seat. It locks for 5 minutes while you pay.</li>
+        <li>Pay via UPI, card, netbanking, or wallet.</li>
+        <li>Receive a ticket with a signed QR code (SMS + email + in-app).</li>
+        <li>Watch the bus move on the map on the day of travel.</li>
+        <li>Share the trip link with family.</li>
+        <li>Show the QR to the driver at boarding. Scanned. Checked in.</li>
+        <li>Trip ends. Rate the operator and driver. Done.</li>
+    </ol>
+
+    <h3>5.2 As a Driver</h3>
+    <ol>
+        <li>Log in with phone OTP.</li>
+        <li>See today's assigned trips.</li>
+        <li>Start the trip — GPS begins streaming to passengers.</li>
+        <li>Scan passenger QR tickets at each boarding point.</li>
+        <li>See the live passenger manifest per stand.</li>
+        <li>Report delays with a reason.</li>
+        <li>Trigger SOS if needed.</li>
+        <li>End the trip. See trip summary.</li>
+    </ol>
+
+    <h3>5.3 As an Operator</h3>
+    <ol>
+        <li>Sign up with company details and GST.</li>
+        <li>Upload KYC — admin verifies.</li>
+        <li>Add buses with registration, insurance, and seat layout.</li>
+        <li>Create routes by drawing on a real map.</li>
+        <li>Create recurring schedules with fares.</li>
+        <li>Assign drivers to trips.</li>
+        <li>Monitor bookings, revenue, and cancellations.</li>
+        <li>View CCTV feeds from buses (where installed).</li>
+        <li>Receive settlements after each cycle.</li>
+    </ol>
+
+    <h3>5.4 As an Admin</h3>
+    <ol>
+        <li>Approve operator KYC and bus registration.</li>
+        <li>Review and approve routes and schedules.</li>
+        <li>Monitor all buses on a live map.</li>
+        <li>Access CCTV feeds across all operators.</li>
+        <li>Handle disputes, refunds, and chargebacks.</li>
+        <li>Manage feature flags, content, and announcements.</li>
+        <li>Audit every action taken on the platform.</li>
+    </ol>
+
+    <!-- ============ 6 ============ -->
+    <h2 id="platforms">6. The Five Platforms</h2>
+
+    <h3 id="passenger">6.1 Passenger App</h3>
+    <p>The traveler-facing app. Available as a responsive web app and a Progressive Web App (installable on mobile without app store submission).</p>
+
+    <h4>Core Screens</h4>
+    <ul>
+        <li>Home (search + popular routes)</li>
+        <li>Search results (filters, sort, compare)</li>
+        <li>Seat selection (live seat map)</li>
+        <li>Passenger details</li>
+        <li>Payment (multi-gateway)</li>
+        <li>Ticket (QR + PDF)</li>
+        <li>Live tracking (bus on map)</li>
+        <li>My trips (upcoming + past)</li>
+        <li>Profile (saved passengers, payment methods)</li>
+        <li>Notifications</li>
+        <li>Support chat</li>
+    </ul>
+
+    <h4>Key Features</h4>
+    <ul>
+        <li>Search by source, destination, date</li>
+        <li>Filter by bus type, time, price, amenities, rating</li>
+        <li>Atomic seat locking (5 min)</li>
+        <li>Multi-seat group booking</li>
+        <li>Round-trip booking</li>
+        <li>Saved passengers for faster checkout</li>
+        <li>Coupon / promo code</li>
+        <li>Live bus tracking</li>
+        <li>Share trip link with family</li>
+        <li>QR-based boarding</li>
+        <li>SOS button</li>
+        <li>Rating and review after trip</li>
+        <li>Cancellation with automatic refund</li>
+    </ul>
+
+    <h3 id="driver-app">6.2 Driver App</h3>
+    <p>A mobile app (React Native or Flutter) for bus drivers. Runs on Android and iOS.</p>
+
+    <h4>Core Screens</h4>
+    <ul>
+        <li>Login (phone OTP)</li>
+        <li>Today's trips</li>
+        <li>Active trip (route map + next stop)</li>
+        <li>QR scanner</li>
+        <li>Passenger manifest</li>
+        <li>Stop requests</li>
+        <li>SOS</li>
+        <li>Trip summary</li>
+        <li>Document reminders</li>
+    </ul>
+
+    <h4>Key Features</h4>
+    <ul>
+        <li>Phone OTP login</li>
+        <li>Background GPS (streams every 10s)</li>
+        <li>Start / End trip</li>
+        <li>QR ticket scanning (camera)</li>
+        <li>Manual booking ID fallback</li>
+        <li>Passenger manifest per stand</li>
+        <li>Stop request handling</li>
+        <li>Delay reporting with reason</li>
+        <li>SOS alert to admin + support</li>
+        <li>Break management</li>
+        <li>Announcements to passengers</li>
+    </ul>
+
+    <h3 id="operator">6.3 Operator Panel</h3>
+    <p>A web-based dashboard for bus operators. Registration, fleet, routes, schedules, drivers, bookings, revenue, and CCTV — all in one place.</p>
+
+    <h4>Core Sections</h4>
+    <ul>
+        <li>Dashboard (trips, bookings, revenue)</li>
+        <li>Fleet (buses, registration, insurance, seat layouts)</li>
+        <li>Routes (draw on map, add stands, set distances)</li>
+        <li>Schedules (recurring + one-time)</li>
+        <li>Drivers (add, assign, track)</li>
+        <li>Bookings (view, filter, cancel)</li>
+        <li>Revenue &amp; settlement</li>
+        <li>CCTV (live + playback)</li>
+        <li>Reports</li>
+    </ul>
+
+    <h4>Key Features</h4>
+    <ul>
+        <li>Multi-user access (owner + managers)</li>
+        <li>Bus registration with permit, insurance, fitness</li>
+        <li>Seat layout configurator</li>
+        <li>Amenities configuration</li>
+        <li>Route drawing with real coordinates</li>
+        <li>Recurring schedules</li>
+        <li>Driver assignment</li>
+        <li>Real-time booking feed</li>
+        <li>Settlement statements</li>
+        <li>CCTV feeds (where installed)</li>
+    </ul>
+
+    <h3 id="admin">6.4 Admin Panel</h3>
+    <p>The BusVerse team's control center. Every approval, oversight, and dispute flows through here.</p>
+
+    <h4>Core Sections</h4>
+    <ul>
+        <li>Dashboard (platform-wide metrics)</li>
+        <li>Users (passengers)</li>
+        <li>Operators (KYC approval, bus approval, route approval)</li>
+        <li>Drivers (verification, assignments)</li>
+        <li>Bookings (oversight, manual refunds)</li>
+        <li>Disputes (arbitration)</li>
+        <li>Finance (settlements, GST, reconciliation)</li>
+        <li>CCTV (all operators)</li>
+        <li>Notifications (broadcast)</li>
+        <li>Content (ToS, Privacy, FAQ)</li>
+        <li>Feature flags</li>
+        <li>Audit logs</li>
+    </ul>
+
+    <h4>Key Features</h4>
+    <ul>
+        <li>Role-based access (Super Admin, Ops, Finance, Support, Auditor)</li>
+        <li>Operator KYC approval queue</li>
+        <li>Bus registration approval</li>
+        <li>Route &amp; schedule approval</li>
+        <li>Refund approval beyond support limits</li>
+        <li>Chargeback handling</li>
+        <li>Live fleet map (all operators)</li>
+        <li>CCTV monitoring</li>
+        <li>Broadcast notifications</li>
+        <li>Feature flags for safe rollouts</li>
+        <li>Every action logged with timestamp and user</li>
+    </ul>
+
+    <h3 id="support">6.5 Support Panel</h3>
+    <p>A lightweight version of the Admin Panel for support agents.</p>
+
+    <h4>Key Features</h4>
+    <ul>
+        <li>Ticket queue</li>
+        <li>Live chat with passengers</li>
+        <li>Canned responses</li>
+        <li>User lookup (booking, trip, refund history)</li>
+        <li>Refund processing within approval limits</li>
+        <li>Escalation to admin</li>
+        <li>Chat history for QA</li>
+    </ul>
+
+    <!-- ============ 7 ============ -->
+    <h2 id="booking">7. Booking &amp; Seat Locking</h2>
+
+    <h3>7.1 Booking Flow</h3>
+    <p>Search → select bus → seat map → passenger details → payment → ticket. Every step is atomic and consistent. Two users can never book the same seat.</p>
+
+    <h3>7.2 Seat Locking</h3>
+    <p>The moment a passenger selects a seat, it locks for <strong>5 minutes</strong>. The lock uses Redis <code>SET NX</code> with TTL, falling back to PostgreSQL unique constraints. No two users can lock the same seat.</p>
+
+    <ul>
+        <li>Lock duration: 5 minutes (real time)</li>
+        <li>Extension: once, +2 minutes</li>
+        <li>Max active locks per user: 3</li>
+        <li>Conflict → immediate rejection with error</li>
+        <li>Payment success → lock converts to booking atomically</li>
+        <li>Payment failure/timeout → lock released</li>
+        <li>Page close → lock released (best-effort)</li>
+        <li>Locks never scale with time (real time only)</li>
+    </ul>
+
+    <h3>7.3 Seat States</h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>State</th><th>Meaning</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Available</td><td>Anyone can select</td></tr>
+                <tr><td>Locked by me</td><td>You hold the lock</td></tr>
+                <tr><td>Locked by other</td><td>Someone else is paying</td></tr>
+                <tr><td>Booked</td><td>Confirmed booking</td></tr>
+                <tr><td>Blocked</td><td>Admin-disabled or broken</td></tr>
+                <tr><td>Female-only</td><td>Reserved for female passengers</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============ 8 ============ -->
+    <h2 id="payments">8. Payments &amp; Refunds</h2>
+
+    <h3>8.1 Payment Gateways</h3>
+    <p>BusVerse supports multiple Indian payment gateways, all through a single <strong>Payment Adapter</strong>:</p>
+    <ul>
+        <li>Razorpay</li>
+        <li>PhonePe</li>
+        <li>Paytm</li>
+        <li>Google Pay (via UPI)</li>
+        <li>Cashfree</li>
+    </ul>
+
+    <h3>8.2 Payment Methods</h3>
+    <ul>
+        <li>UPI</li>
+        <li>Credit / Debit Cards</li>
+        <li>Netbanking</li>
+        <li>Wallets</li>
+        <li>EMI (selected banks)</li>
+    </ul>
+
+    <h3>8.3 Payment Adapter</h3>
+    <p>One interface, three modes:</p>
+    <ul>
+        <li><strong>Simulated:</strong> In-app fake UPI screen (for testing without a gateway account)</li>
+        <li><strong>Sandbox:</strong> Real gateway in test mode (dummy money)</li>
+        <li><strong>Live:</strong> Real money, real transactions</li>
+    </ul>
+    <p>Config-driven. No code changes to switch modes.</p>
+
+    <h3>8.4 Refund Policy</h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Time Before Departure</th><th>Refund</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>More than 24 hours</td><td>100% (minus gateway fee)</td></tr>
+                <tr><td>12–24 hours</td><td>90%</td></tr>
+                <tr><td>6–12 hours</td><td>75%</td></tr>
+                <tr><td>2–6 hours</td><td>50%</td></tr>
+                <tr><td>Less than 2 hours</td><td>0%</td></tr>
+                <tr><td>Operator cancels trip</td><td>100%</td></tr>
+                <tr><td>Platform cancels trip</td><td>100% + compensation credit</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>8.5 Refund Engine</h3>
+    <p>Event-driven. Listens for cancellation events, checks policy, calls gateway refund API, tracks status via webhooks. Refunds go back to the original payment method (UPI → UPI, card → card). Full audit trail maintained.</p>
+
+    <!-- ============ 9 ============ -->
+    <h2 id="ticketing">9. Ticketing &amp; QR</h2>
+
+    <h3>9.1 Ticket Generation</h3>
+    <ul>
+        <li>Generated on payment success</li>
+        <li>Unique booking ID</li>
+        <li>Signed QR code (cryptographic signature prevents forgery)</li>
+        <li>Contains route, bus, seat, time, fare, passenger details</li>
+        <li>Delivered via SMS, email, and in-app</li>
+        <li>Downloadable as PDF</li>
+        <li>Viewable offline (PWA cache)</li>
+    </ul>
+
+    <h3>9.2 QR Scanning</h3>
+    <ul>
+        <li>Driver opens scanner in the Driver App</li>
+        <li>Camera reads the QR</li>
+        <li>Server verifies: signature, booking existence, schedule match, expiry, not already scanned</li>
+        <li>Result: ✅ Valid, ⚠️ Duplicate, ❌ Invalid / expired / cancelled</li>
+        <li>Every scan logged with timestamp and result</li>
+    </ul>
+
+    <h3>9.3 Ticket Lifecycle</h3>
+    <p>Issued → Active → Scanned → Used → Expired. Cancelled at any point before scan. Expired 2 hours after trip ends.</p>
+
+    <!-- ============ 10 ============ -->
+    <h2 id="tracking">10. Live Tracking</h2>
+
+    <h3>10.1 How It Works</h3>
+    <ul>
+        <li>Driver App streams GPS every 10 seconds</li>
+        <li>Backend broadcasts position to all passengers on that trip</li>
+        <li>ETA recalculated every 10 seconds based on position, speed, and traffic</li>
+        <li>Traffic data from Google Maps / TomTom / HERE</li>
+        <li>Bus position, status, and ETA visible on a real map</li>
+    </ul>
+
+    <h3>10.2 Passenger Features</h3>
+    <ul>
+        <li>Live bus position on map</li>
+        <li>ETA per upcoming stand</li>
+        <li>Bus status (on time, delayed, stopped)</li>
+        <li>Share trip link with family (WhatsApp / SMS)</li>
+        <li>Driver info on map</li>
+        <li>Trip timeline</li>
+    </ul>
+
+    <!-- ============ 11 ============ -->
+    <h2 id="notifications">11. Notifications</h2>
+
+    <h3>Channels</h3>
+    <ul>
+        <li>SMS (MSG91 / Twilio / Kaleyra)</li>
+        <li>Email (SendGrid / AWS SES)</li>
+        <li>Push (Firebase Cloud Messaging)</li>
+        <li>In-app</li>
+    </ul>
+
+    <h3>Trigger Events</h3>
+    <ul>
+        <li>Booking confirmed</li>
+        <li>Ticket generated</li>
+        <li>Trip started</li>
+        <li>Bus delayed</li>
+        <li>Bus arriving</li>
+        <li>Trip completed</li>
+        <li>Cancellation confirmed</li>
+        <li>Refund initiated / completed</li>
+        <li>Payment failed</li>
+        <li>Operator cancelled trip</li>
+        <li>Driver assigned</li>
+        <li>Waitlist seat available</li>
+    </ul>
+
+    <!-- ============ 12 ============ -->
+    <h2 id="safety">12. Safety</h2>
+
+    <ul>
+        <li><strong>SOS button</strong> in the Passenger App — alerts admin, support, and emergency contacts with live location</li>
+        <li><strong>Share trip</strong> — live link to family via WhatsApp / SMS</li>
+        <li><strong>Emergency contacts</strong> saved on profile</li>
+        <li><strong>Verified drivers</strong> — KYC, license, and background check</li>
+        <li><strong>Verified operators</strong> — GST, documents, insurance</li>
+        <li><strong>Female-only seats</strong> on select routes</li>
+        <li><strong>24/7 support line</strong></li>
+        <li><strong>Incident reporting</strong> from passenger app</li>
+        <li><strong>Boarding verification</strong> via QR scan</li>
+    </ul>
+
+    <!-- ============ 13 ============ -->
+    <h2 id="operators">13. Operators &amp; Fleet</h2>
+
+    <h3>13.1 Operator Onboarding</h3>
+    <ol>
+        <li>Company signup (name, GST, PAN, bank account)</li>
+        <li>KYC document upload</li>
+        <li>Admin verification</li>
+        <li>Bus registration (registration number, permit, insurance, fitness)</li>
+        <li>Seat layout configuration</li>
+        <li>Route proposal with map-drawn polyline</li>
+        <li>Admin approval</li>
+        <li>Schedule creation</li>
+        <li>Go live</li>
+    </ol>
+
+    <h3>13.2 Fleet Types</h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Type</th><th>Capacity</th><th>Typical Routes</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Mini Coach</td><td>20</td><td>Short intercity, intracity</td></tr>
+                <tr><td>Standard</td><td>40</td><td>Common intercity</td></tr>
+                <tr><td>Luxury</td><td>30</td><td>Premium intercity</td></tr>
+                <tr><td>Double Decker</td><td>60</td><td>High-density routes</td></tr>
+                <tr><td>Sleeper</td><td>24</td><td>Overnight routes</td></tr>
+                <tr><td>Electric</td><td>Varies</td><td>Intracity, green routes</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>13.3 Government Bus Integration</h3>
+    <ul>
+        <li>State transport corporations (MSRTC, KSRTC, UPSRTC, etc.)</li>
+        <li>API sync where available</li>
+        <li>Manual entry where not available</li>
+        <li>Separate branding for government buses</li>
+        <li>Subsidized fares applied where applicable</li>
+    </ul>
+
+    <!-- ============ 14 ============ -->
+    <h2 id="revenue">14. Revenue Model</h2>
+
+    <h3>14.1 Primary — Convenience Fee</h3>
+    <p>Passengers pay a small convenience fee per booking (₹10–20). Operators pay nothing. This fee is disclosed upfront at checkout and is BusVerse's primary revenue.</p>
+
+    <h3>14.2 Additional Revenue Streams</h3>
+    <ul>
+        <li>Promoted listings (operators pay for higher search placement)</li>
+        <li>Subscription plans for frequent travelers (BusVerse Pass)</li>
+        <li>Corporate B2B booking (service fee per booking)</li>
+        <li>Travel agent commissions</li>
+        <li>Charter / full bus hire commission</li>
+        <li>CCTV hardware/software (if bundled)</li>
+        <li>Partnerships (insurance, last-mile, food)</li>
+    </ul>
+
+    <h3>14.3 Settlement</h3>
+    <ul>
+        <li>Operator settlement every 7 days (T+7)</li>
+        <li>Settlement after trip completion + refund window closes</li>
+        <li>Detailed statement per trip</li>
+        <li>GST reports for operators</li>
+        <li>Gateway reconciliation daily</li>
+    </ul>
+
+    <!-- ============ 15 ============ -->
+    <h2 id="legal">15. Legal &amp; Compliance</h2>
+
+    <div class="callout">
+        <p><strong>Note:</strong> These are production requirements for real deployment in India. They are documented here as part of the platform's readiness plan and would be implemented before commercial launch.</p>
+    </div>
+
+    <h3>15.1 Business Entity</h3>
+    <ul>
+        <li>Private Limited Company incorporation</li>
+        <li>PAN, TAN, Shop &amp; Establishment</li>
+        <li>Professional Tax (state-specific)</li>
+    </ul>
+
+    <h3>15.2 Taxation</h3>
+    <ul>
+        <li>GST registration (5% on bus bookings via Electronic Commerce Operator)</li>
+        <li>TDS compliance</li>
+        <li>Income Tax filing</li>
+        <li>Monthly / quarterly GST returns</li>
+    </ul>
+
+    <h3>15.3 Payments &amp; RBI</h3>
+    <ul>
+        <li>Licensed Payment Aggregator integration</li>
+        <li>PCI-DSS compliance (via hosted checkout)</li>
+        <li>KYC of operators</li>
+        <li>Nodal / settlement accounts</li>
+    </ul>
+
+    <h3>15.4 Data Protection</h3>
+    <ul>
+        <li>DPDP Act 2023 compliance</li>
+        <li>Consent management</li>
+        <li>Data Principal rights (access, correct, erase)</li>
+        <li>Breach notification</li>
+        <li>Grievance Officer appointment</li>
+    </ul>
+
+    <h3>15.5 Aggregator Licensing</h3>
+    <ul>
+        <li>Motor Vehicle Aggregator Guidelines 2025</li>
+        <li>State-wise aggregator licence</li>
+        <li>Security deposit (state-specific)</li>
+        <li>VLTD on buses (AIS-140)</li>
+        <li>Driver verification standards</li>
+        <li>CERT-In certified app</li>
+    </ul>
+
+    <h3>15.6 Consumer Protection</h3>
+    <ul>
+        <li>E-Commerce Rules 2020 compliance</li>
+        <li>Transparent refund policy</li>
+        <li>Joint liability with operators (RedBus precedent)</li>
+        <li>Grievance mechanism</li>
+    </ul>
+
+    <h3>15.7 Insurance</h3>
+    <ul>
+        <li>Passenger travel insurance (₹5 lakh minimum per trip)</li>
+        <li>Driver insurance</li>
+        <li>Cyber liability insurance</li>
+    </ul>
+
+    <h3>15.8 Contracts</h3>
+    <ul>
+        <li>Operator Agreement</li>
+        <li>Terms of Service</li>
+        <li>Privacy Policy</li>
+        <li>Refund &amp; Cancellation Policy</li>
+        <li>Driver Agreement</li>
+        <li>Trademark registration</li>
+    </ul>
+
+    <!-- ============ 16 ============ -->
+    <h2 id="analytics">16. Analytics</h2>
+
+    <h3>Business</h3>
+    <ul>
+        <li>Bookings (daily, weekly, monthly)</li>
+        <li>Revenue per route / operator / city</li>
+        <li>Cancellation rate</li>
+        <li>Refund rate</li>
+        <li>User acquisition</li>
+        <li>Retention</li>
+        <li>Conversion funnel</li>
+    </ul>
+
+    <h3>Operational</h3>
+    <ul>
+        <li>On-time performance</li>
+        <li>Route profitability</li>
+        <li>Fleet utilization</li>
+        <li>Peak hours</li>
+        <li>Popular routes</li>
+    </ul>
+
+    <h3>Financial</h3>
+    <ul>
+        <li>Settlement reports</li>
+        <li>GST reports</li>
+        <li>Gateway reconciliation</li>
+        <li>Refund reconciliation</li>
+    </ul>
+
+    <!-- ============ 17 ============ -->
+    <h2 id="special">17. What Makes BusVerse Special</h2>
+
+    <div class="grid-3">
+        <div class="card">
+            <div class="card-title">01</div>
+            <div class="card-value">Unified</div>
+            <div class="card-desc">Private and government buses on one platform, bookable end-to-end.</div>
+        </div>
+        <div class="card">
+            <div class="card-title">02</div>
+            <div class="card-value">Real-time</div>
+            <div class="card-desc">Live GPS tracking from the driver's phone. No hardware required.</div>
+        </div>
+        <div class="card">
+            <div class="card-title">03</div>
+            <div class="card-value">Verified</div>
+            <div class="card-desc">Every operator KYC-verified. Every driver license-checked.</div>
+        </div>
+        <div class="card">
+            <div class="card-title">04</div>
+            <div class="card-value">Transparent</div>
+            <div class="card-desc">Clear refund policy. Automatic refunds. Full booking history.</div>
+        </div>
+        <div class="card">
+            <div class="card-title">05</div>
+            <div class="card-value">Safe</div>
+            <div class="card-desc">SOS, share trip, female-only seats, 24/7 support.</div>
+        </div>
+        <div class="card">
+            <div class="card-title">06</div>
+            <div class="card-value">Operator-first</div>
+            <div class="card-desc">No commission. Operators keep full fare. Only passengers pay a small convenience fee.</div>
+        </div>
+    </div>
+
+    <!-- ============ 18 ============ -->
+    <h2 id="pitch">18. The One-Line Pitch</h2>
+    <div class="callout callout-dark">
+        <p><strong>BusVerse is a real bus booking platform connecting verified operators with passengers across India — with live GPS tracking, QR ticketing, automatic refunds, and zero commission for operators.</strong></p>
+    </div>
+
+    <!-- ============ 19 ============ -->
+    <h2 id="next">19. What Comes Next</h2>
+    <p>This document defines <strong>what BusVerse is</strong>.</p>
+    <p>The next document defines <strong>what BusVerse does</strong> — the full feature specification across all 39 modules and 6 platforms.</p>
+    <ul>
+        <li>39 modules</li>
+        <li>6 platforms</li>
+        <li>~404 features</li>
+        <li>3 build phases</li>
+    </ul>
+
+    <div class="end-note">
+        <h3>Next Document</h3>
+        <p>Feature Specification — 39 Modules, 6 Platforms</p>
+    </div>
+
+</main>
+
+<script>
+    // Mobile menu
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    menuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+    });
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+        });
+    });
+
+    // Scroll progress
+    const progress = document.getElementById('progress');
+    window.addEventListener('scroll', () => {
+        const h = document.documentElement;
+        const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+        progress.style.width = scrolled + '%';
+    });
+
+    // Active nav highlighting
+    const sections = document.querySelectorAll('h2[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(l => l.classList.remove('active'));
+                const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+                if (active) active.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

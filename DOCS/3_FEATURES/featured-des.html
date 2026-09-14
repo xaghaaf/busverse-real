@@ -1,0 +1,3793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BusVerse — Feature Descriptions (Real Platform)</title>
+<style>
+    :root {
+        --black: #0a0a0a;
+        --grey-900: #1a1a1a;
+        --grey-800: #2a2a2a;
+        --grey-700: #3d3d3d;
+        --grey-600: #555;
+        --grey-500: #777;
+        --grey-400: #999;
+        --grey-300: #bbb;
+        --grey-200: #d9d9d9;
+        --grey-100: #ebebeb;
+        --grey-50: #f5f5f5;
+        --white: #ffffff;
+        --sidebar-w: 320px;
+        --border: #e0e0e0;
+        --code-bg: #f0f0f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        background: var(--white);
+        color: var(--grey-900);
+        line-height: 1.75;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* ============ SIDEBAR ============ */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: var(--sidebar-w);
+        height: 100vh;
+        background: var(--black);
+        color: var(--grey-300);
+        overflow-y: auto;
+        padding: 32px 0 60px;
+        z-index: 100;
+        transition: transform 0.3s ease;
+        border-right: 1px solid var(--grey-800);
+    }
+
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: var(--grey-900); }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--grey-700); border-radius: 3px; }
+
+    .sidebar-header {
+        padding: 0 28px 24px;
+        border-bottom: 1px solid var(--grey-800);
+        margin-bottom: 20px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--white);
+        letter-spacing: -0.5px;
+        margin-bottom: 4px;
+    }
+
+    .sidebar-header .version {
+        font-size: 0.75rem;
+        color: var(--grey-500);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 500;
+    }
+
+    .nav { list-style: none; }
+
+    .nav-item { margin: 0; }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 28px;
+        color: var(--grey-400);
+        text-decoration: none;
+        font-size: 0.86rem;
+        transition: all 0.15s ease;
+        border-left: 2px solid transparent;
+        line-height: 1.45;
+    }
+
+    .nav-link:hover {
+        color: var(--white);
+        background: var(--grey-900);
+        border-left-color: var(--grey-500);
+    }
+
+    .nav-link.active {
+        color: var(--white);
+        background: var(--grey-900);
+        border-left-color: var(--white);
+        font-weight: 600;
+    }
+
+    .nav-num {
+        font-family: "SF Mono", Monaco, Consolas, monospace;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--grey-600);
+        min-width: 22px;
+        flex-shrink: 0;
+    }
+
+    .nav-link.active .nav-num { color: var(--grey-400); }
+
+    .nav-label {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .nav-parent {
+        display: block;
+        padding: 16px 28px 6px;
+        color: var(--grey-600);
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+        margin-top: 6px;
+    }
+
+    /* ============ MOBILE MENU ============ */
+    .menu-btn {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 200;
+        background: var(--black);
+        color: var(--white);
+        border: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+
+    .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 99;
+    }
+
+    .overlay.active { display: block; }
+
+    /* ============ MAIN ============ */
+    .main {
+        margin-left: var(--sidebar-w);
+        max-width: 880px;
+        padding: 60px 64px 120px;
+    }
+
+    /* ============ TYPOGRAPHY ============ */
+    h1.doc-title {
+        font-size: 2.6rem;
+        font-weight: 800;
+        letter-spacing: -1.2px;
+        line-height: 1.1;
+        margin-bottom: 12px;
+        color: var(--black);
+    }
+
+    .doc-subtitle {
+        font-size: 1.05rem;
+        color: var(--grey-600);
+        margin-bottom: 6px;
+    }
+
+    .doc-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 20px 0 28px;
+        margin-bottom: 40px;
+        border-bottom: 2px solid var(--black);
+        font-size: 0.82rem;
+        color: var(--grey-500);
+    }
+
+    .doc-meta span strong {
+        color: var(--grey-900);
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 1.85rem;
+        font-weight: 800;
+        letter-spacing: -0.6px;
+        color: var(--black);
+        margin: 72px 0 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--grey-200);
+    }
+
+    h2:first-of-type { margin-top: 0; }
+
+    h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--grey-900);
+        margin: 40px 0 14px;
+        letter-spacing: -0.3px;
+        padding-top: 12px;
+    }
+
+    h4 {
+        font-size: 0.98rem;
+        font-weight: 700;
+        color: var(--grey-800);
+        margin: 28px 0 10px;
+    }
+
+    p {
+        margin-bottom: 16px;
+        color: var(--grey-700);
+    }
+
+    ul, ol {
+        margin: 0 0 20px 22px;
+        color: var(--grey-700);
+    }
+
+    li {
+        margin-bottom: 8px;
+        padding-left: 4px;
+    }
+
+    li::marker { color: var(--grey-400); }
+
+    strong { color: var(--grey-900); font-weight: 700; }
+
+    em { color: var(--grey-600); }
+
+    a { color: var(--grey-900); text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ============ MODULE HEADER ============ */
+    .module-head {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        margin: 64px 0 8px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--grey-200);
+    }
+
+    .module-num {
+        font-family: "SF Mono", Monaco, Consolas, monospace;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--grey-400);
+        letter-spacing: -1px;
+        line-height: 1;
+        min-width: 44px;
+        flex-shrink: 0;
+    }
+
+    .module-title {
+        font-size: 1.55rem;
+        font-weight: 800;
+        color: var(--black);
+        letter-spacing: -0.5px;
+        line-height: 1.25;
+        flex: 1;
+        margin: 0;
+        border: none;
+        padding: 0;
+    }
+
+    .module-tag {
+        display: inline-block;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 4px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .tag-core {
+        background: var(--black);
+        color: var(--white);
+    }
+
+    .tag-critical {
+        background: var(--grey-700);
+        color: var(--white);
+    }
+
+    .tag-high {
+        background: var(--grey-200);
+        color: var(--grey-800);
+    }
+
+    .module-desc {
+        font-size: 1rem;
+        color: var(--grey-600);
+        margin-bottom: 24px;
+        font-style: italic;
+        line-height: 1.7;
+    }
+
+    /* ============ FEATURE BLOCK ============ */
+    .feature {
+        margin-bottom: 22px;
+        padding: 18px 22px;
+        background: var(--grey-50);
+        border-left: 3px solid var(--grey-900);
+        border-radius: 0 8px 8px 0;
+    }
+
+    .feature-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--black);
+        margin-bottom: 8px;
+        letter-spacing: -0.2px;
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .feature-title .feature-id {
+        font-family: "SF Mono", Monaco, Consolas, monospace;
+        font-size: 0.7rem;
+        color: var(--grey-500);
+        font-weight: 600;
+        background: var(--grey-200);
+        padding: 2px 7px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+    }
+
+    .feature-body {
+        font-size: 0.94rem;
+        color: var(--grey-700);
+        line-height: 1.7;
+    }
+
+    .feature-body p {
+        margin-bottom: 10px;
+    }
+
+    .feature-body p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* ============ TABLE ============ */
+    .table-wrap {
+        overflow-x: auto;
+        margin: 24px 0;
+        border: 1px solid var(--grey-200);
+        border-radius: 8px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+        min-width: 480px;
+    }
+
+    th {
+        background: var(--black);
+        color: var(--white);
+        text-align: left;
+        padding: 12px 16px;
+        font-weight: 600;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--grey-100);
+        color: var(--grey-700);
+        vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--grey-50); }
+
+    /* ============ CALLOUT ============ */
+    .callout {
+        background: var(--grey-50);
+        border: 1px solid var(--grey-200);
+        border-left: 4px solid var(--black);
+        padding: 18px 22px;
+        border-radius: 0 8px 8px 0;
+        margin: 24px 0;
+    }
+
+    .callout p:last-child { margin-bottom: 0; }
+
+    .callout-dark {
+        background: var(--black);
+        color: var(--grey-200);
+        border-left-color: var(--grey-400);
+    }
+
+    .callout-dark p { color: var(--grey-200); }
+    .callout-dark strong { color: var(--white); }
+
+    /* ============ CODE ============ */
+    code {
+        background: var(--code-bg);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "SF Mono", Monaco, Consolas, monospace;
+        font-size: 0.85em;
+        color: var(--grey-900);
+    }
+
+    /* ============ END NOTE ============ */
+    .end-note {
+        margin-top: 80px;
+        padding: 32px;
+        background: var(--black);
+        color: var(--grey-200);
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .end-note h3 {
+        color: var(--white);
+        margin: 0 0 12px;
+        font-size: 1.4rem;
+        padding-top: 0;
+    }
+
+    .end-note p { color: var(--grey-400); margin: 0; }
+
+    /* ============ PROGRESS ============ */
+    .progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        background: var(--black);
+        z-index: 300;
+        transition: width 0.1s;
+        width: 0;
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 1024px) {
+        .main { padding: 60px 40px 100px; }
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            width: 280px;
+        }
+        .sidebar.open { transform: translateX(0); }
+        .menu-btn { display: flex; }
+        .main {
+            margin-left: 0;
+            padding: 76px 22px 80px;
+            max-width: 100%;
+        }
+        h1.doc-title { font-size: 2rem; }
+        h2 { font-size: 1.5rem; margin-top: 48px; }
+        .module-title { font-size: 1.2rem; }
+        .module-num { font-size: 1.1rem; min-width: 34px; }
+        .module-tag { display: none; }
+        .feature { padding: 14px 16px; }
+        .doc-meta { gap: 12px; font-size: 0.78rem; }
+    }
+
+    @media (max-width: 400px) {
+        .main { padding: 70px 16px 60px; }
+        h1.doc-title { font-size: 1.7rem; }
+    }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+<div class="overlay" id="overlay"></div>
+
+<!-- ============ SIDEBAR ============ -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h1>BusVerse</h1>
+        <div class="version">Descriptions · Real</div>
+    </div>
+
+    <ul class="nav">
+        <li class="nav-item"><span class="nav-parent">Overview</span></li>
+        <li class="nav-item"><a class="nav-link" href="#intro"><span class="nav-num">—</span><span class="nav-label">Introduction</span></a></li>
+
+        <li class="nav-item"><span class="nav-parent">Core Modules</span></li>
+        <li class="nav-item"><a class="nav-link" href="#m1"><span class="nav-num">01</span><span class="nav-label">Authentication</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m2"><span class="nav-num">02</span><span class="nav-label">Search &amp; Discovery</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m3"><span class="nav-num">03</span><span class="nav-label">Booking Flow</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m4"><span class="nav-num">04</span><span class="nav-label">Payments</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m5"><span class="nav-num">05</span><span class="nav-label">Tickets &amp; QR</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m6"><span class="nav-num">06</span><span class="nav-label">Cancellation &amp; Refund</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m7"><span class="nav-num">07</span><span class="nav-label">Live Tracking</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m8"><span class="nav-num">08</span><span class="nav-label">Driver App</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m9"><span class="nav-num">09</span><span class="nav-label">Operator Panel</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m10"><span class="nav-num">10</span><span class="nav-label">Admin Panel</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m11"><span class="nav-num">11</span><span class="nav-label">Support Panel</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m12"><span class="nav-num">12</span><span class="nav-label">Notifications</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m13"><span class="nav-num">13</span><span class="nav-label">Safety</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m14"><span class="nav-num">14</span><span class="nav-label">Real-Time Infra</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m15"><span class="nav-num">15</span><span class="nav-label">Compliance &amp; Legal</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m16"><span class="nav-num">16</span><span class="nav-label">Analytics</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m17"><span class="nav-num">17</span><span class="nav-label">Multi-City</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m18"><span class="nav-num">18</span><span class="nav-label">Government Buses</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m19"><span class="nav-num">19</span><span class="nav-label">Test / Demo</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m20"><span class="nav-num">20</span><span class="nav-label">Operations &amp; DevOps</span></a></li>
+
+        <li class="nav-item"><span class="nav-parent">Critical Modules</span></li>
+        <li class="nav-item"><a class="nav-link" href="#m21"><span class="nav-num">21</span><span class="nav-label">Waitlist System</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m22"><span class="nav-num">22</span><span class="nav-label">Promo Code Engine</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m23"><span class="nav-num">23</span><span class="nav-label">Fraud Detection</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m24"><span class="nav-num">24</span><span class="nav-label">Corporate / B2B</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m25"><span class="nav-num">25</span><span class="nav-label">Travel Agent</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m26"><span class="nav-num">26</span><span class="nav-label">Dispute Resolution</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m27"><span class="nav-num">27</span><span class="nav-label">Operator Rating</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m28"><span class="nav-num">28</span><span class="nav-label">Charter / Bus Hire</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m29"><span class="nav-num">29</span><span class="nav-label">Boarding &amp; Occupancy</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m30"><span class="nav-num">30</span><span class="nav-label">Infrastructure</span></a></li>
+
+        <li class="nav-item"><span class="nav-parent">High Priority</span></li>
+        <li class="nav-item"><a class="nav-link" href="#m31"><span class="nav-num">31</span><span class="nav-label">Loyalty &amp; Rewards</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m32"><span class="nav-num">32</span><span class="nav-label">Referral System</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m33"><span class="nav-num">33</span><span class="nav-label">Reviews &amp; Ratings</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m34"><span class="nav-num">34</span><span class="nav-label">Price &amp; Seat Alerts</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m35"><span class="nav-num">35</span><span class="nav-label">Dynamic Pricing</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m36"><span class="nav-num">36</span><span class="nav-label">Operator Cancel → Rebook</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m37"><span class="nav-num">37</span><span class="nav-label">Bus Substitution</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m38"><span class="nav-num">38</span><span class="nav-label">Overbooking</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m39"><span class="nav-num">39</span><span class="nav-label">External Navigation</span></a></li>
+    </ul>
+</nav>
+
+<!-- ============ MAIN ============ -->
+<main class="main">
+
+    <h1 class="doc-title">BusVerse</h1>
+    <p class="doc-subtitle">Feature Descriptions — Real Platform. Every feature explained in plain language across 39 modules.</p>
+
+    <div class="doc-meta">
+        <span><strong>Version:</strong> 1.0</span>
+        <span><strong>Type:</strong> Real Platform · Production</span>
+        <span><strong>Modules:</strong> 39</span>
+        <span><strong>Status:</strong> Descriptive Spec</span>
+    </div>
+
+    <!-- ============ INTRO ============ -->
+    <h2 id="intro">Introduction</h2>
+    <p>This document is the companion to the feature list. Where the list names every feature, this document <strong>explains what each feature does, why it exists, and how it behaves</strong>. It is written for developers, designers, product managers, and evaluators who need to understand the platform in plain language.</p>
+    <p>Each of the 39 modules is described with its purpose, then every feature inside it is given a short, clear description. Technical terms are used only where necessary.</p>
+
+    <div class="callout callout-dark">
+        <p><strong>Read this alongside the Feature List.</strong> The list is the inventory. This document is the manual.</p>
+    </div>
+
+    <!-- ============ 01 ============ -->
+    <div class="module-head" id="m1">
+        <div class="module-num">01</div>
+        <h2 class="module-title">Authentication &amp; Identity</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Every actor in BusVerse — passenger, driver, operator, admin, support — logs in differently and sees a different world. This module defines who they are, how they prove it, and what they can access.</p>
+
+    <div class="feature">
+        <div class="feature-title">Phone OTP Login <span class="feature-id">AUTH-01</span></div>
+        <div class="feature-body">
+            <p>The primary login method for passengers and drivers. The user enters their mobile number, receives a one-time password via SMS, and enters it to log in. This removes the friction of remembering passwords and matches how most Indian apps work. OTPs expire in 5 minutes and are rate-limited to prevent abuse.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Email + Password Login <span class="feature-id">AUTH-02</span></div>
+        <div class="feature-body">
+            <p>An alternative login for users who prefer it, and the primary method for admin and support staff. Passwords are hashed with bcrypt or argon2 and never stored in plain text. Failed login attempts are rate-limited and logged.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Google / Social Login <span class="feature-id">AUTH-03</span></div>
+        <div class="feature-body">
+            <p>One-tap login via Google (and optionally Facebook or Apple). The user's name, email, and profile picture are imported. This reduces signup friction significantly — critical for a consumer app where every extra field loses users.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Guest Checkout <span class="feature-id">AUTH-04</span></div>
+        <div class="feature-body">
+            <p>Users can book a ticket without creating an account. They provide name, phone, and email at booking time. They cannot access booking history, saved passengers, or support chat — those require an account. This lowers the barrier for first-time users who want to try the platform.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Profile Management <span class="feature-id">AUTH-05</span></div>
+        <div class="feature-body">
+            <p>Users can edit their name, email, phone, and profile picture. Changes are reflected across all bookings. Profile data is used to pre-fill booking forms, reducing checkout time.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Saved Passengers <span class="feature-id">AUTH-06</span></div>
+        <div class="feature-body">
+            <p>Users can save family members, friends, or colleagues as "saved passengers" with their name, age, gender, and ID details. When booking multiple seats, the user just picks from the saved list instead of re-entering details. Huge time-saver for frequent group travelers.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Saved Payment Methods <span class="feature-id">AUTH-07</span></div>
+        <div class="feature-body">
+            <p>Tokenized saved cards and saved UPI VPAs for faster checkout. Card data is never stored on BusVerse servers — the gateway tokenizes it. Users can view and remove saved methods from their profile.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Multi-Device Sessions <span class="feature-id">AUTH-08</span></div>
+        <div class="feature-body">
+            <p>Users can be logged in on multiple devices (phone + laptop, for example). Each session is tracked with a device fingerprint and IP. Users can see active sessions and log out any of them individually.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Logout All Devices <span class="feature-id">AUTH-09</span></div>
+        <div class="feature-body">
+            <p>A single button that revokes all active sessions immediately. Used after a suspected account compromise or when the user wants a clean slate.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Driver KYC &amp; Documents <span class="feature-id">AUTH-10</span></div>
+        <div class="feature-body">
+            <p>Drivers upload their driving licence, ID proof, and a recent photo. These documents are verified by admin before the driver can be assigned to any trip. Expired documents are flagged and the driver is blocked until renewed.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Operator KYC &amp; Company Docs <span class="feature-id">AUTH-11</span></div>
+        <div class="feature-body">
+            <p>Operators upload GST certificate, PAN, company registration, and bank account details. Admin verifies each document. Only after approval can the operator list buses or create schedules.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Multiple Sub-Users per Operator <span class="feature-id">AUTH-12</span></div>
+        <div class="feature-body">
+            <p>A single operator company can have multiple staff accounts — owner, fleet manager, accountant. Each has a role with specific permissions. This matches how real bus companies operate.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Admin 2FA &amp; RBAC <span class="feature-id">AUTH-13</span></div>
+        <div class="feature-body">
+            <p>Admins log in with email + password + a second factor (TOTP or SMS). Role-Based Access Control ensures Finance sees only finance, Ops sees only operations, and Support sees only tickets. Every admin action is logged with the admin's identity.</p>
+        </div>
+    </div>
+
+    <!-- ============ 02 ============ -->
+    <div class="module-head" id="m2">
+        <div class="module-num">02</div>
+        <h2 class="module-title">Search &amp; Discovery</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">The first thing a passenger does. This module determines how quickly they find the right bus and how confident they feel before booking.</p>
+
+    <div class="feature">
+        <div class="feature-title">Source + Destination + Date Search <span class="feature-id">SRCH-01</span></div>
+        <div class="feature-body">
+            <p>The primary search box. User types origin, destination, and picks a date. Results are sorted by departure time by default. This is the entry point for 90% of bookings.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Autocomplete Stands <span class="feature-id">SRCH-02</span></div>
+        <div class="feature-body">
+            <p>As the user types a city or stand name, suggestions appear instantly, ranked by popularity and geographic proximity. Powered by a geocoding service and a curated list of real stands. Prevents typos and mismatched cities.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">One-Way / Round-Trip <span class="feature-id">SRCH-03</span></div>
+        <div class="feature-body">
+            <p>Users choose one-way or round-trip. Round-trip searches both legs at once and can combine them into a single booking with a discount. Return date is required for round-trip.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Filters <span class="feature-id">SRCH-04</span></div>
+        <div class="feature-body">
+            <p>Narrow results by bus type (AC, non-AC, sleeper, semi-sleeper), departure time window (morning, afternoon, night), price range, amenities (Wi-Fi, charging, water), and operator rating. Filters are sticky across searches.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Sorting <span class="feature-id">SRCH-05</span></div>
+        <div class="feature-body">
+            <p>Sort results by cheapest, fastest, earliest departure, latest departure, or highest-rated operator. Default is a smart mix of price and rating.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Route Preview on Map <span class="feature-id">SRCH-06</span></div>
+        <div class="feature-body">
+            <p>Click any result to see the full route drawn on a real map — origin, all intermediate stands, and destination. Helps users understand the journey before booking.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Popular Routes <span class="feature-id">SRCH-07</span></div>
+        <div class="feature-body">
+            <p>A curated list of the most-booked routes on the homepage. Helps new users discover where they can travel.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Recent Searches <span class="feature-id">SRCH-08</span></div>
+        <div class="feature-body">
+            <p>The last 5 searches are stored locally on the device and shown for quick re-search. Cleared on logout.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Saved / Favorite Routes <span class="feature-id">SRCH-09</span></div>
+        <div class="feature-body">
+            <p>Users can save frequently traveled routes (e.g., "Home → Office" or "Delhi → Jaipur"). One tap from the dashboard re-searches them.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Multi-Leg / Connecting Routes <span class="feature-id">SRCH-10</span></div>
+        <div class="feature-body">
+            <p>If no direct bus exists, the system finds connections: Bus A from origin to a hub, then Bus B from hub to destination. Shows combined fare, transfer time, and risk of missing connection.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Nearby Stands <span class="feature-id">SRCH-11</span></div>
+        <div class="feature-body">
+            <p>Using the user's current location, the app shows stands within a configurable radius (e.g., 5 km). Useful for intracity or when the user doesn't know the exact stand name.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Return Journey Booking <span class="feature-id">SRCH-12</span></div>
+        <div class="feature-body">
+            <p>When booking a round-trip, both legs are handled in one flow. The user picks seats on both buses and pays once. The return leg can be on a different operator.</p>
+        </div>
+    </div>
+
+    <!-- ============ 03 ============ -->
+    <div class="module-head" id="m3">
+        <div class="module-num">03</div>
+        <h2 class="module-title">Booking Flow</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">The core transaction — how a passenger goes from selecting a bus to holding a confirmed ticket. This is the most important flow in the entire platform.</p>
+
+    <div class="feature">
+        <div class="feature-title">Interactive Seat Map <span class="feature-id">BOOK-01</span></div>
+        <div class="feature-body">
+            <p>A visual 2D layout of the bus, generated from the bus model's seat configuration. Seats are colour-coded: green (available), red (booked), yellow (locked by another user), blue (selected by you), grey (blocked). Real-time updates mean everyone sees the same map. Tapping a seat selects it.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Seat Types <span class="feature-id">BOOK-02</span></div>
+        <div class="feature-body">
+            <p>Different buses have different seat types — Seater (upright), Sleeper (berth), Semi-Sleeper (reclining), AC / Non-AC. Each type has a different price. The seat map reflects the actual layout of the chosen bus.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Female-Only Seat Option <span class="feature-id">BOOK-03</span></div>
+        <div class="feature-body">
+            <p>On select routes, some seats are reserved for female passengers. Only female users can select them. This is a safety and comfort feature common in Indian bus travel.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Boarding + Dropping Point Selection <span class="feature-id">BOOK-04</span></div>
+        <div class="feature-body">
+            <p>Most routes have multiple boarding points within the origin city (e.g., "Kashmere Gate", "Dhaula Kuan"). The user picks their preferred boarding and dropping points. These affect fare on some routes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Passenger Details <span class="feature-id">BOOK-05</span></div>
+        <div class="feature-body">
+            <p>For each seat, the user enters name, age, gender, and (on some routes) ID proof. Saved passengers can be picked from a list. Details appear on the ticket and in the driver's manifest.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Contact Details <span class="feature-id">BOOK-06</span></div>
+        <div class="feature-body">
+            <p>The primary contact's mobile and email — used for ticket delivery, delay alerts, and refund notifications. Defaults to the logged-in user's details but can be changed per booking.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Fare Breakdown <span class="feature-id">BOOK-07</span></div>
+        <div class="feature-body">
+            <p>Before payment, the user sees a clear breakdown: base fare × number of seats, taxes, convenience fee, any discounts applied, and total. No hidden charges. This transparency is critical for trust.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Coupon / Promo Code <span class="feature-id">BOOK-08</span></div>
+        <div class="feature-body">
+            <p>An input field where users enter a promo code. The system validates it against rules (min fare, validity, usage limit) and applies the discount instantly. Invalid codes show a clear reason.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Atomic Seat Locking <span class="feature-id">BOOK-09</span></div>
+        <div class="feature-body">
+            <p>The moment a seat is selected, it locks for 5 minutes. This prevents two users from booking the same seat. The lock uses Redis <code>SET NX</code> with TTL, falling back to a PostgreSQL unique constraint. If payment fails or the user abandons, the seat is released automatically. No two users can ever hold the same seat.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Group Booking <span class="feature-id">BOOK-10</span></div>
+        <div class="feature-body">
+            <p>Users can select multiple seats in a single transaction. Group bookings often get a small discount. The group leader pays for all seats, but each passenger's details are captured separately on the ticket.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Round-Trip Combination <span class="feature-id">BOOK-11</span></div>
+        <div class="feature-body">
+            <p>For round trips, the user books both legs at once. The system shows both buses, seats, and combined fare. Payment is single; tickets are issued for both legs.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Booking Confirmation <span class="feature-id">BOOK-12</span></div>
+        <div class="feature-body">
+            <p>After successful payment, a confirmation screen shows the booking ID, trip details, seat numbers, and a QR ticket. The ticket is also delivered via SMS and email. From here, the user can view the ticket, share the trip, or set a reminder.</p>
+        </div>
+    </div>
+
+    <!-- ============ 04 ============ -->
+    <div class="module-head" id="m4">
+        <div class="module-num">04</div>
+        <h2 class="module-title">Payments</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Where real money moves. This module handles everything from gateway integration to refunds, with strict compliance and zero tolerance for duplication or fraud.</p>
+
+    <div class="feature">
+        <div class="feature-title">Multi-Gateway Support <span class="feature-id">PAY-01</span></div>
+        <div class="feature-body">
+            <p>BusVerse integrates with Razorpay, PhonePe, Paytm, Google Pay (via UPI), and Cashfree. If one gateway is down, users can pay via another. This reduces payment failures significantly.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Payment Methods <span class="feature-id">PAY-02</span></div>
+        <div class="feature-body">
+            <p>UPI (the most popular in India), credit/debit cards, netbanking, wallets, and EMI on select banks. Users pick whatever is convenient. UPI is shown first by default.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Payment Adapter <span class="feature-id">PAY-03</span></div>
+        <div class="feature-body">
+            <p>A single interface that abstracts all gateways. It has three modes: <strong>Simulated</strong> (in-app fake UPI screen for demo/testing), <strong>Sandbox</strong> (real gateway in test mode with dummy money), and <strong>Live</strong> (real money). Switching modes is config-driven; no code changes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Idempotent Payment Creation <span class="feature-id">PAY-04</span></div>
+        <div class="feature-body">
+            <p>Every payment request carries an idempotency key. If the user retries due to a network blip, the gateway recognises the duplicate and returns the same result — never charging twice.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Payment Webhooks <span class="feature-id">PAY-05</span></div>
+        <div class="feature-body">
+            <p>Gateways send webhooks when a payment succeeds, fails, or is refunded. BusVerse listens and updates the booking status in real time. This is how refunds are tracked automatically.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Retry Failed Payments <span class="feature-id">PAY-06</span></div>
+        <div class="feature-body">
+            <p>If a payment fails (insufficient balance, wrong PIN, network issue), the seat lock is preserved for a short window, and the user can retry without re-selecting the seat.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Tokenized Saved Cards <span class="feature-id">PAY-07</span></div>
+        <div class="feature-body">
+            <p>Cards are stored as gateway tokens, not raw card numbers. BusVerse never sees or stores PAN or CVV. Compliant with RBI and PCI-DSS.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund Engine <span class="feature-id">PAY-08</span></div>
+        <div class="feature-body">
+            <p>An event-driven engine that listens for cancellations, checks the refund policy, calls the gateway refund API, and tracks status via webhooks. Refunds go back to the original payment method. Fully automated — no manual intervention for standard cases.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">GST Invoice Generation <span class="feature-id">PAY-09</span></div>
+        <div class="feature-body">
+            <p>Every booking generates a GST-compliant invoice showing the fare breakdown, GST rate, and BusVerse's GSTIN. Sent to the user's email and downloadable as PDF. Required for corporate and business travelers.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Duplicate Payment Detection <span class="feature-id">PAY-10</span></div>
+        <div class="feature-body">
+            <p>If the same booking is paid for twice (e.g., due to a gateway glitch), the system detects the duplicate and auto-refunds the second payment within minutes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Payment Receipts <span class="feature-id">PAY-11</span></div>
+        <div class="feature-body">
+            <p>A simple receipt (distinct from the GST invoice) is sent on every successful payment. Shows amount, method, gateway reference, and timestamp. Used for expense claims and personal records.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Test Route (₹1) with Auto-Refund <span class="feature-id">PAY-12</span></div>
+        <div class="feature-body">
+            <p>A hidden test route with a ₹1 fare used only for internal testing of the payment pipeline. Not visible in public search. Automatically refunded after payment. Excluded from analytics and settlements.</p>
+        </div>
+    </div>
+
+    <!-- ============ 05 ============ -->
+    <div class="module-head" id="m5">
+        <div class="module-num">05</div>
+        <h2 class="module-title">Tickets &amp; QR</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">The digital proof of a booking. This module defines how tickets are generated, delivered, scanned, and tracked through their lifecycle.</p>
+
+    <div class="feature">
+        <div class="feature-title">Virtual Ticket with Booking ID <span class="feature-id">TKT-01</span></div>
+        <div class="feature-body">
+            <p>Every confirmed booking generates a ticket with a unique booking ID (e.g., BV-2026-XXXXXX). The ticket shows route, bus, seat, departure time, passenger names, and fare. Delivered via SMS, email, and in-app.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Signed QR Code <span class="feature-id">TKT-02</span></div>
+        <div class="feature-body">
+            <p>Each ticket carries a QR code with a cryptographic signature. The driver's app verifies the signature before accepting the ticket. This prevents forgery — even if someone screenshots another person's ticket, the signature won't match the booking record.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Ticket States <span class="feature-id">TKT-03</span></div>
+        <div class="feature-body">
+            <p>A ticket moves through clear states: <strong>Issued</strong> (just booked), <strong>Active</strong> (upcoming trip), <strong>Scanned</strong> (driver scanned it), <strong>Used</strong> (trip completed), <strong>Expired</strong> (2 hours after trip end), or <strong>Cancelled</strong>. States are visible to the user and logged for audit.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">PDF Download <span class="feature-id">TKT-04</span></div>
+        <div class="feature-body">
+            <p>The ticket can be downloaded as a PDF for printing or offline use. Includes the QR, booking ID, and all trip details.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">SMS + Email Delivery <span class="feature-id">TKT-05</span></div>
+        <div class="feature-body">
+            <p>Tickets are delivered via SMS (short link to view) and email (PDF attachment + inline QR). This dual delivery ensures the user has the ticket even if one channel fails.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Offline Viewing <span class="feature-id">TKT-06</span></div>
+        <div class="feature-body">
+            <p>As a PWA, BusVerse caches the ticket on the device. Users can open and show the QR even without internet — critical for boarding in poor-network areas.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Re-send Ticket <span class="feature-id">TKT-07</span></div>
+        <div class="feature-body">
+            <p>If the ticket didn't arrive or the user lost it, a "Re-send" button delivers it again via SMS and email. Rate-limited to prevent abuse.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Add to Calendar <span class="feature-id">TKT-08</span></div>
+        <div class="feature-body">
+            <p>One tap adds the trip to Google Calendar, Apple Calendar, or Outlook. Includes boarding point, time, and a reminder 2 hours before departure.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Ticket Scan Log <span class="feature-id">TKT-09</span></div>
+        <div class="feature-body">
+            <p>Every scan attempt is logged with timestamp, driver ID, GPS location, and result (valid/duplicate/invalid). Used for dispute resolution and audit.</p>
+        </div>
+    </div>
+
+    <!-- ============ 06 ============ -->
+    <div class="module-head" id="m6">
+        <div class="module-num">06</div>
+        <h2 class="module-title">Cancellation &amp; Refund</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">A transparent, time-based cancellation policy with automated refunds. This is where trust is built or broken.</p>
+
+    <div class="feature">
+        <div class="feature-title">User-Initiated Cancellation <span class="feature-id">CAN-01</span></div>
+        <div class="feature-body">
+            <p>Users can cancel any confirmed booking from their "My Trips" screen. The system shows the refund amount before confirming. Cancellation is instant, and the refund is triggered immediately.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Operator-Initiated Cancellation <span class="feature-id">CAN-02</span></div>
+        <div class="feature-body">
+            <p>When an operator cancels a trip, all bookings are auto-refunded 100%. Users are notified immediately with alternative bus suggestions. Operators who cancel frequently have their quality score reduced.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Platform-Initiated Cancellation <span class="feature-id">CAN-03</span></div>
+        <div class="feature-body">
+            <p>In rare cases (weather emergencies, government advisories), BusVerse may cancel trips. Users get 100% refund plus a small compensation credit to their wallet.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Partial Cancellation (Group) <span class="feature-id">CAN-04</span></div>
+        <div class="feature-body">
+            <p>In a group booking, the leader can cancel individual seats without cancelling the whole booking. Each cancelled seat is refunded per policy; the rest remain confirmed.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">No-Show Handling <span class="feature-id">CAN-05</span></div>
+        <div class="feature-body">
+            <p>If a passenger doesn't board and doesn't cancel, the ticket is marked "no-show" after departure. No refund is issued. The seat is released for potential last-minute sale.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Time-Based Refund Policy <span class="feature-id">CAN-06</span></div>
+        <div class="feature-body">
+            <p>Refunds scale with how far in advance the user cancels: 100% if more than 24 hours, 90% for 12–24 hours, 75% for 6–12 hours, 50% for 2–6 hours, 0% within 2 hours. This balances user fairness with operational reality.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Auto Refund via Gateway <span class="feature-id">CAN-07</span></div>
+        <div class="feature-body">
+            <p>The refund is sent back to the original payment method — UPI to UPI, card to card — automatically. No manual approval for standard cases. Refunds are initiated within minutes and typically reach the user's bank in 3–7 business days.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund Webhook Tracking <span class="feature-id">CAN-08</span></div>
+        <div class="feature-body">
+            <p>Gateway webhooks update the refund status in BusVerse (Initiated → Processed → Settled). Users see the current status in the app; support sees the full timeline.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund History <span class="feature-id">CAN-09</span></div>
+        <div class="feature-body">
+            <p>A dedicated screen listing all past refunds with amount, reason, status, and gateway reference. Downloadable as PDF for records.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund to Original Method <span class="feature-id">CAN-10</span></div>
+        <div class="feature-body">
+            <p>Refunds always go back to the exact method used for payment. This is a legal and compliance requirement in India — no redirecting refunds to a different account.</p>
+        </div>
+    </div>
+
+    <!-- ============ 07 ============ -->
+    <div class="module-head" id="m7">
+        <div class="module-num">07</div>
+        <h2 class="module-title">Live Tracking</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Passengers see exactly where their bus is, when it will arrive, and can share that live with family. This is one of the most valued features for both safety and convenience.</p>
+
+    <div class="feature">
+        <div class="feature-title">Real GPS from Driver Phone <span class="feature-id">TRK-01</span></div>
+        <div class="feature-body">
+            <p>The driver's phone streams its GPS location to the backend every 10 seconds. No hardware device is required — the driver app runs in the background. This keeps costs low and deployment fast.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Live Map Position <span class="feature-id">TRK-02</span></div>
+        <div class="feature-body">
+            <p>The bus appears as a moving icon on a real map. Updates arrive every 10 seconds, and the client interpolates between them for smooth movement. Users can zoom in and see the bus on the exact road.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">ETA Per Stand <span class="feature-id">TRK-03</span></div>
+        <div class="feature-body">
+            <p>For each upcoming stand, the system shows an estimated arrival time. Recalculated every 10 seconds based on current speed, distance, and traffic.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Traffic-Adjusted ETA <span class="feature-id">TRK-04</span></div>
+        <div class="feature-body">
+            <p>ETAs incorporate real traffic data from Google Maps, TomTom, or HERE. If congestion is detected ahead, the ETA increases automatically. No surprise delays.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Route Overlay <span class="feature-id">TRK-05</span></div>
+        <div class="feature-body">
+            <p>The full route is drawn on the map — origin, all stands, and destination. The traversed portion is highlighted differently from the upcoming portion.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Bus Status <span class="feature-id">TRK-06</span></div>
+        <div class="feature-body">
+            <p>The bus icon changes colour based on status: green (on time), amber (slightly delayed), red (heavily delayed or stopped), blue (at a stand). A tooltip shows details like speed and next stop.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Share Trip Live Link <span class="feature-id">TRK-07</span></div>
+        <div class="feature-body">
+            <p>Users can send a live link to family via WhatsApp or SMS. The link opens in a browser and shows the bus's current position, ETA, and trip details — no login required. This is a critical safety feature, especially for solo travelers.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Trip Timeline <span class="feature-id">TRK-08</span></div>
+        <div class="feature-body">
+            <p>A vertical timeline showing past stands (with actual arrival times) and upcoming stands (with ETAs). Users see progress at a glance.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Driver Info on Map <span class="feature-id">TRK-09</span></div>
+        <div class="feature-body">
+            <p>The driver's name, photo, and rating are shown on the map. Helps passengers recognise their bus and gives a sense of accountability.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Live Bus Occupancy <span class="feature-id">TRK-10</span></div>
+        <div class="feature-body">
+            <p>Passengers see how full the bus currently is (e.g., "32 / 40 seats filled"). Useful for understanding comfort levels before boarding.</p>
+        </div>
+    </div>
+
+    <!-- ============ 08 ============ -->
+    <div class="module-head" id="m8">
+        <div class="module-num">08</div>
+        <h2 class="module-title">Driver App</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">The driver's daily tool. A mobile app that handles trips, GPS streaming, QR scanning, and passenger management. Designed to work with one hand, in a moving vehicle.</p>
+
+    <div class="feature">
+        <div class="feature-title">Phone OTP Login <span class="feature-id">DRV-01</span></div>
+        <div class="feature-body">
+            <p>Drivers log in with their registered phone number and OTP. No password to remember. Session persists for weeks so drivers don't log in every day.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Assigned Trips View <span class="feature-id">DRV-02</span></div>
+        <div class="feature-body">
+            <p>Shows today's and upcoming trips assigned to the driver. Each trip displays route, departure time, bus number, and passenger count. Tap to start.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Start / End Trip <span class="feature-id">DRV-03</span></div>
+        <div class="feature-body">
+            <p>A prominent "Start Trip" button begins the journey — activates GPS streaming, opens the passenger manifest, and notifies passengers. "End Trip" closes the trip and generates a summary.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Background GPS <span class="feature-id">DRV-04</span></div>
+        <div class="feature-body">
+            <p>Once a trip starts, GPS streams in the background even if the driver closes the app or locks the phone. Uses Android/iOS background location APIs with a persistent notification showing the app is running.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">QR Scanner <span class="feature-id">DRV-05</span></div>
+        <div class="feature-body">
+            <p>Opens the phone's camera to scan passenger ticket QR codes. Verifies signature, booking, schedule match, and scan status. Shows ✅ for valid, ⚠️ for duplicate, ❌ for invalid. Works offline against a cached list of valid bookings.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Manual Booking ID Entry <span class="feature-id">DRV-06</span></div>
+        <div class="feature-body">
+            <p>Fallback for when the QR won't scan — a text field where the driver types the booking ID. Server validates it the same way as a QR scan.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Passenger Manifest <span class="feature-id">DRV-07</span></div>
+        <div class="feature-body">
+            <p>A list of all passengers on the trip — name, seat, boarding point, dropping point. Groups by boarding point so the driver knows who gets on where.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Boarding / Alighting Counts <span class="feature-id">DRV-08</span></div>
+        <div class="feature-body">
+            <p>At each stand, the app shows how many passengers are expected to board and alight. The driver marks them as boarded or no-show. Live count updates throughout the trip.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Stop Requests Handling <span class="feature-id">DRV-09</span></div>
+        <div class="feature-body">
+            <p>When a passenger requests a stop at an upcoming stand, the driver sees an alert with the passenger's seat number. Acknowledging slows the bus and stops at the stand. Skipping notifies the passenger.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Delay Reporting <span class="feature-id">DRV-10</span></div>
+        <div class="feature-body">
+            <p>If the bus is delayed, the driver picks a reason (traffic, breakdown, rest stop, medical) and the system notifies all affected passengers. Accurate, transparent delays build trust.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">SOS Button <span class="feature-id">DRV-11</span></div>
+        <div class="feature-body">
+            <p>A prominent red button that instantly alerts the admin team, support, and the operator with live location. Used for accidents, medical emergencies, or security threats.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Break Management <span class="feature-id">DRV-12</span></div>
+        <div class="feature-body">
+            <p>Drivers log breaks (rest, meal, fuel) with timestamps. Break time is factored into ETA. Long breaks trigger a notification to admin for compliance with driving-hours rules.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Trip Summary at End <span class="feature-id">DRV-13</span></div>
+        <div class="feature-body">
+            <p>After "End Trip," the driver sees a summary: total passengers, on-time percentage, delays reported, incidents. Useful for self-review and as a record for the operator.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Document Expiry Reminders <span class="feature-id">DRV-14</span></div>
+        <div class="feature-body">
+            <p>The app reminds drivers 30, 15, and 7 days before their licence or medical certificate expires. Prevents accidental non-compliance.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Announcements to Passengers <span class="feature-id">DRV-15</span></div>
+        <div class="feature-body">
+            <p>The driver can send short messages to all passengers on the trip — "Arriving in 5 minutes", "Next stop is X". Displayed as push notifications and in-app alerts.</p>
+        </div>
+    </div>
+
+    <!-- ============ 09 ============ -->
+    <div class="module-head" id="m9">
+        <div class="module-num">09</div>
+        <h2 class="module-title">Operator Panel</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">The bus operator's business dashboard. Everything an operator needs to run their fleet and revenue on BusVerse, in one place.</p>
+
+    <div class="feature">
+        <div class="feature-title">Dashboard <span class="feature-id">OPS-01</span></div>
+        <div class="feature-body">
+            <p>Overview of today's trips, total bookings, revenue, and fleet status. Recent bookings and cancellations shown live. A quick way to know the day's pulse.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Fleet Management <span class="feature-id">OPS-02</span></div>
+        <div class="feature-body">
+            <p>Add, edit, and deactivate buses. Each bus has registration number, model, capacity, seat layout, and status (active / maintenance / inactive). Only active buses appear in search results.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Bus Registration <span class="feature-id">OPS-03</span></div>
+        <div class="feature-body">
+            <p>Upload registration certificate, permit, insurance, fitness certificate, and pollution certificate. Admin verifies before the bus goes live. Expiry dates are tracked and reminders sent.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Seat Layout Configurator <span class="feature-id">OPS-04</span></div>
+        <div class="feature-body">
+            <p>A visual tool to design the seat layout of each bus — rows, columns, aisle position, seat types (seater/sleeper), window/aisle, female-only. This layout appears to passengers during booking.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Amenities Configuration <span class="feature-id">OPS-05</span></div>
+        <div class="feature-body">
+            <p>Tick which amenities each bus offers — AC, Wi-Fi, charging point, water bottle, blanket, reading light, entertainment. Shown on search results and used as filters.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Bus Photos <span class="feature-id">OPS-06</span></div>
+        <div class="feature-body">
+            <p>Upload interior and exterior photos of each bus. Photos appear on the booking page, building passenger confidence.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Maintenance Log <span class="feature-id">OPS-07</span></div>
+        <div class="feature-body">
+            <p>Record every service, repair, or inspection with date, description, and cost. Used for fleet health tracking and to prevent scheduling a bus under maintenance.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Route Management <span class="feature-id">OPS-08</span></div>
+        <div class="feature-body">
+            <p>Create routes by drawing on a real map. Add stands with exact coordinates. Set distances and expected durations between stands. Routes are submitted to admin for approval.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Stand Creation <span class="feature-id">OPS-09</span></div>
+        <div class="feature-body">
+            <p>Operators can add new boarding/dropping points along a route. Each stand has a name, coordinates, and type (regular, refreshment, transfer). Reused across multiple routes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Schedule Management <span class="feature-id">OPS-10</span></div>
+        <div class="feature-body">
+            <p>Create schedules — either one-time or recurring (daily, weekly). Each schedule has a bus, route, departure time, and fare. Passengers search against schedules.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Driver Management <span class="feature-id">OPS-11</span></div>
+        <div class="feature-body">
+            <p>Add drivers to the company, assign them to trips, and track their performance. See each driver's rating, on-time %, and history.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Booking Management <span class="feature-id">OPS-12</span></div>
+        <div class="feature-body">
+            <p>View all bookings across the fleet, filter by trip, route, date, or status. Cancel a booking (with refund) when required.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Revenue &amp; Settlement <span class="feature-id">OPS-13</span></div>
+        <div class="feature-body">
+            <p>Real-time revenue tracking per trip, per route, per bus. Settlement statements every 7 days showing gross bookings, deductions, and net payout. Downloadable as PDF and CSV.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">CCTV Access <span class="feature-id">OPS-14</span></div>
+        <div class="feature-body">
+            <p>Where buses have CCTV installed, operators can view live feeds and playback from the panel. Camera angles include front, middle, rear, driver, and door.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Reports <span class="feature-id">OPS-15</span></div>
+        <div class="feature-body">
+            <p>Generate reports on bookings, revenue, cancellations, occupancy, and driver performance. All exportable as CSV or PDF for accounting and audits.</p>
+        </div>
+    </div>
+
+    <!-- ============ 10 ============ -->
+    <div class="module-head" id="m10">
+        <div class="module-num">10</div>
+        <h2 class="module-title">Admin Panel</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">The nerve center of BusVerse. Approvals, oversight, disputes, finance, CCTV, content, and every platform-wide setting flows through here.</p>
+
+    <div class="feature">
+        <div class="feature-title">Dashboard <span class="feature-id">ADM-01</span></div>
+        <div class="feature-body">
+            <p>Platform-wide metrics: active users, ongoing trips, bookings today, revenue today, pending approvals, open disputes. Customisable widgets for each admin role.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">User Management <span class="feature-id">ADM-02</span></div>
+        <div class="feature-body">
+            <p>View, search, and manage all passenger accounts. Suspend or ban users for policy violations. Reset passwords. Review booking history and refund activity.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Operator Management <span class="feature-id">ADM-03</span></div>
+        <div class="feature-body">
+            <p>Approve or reject operator KYC. View company details, documents, and history. Suspend operators who violate policies. Track each operator's quality score and settlement history.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Bus Registration Approval <span class="feature-id">ADM-04</span></div>
+        <div class="feature-body">
+            <p>Review each new bus — check registration, insurance, permit, fitness. Approve only if all documents are valid. Flag for re-verification when documents near expiry.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Route Approval <span class="feature-id">ADM-05</span></div>
+        <div class="feature-body">
+            <p>Review routes proposed by operators. Check that stands exist on the map, distances are correct, and the route doesn't overlap with existing buses illegally. Approve or request changes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Schedule Approval <span class="feature-id">ADM-06</span></div>
+        <div class="feature-body">
+            <p>Optional gating — some platforms auto-approve schedules; others review them. BusVerse supports both modes. Admin can flag schedules for manual review based on rules (e.g., new operator, unusual route).</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Booking Oversight <span class="feature-id">ADM-07</span></div>
+        <div class="feature-body">
+            <p>View all bookings across the platform. Filter by user, operator, date, or status. Useful for investigations, refund requests, and analytics.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund Approval Queue <span class="feature-id">ADM-08</span></div>
+        <div class="feature-body">
+            <p>Refunds above a threshold (e.g., ₹5,000) or flagged as suspicious require admin approval. The queue shows pending requests with reason, amount, and context.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Finance &amp; Settlement <span class="feature-id">ADM-09</span></div>
+        <div class="feature-body">
+            <p>Manage settlements to operators. View gross bookings, refunds, convenience fees, and net payouts. Trigger settlements manually or let the automatic scheduler handle it.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">CCTV Monitoring <span class="feature-id">ADM-10</span></div>
+        <div class="feature-body">
+            <p>Access live and playback CCTV feeds from any bus across any operator. Used for incident investigation, safety audits, and dispute resolution. Access is logged for compliance.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Notifications Broadcast <span class="feature-id">ADM-11</span></div>
+        <div class="feature-body">
+            <p>Send push, SMS, or email messages to a targeted subset of users — by route, city, operator, or all users. Used for service announcements, weather warnings, and promotions.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Support Ticket Management <span class="feature-id">ADM-12</span></div>
+        <div class="feature-body">
+            <p>View all support tickets, assign to agents, track SLAs, and audit resolutions. Escalations from the Support Panel land here.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Content Management <span class="feature-id">ADM-13</span></div>
+        <div class="feature-body">
+            <p>Edit Terms of Service, Privacy Policy, FAQ, About Us, and contact information. Changes take effect immediately across all apps.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Feature Flags <span class="feature-id">ADM-14</span></div>
+        <div class="feature-body">
+            <p>Enable or disable features for all users, specific user segments, or a percentage rollout. Used for safe deployment of new features and emergency kill switches.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Audit Logs <span class="feature-id">ADM-15</span></div>
+        <div class="feature-body">
+            <p>Every admin action is logged with timestamp, admin ID, action, and affected record. Immutable. Used for compliance, investigations, and internal accountability.</p>
+        </div>
+    </div>
+
+    <!-- ============ 11 ============ -->
+    <div class="module-head" id="m11">
+        <div class="module-num">11</div>
+        <h2 class="module-title">Support Panel</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">A lightweight version of the Admin Panel for support agents. Designed for speed and empathy — agents should be able to resolve most issues in one screen.</p>
+
+    <div class="feature">
+        <div class="feature-title">Ticket Queue <span class="feature-id">SUP-01</span></div>
+        <div class="feature-body">
+            <p>A live queue of open tickets sorted by priority and age. Each ticket shows user, category, and SLA countdown. Agents can claim or reassign.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Live Chat <span class="feature-id">SUP-02</span></div>
+        <div class="feature-body">
+            <p>Real-time chat with passengers who initiate support. Typing indicators, read receipts, file attachments, and chat history. Multiple chats supported simultaneously.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Canned Responses <span class="feature-id">SUP-03</span></div>
+        <div class="feature-body">
+            <p>Pre-written responses for common questions — "How to cancel?", "Where's my refund?", "How to change seat?". Saves time and keeps answers consistent.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">User Lookup <span class="feature-id">SUP-04</span></div>
+        <div class="feature-body">
+            <p>Search any user by phone, email, or booking ID. See their recent bookings, refunds, complaints, and contact history — all on one screen.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund Processing <span class="feature-id">SUP-05</span></div>
+        <div class="feature-body">
+            <p>Issue refunds within approval limits directly from the support panel. Refunds above the limit go to the admin queue.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Escalation to Admin <span class="feature-id">SUP-06</span></div>
+        <div class="feature-body">
+            <p>Complex issues can be escalated with a single click. The admin sees the full context — chat history, user details, and reason for escalation.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Chat History <span class="feature-id">SUP-07</span></div>
+        <div class="feature-body">
+            <p>Every chat is stored and searchable. Used for QA, coaching, and dispute resolution. Retention is configurable for compliance.</p>
+        </div>
+    </div>
+
+    <!-- ============ 12 ============ -->
+    <div class="module-head" id="m12">
+        <div class="module-num">12</div>
+        <h2 class="module-title">Notifications</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Every important moment in a booking triggers a notification. Delivered across multiple channels so users never miss an update.</p>
+
+    <div class="feature">
+        <div class="feature-title">SMS Channel <span class="feature-id">NOT-01</span></div>
+        <div class="feature-body">
+            <p>Used for OTPs, booking confirmations, and critical alerts. Delivered via MSG91, Twilio, or Kaleyra with DLT-registered templates. Works on all phones.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Email Channel <span class="feature-id">NOT-02</span></div>
+        <div class="feature-body">
+            <p>Used for detailed notifications, invoices, and tickets with PDF attachments. Sent via SendGrid or AWS SES with high deliverability.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Push Channel <span class="feature-id">NOT-03</span></div>
+        <div class="feature-body">
+            <p>Real-time notifications via Firebase Cloud Messaging. Used for delay alerts, bus arrival, and refund status. Users can opt out per category.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">In-App Channel <span class="feature-id">NOT-04</span></div>
+        <div class="feature-body">
+            <p>A notification center inside the app with a badge count. All past notifications are viewable and grouped by type.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Booking Confirmed <span class="feature-id">NOT-05</span></div>
+        <div class="feature-body">
+            <p>Sent immediately after payment success. Contains the booking ID and a link to view the ticket.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Ticket Generated <span class="feature-id">NOT-06</span></div>
+        <div class="feature-body">
+            <p>Sent once the ticket is generated with a QR code. Includes the PDF link and a direct link to view the ticket in-app.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Trip Started <span class="feature-id">NOT-07</span></div>
+        <div class="feature-body">
+            <p>Sent when the driver starts the trip. Passengers know the bus is moving and can begin tracking live.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Bus Delayed <span class="feature-id">NOT-08</span></div>
+        <div class="feature-body">
+            <p>Sent when the driver reports a delay. Includes the reason and the new ETA. Users can plan around it.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Bus Arriving <span class="feature-id">NOT-09</span></div>
+        <div class="feature-body">
+            <p>Sent 15 and 5 minutes before arrival at the user's boarding point. Reduces waiting time at stands.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Trip Completed <span class="feature-id">NOT-10</span></div>
+        <div class="feature-body">
+            <p>Sent when the trip ends. Includes a prompt to rate the operator and driver.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Cancellation Confirmed <span class="feature-id">NOT-11</span></div>
+        <div class="feature-body">
+            <p>Sent when a cancellation is processed. Includes the refund amount and expected timeline.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund Initiated <span class="feature-id">NOT-12</span></div>
+        <div class="feature-body">
+            <p>Sent when the refund is triggered at the gateway.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund Completed <span class="feature-id">NOT-13</span></div>
+        <div class="feature-body">
+            <p>Sent when the gateway confirms the refund is processed. Includes the reference number.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Payment Failed <span class="feature-id">NOT-14</span></div>
+        <div class="feature-body">
+            <p>Sent when a payment fails. Includes the reason and a direct link to retry.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Operator Cancelled Trip <span class="feature-id">NOT-15</span></div>
+        <div class="feature-body">
+            <p>Sent when an operator cancels. Includes refund confirmation and alternative bus suggestions.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Driver Assigned <span class="feature-id">NOT-16</span></div>
+        <div class="feature-body">
+            <p>Sent when a driver is assigned to the trip. Includes the driver's name, photo, and rating.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Waitlist Seat Available <span class="feature-id">NOT-17</span></div>
+        <div class="feature-body">
+            <p>Sent when a seat opens up on a waitlisted trip. Includes a link to book within the time window.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Price Drop Alert <span class="feature-id">NOT-18</span></div>
+        <div class="feature-body">
+            <p>Sent when the fare on a tracked route drops below the user's threshold.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Promo Code Alert <span class="feature-id">NOT-19</span></div>
+        <div class="feature-body">
+            <p>Sent when a new promo code is available for the user's frequent routes.</p>
+        </div>
+    </div>
+
+    <!-- ============ 13 ============ -->
+    <div class="module-head" id="m13">
+        <div class="module-num">13</div>
+        <h2 class="module-title">Safety Features</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Passenger safety is non-negotiable. This module bundles every safety tool into a single, accessible layer.</p>
+
+    <div class="feature">
+        <div class="feature-title">SOS Button <span class="feature-id">SAF-01</span></div>
+        <div class="feature-body">
+            <p>A prominent red button on the active trip screen. When pressed, it sends a live location alert to the admin team, support, the operator, and the user's emergency contacts. The trip is flagged for immediate attention.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Share Trip Live Link <span class="feature-id">SAF-02</span></div>
+        <div class="feature-body">
+            <p>A user can share a live tracking link with anyone — no login required. The link shows bus position, ETA, and driver details. Ideal for family members tracking a solo traveler.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Emergency Contacts <span class="feature-id">SAF-03</span></div>
+        <div class="feature-body">
+            <p>Users save 1–3 emergency contacts (name + phone). These are notified when SOS is triggered. Editable from the profile.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Verified Drivers <span class="feature-id">SAF-04</span></div>
+        <div class="feature-body">
+            <p>Every driver on BusVerse is KYC-verified with a valid licence and background check. Photos and ratings are visible to passengers.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Verified Operators <span class="feature-id">SAF-05</span></div>
+        <div class="feature-body">
+            <p>Every operator is a registered company with GST, PAN, insurance, and bus fitness documents on file. Verification badges are shown on search results.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Women's Safety <span class="feature-id">SAF-06</span></div>
+        <div class="feature-body">
+            <p>Female-only seats on select routes. An optional filter to show only operators with a strong safety record. Priority support for female passengers traveling alone at night.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">24/7 Support Line <span class="feature-id">SAF-07</span></div>
+        <div class="feature-body">
+            <p>A phone number and in-app chat available around the clock. Emergencies are routed to senior support immediately.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Incident Reporting <span class="feature-id">SAF-08</span></div>
+        <div class="feature-body">
+            <p>Passengers can report any issue — from driver behaviour to cleanliness — from the trip screen. Reports are logged and routed to the right team.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Panic Alert to Admin + Emergency Contact <span class="feature-id">SAF-09</span></div>
+        <div class="feature-body">
+            <p>When SOS is triggered, both the platform and the user's contacts are alerted within seconds, with live location and trip details.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Boarding Verification <span class="feature-id">SAF-10</span></div>
+        <div class="feature-body">
+            <p>Only passengers with a valid scanned ticket can board. Prevents unauthorized boarding and confirms that the right person got on the bus.</p>
+        </div>
+    </div>
+
+    <!-- ============ 14 ============ -->
+    <div class="module-head" id="m14">
+        <div class="module-num">14</div>
+        <h2 class="module-title">Real-Time Infrastructure</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">The backend backbone that makes everything else real-time. Without this, BusVerse is just another booking site.</p>
+
+    <div class="feature">
+        <div class="feature-title">WebSocket Server <span class="feature-id">RT-01</span></div>
+        <div class="feature-body">
+            <p>Socket.IO (or raw WebSocket) pushes events to clients instantly. Passengers see bus movement, seat locks, and notifications without refreshing the page.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">GPS Ingestion Pipeline <span class="feature-id">RT-02</span></div>
+        <div class="feature-body">
+            <p>A high-throughput pipeline that receives GPS points from driver phones, validates them (speed sanity checks, geofencing), and stores them for broadcast.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Position Broadcasting <span class="feature-id">RT-03</span></div>
+        <div class="feature-body">
+            <p>Position updates are broadcast only to users interested in that trip. Uses WebSocket "rooms" so that a passenger watching Trip A doesn't receive updates for Trip B.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">ETA Calculation Engine <span class="feature-id">RT-04</span></div>
+        <div class="feature-body">
+            <p>Recalculates ETA every 10 seconds based on current position, speed, remaining distance, and traffic conditions. Historical speed data is used for legs with no live updates.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Traffic Integration <span class="feature-id">RT-05</span></div>
+        <div class="feature-body">
+            <p>Real-time traffic from Google Maps, TomTom, or HERE. Traffic data is used to adjust ETAs and flag delays before they happen.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Map Rendering <span class="feature-id">RT-06</span></div>
+        <div class="feature-body">
+            <p>Maps rendered using Leaflet, Mapbox, or Google Maps. Tile choice depends on cost and coverage. Supports custom markers, polylines, and clustering.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Routing Engine <span class="feature-id">RT-07</span></div>
+        <div class="feature-body">
+            <p>Calculates the fastest or shortest route between two points. Uses OSRM or GraphHopper (self-hosted) or Google Directions (hosted). Used when operators draw new routes and when generating ETAs.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Geocoding <span class="feature-id">RT-08</span></div>
+        <div class="feature-body">
+            <p>Converts place names to coordinates (for autocomplete) and coordinates to place names (for stand display). Powered by Nominatim or Mapbox.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Fallback to Polling <span class="feature-id">RT-09</span></div>
+        <div class="feature-body">
+            <p>If WebSocket connection fails (firewalls, poor networks), the client falls back to polling every 3 seconds. Ensures the app works even when real-time isn't available.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Reconnection Handling <span class="feature-id">RT-10</span></div>
+        <div class="feature-body">
+            <p>When the WebSocket drops, the client reconnects automatically and requests any missed events. Users see a smooth experience even on flaky networks.</p>
+        </div>
+    </div>
+
+    <!-- ============ 15 ============ -->
+    <div class="module-head" id="m15">
+        <div class="module-num">15</div>
+        <h2 class="module-title">Compliance &amp; Legal</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Everything required to operate as a legal bus aggregator in India. Documented as a readiness plan for commercial launch.</p>
+
+    <div class="callout">
+        <p><strong>Note:</strong> These are production requirements. They are listed here so developers, founders, and evaluators can see the full legal surface area of a real bus aggregator.</p>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Private Limited Incorporation <span class="feature-id">LEG-01</span></div>
+        <div class="feature-body">
+            <p>Registration with MCA via SPICe+ form. PAN and TAN are issued during incorporation. Preferred over LLP for raising investment.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">GST Registration <span class="feature-id">LEG-02</span></div>
+        <div class="feature-body">
+            <p>Mandatory for any ECO (Electronic Commerce Operator) facilitating bus bookings. 5% GST is charged on all online bus bookings and remitted to the government.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Shop &amp; Establishment <span class="feature-id">LEG-03</span></div>
+        <div class="feature-body">
+            <p>State-level registration for any business with a physical office. Required within 30 days of starting operations.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">DPDP Act 2023 Compliance <span class="feature-id">LEG-04</span></div>
+        <div class="feature-body">
+            <p>India's data protection law. Requires consent before processing personal data, a clear notice, the ability for users to access, correct, and erase their data, and a Grievance Officer. Penalties up to ₹250 crore.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Payment Aggregator Compliance <span class="feature-id">LEG-05</span></div>
+        <div class="feature-body">
+            <p>Use of an RBI-licensed Payment Aggregator (Razorpay, PhonePe, etc.). PCI-DSS compliance via hosted checkout. KYC of operators required. No storage of raw card data.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Motor Vehicle Aggregator Guidelines 2025 <span class="feature-id">LEG-06</span></div>
+        <div class="feature-body">
+            <p>Central guidelines for aggregators. Requires state-wise licence, security deposit, VLTD on buses, driver verification, and CERT-In certified apps. Some states have specific variations.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Consumer Protection (E-Commerce Rules 2020) <span class="feature-id">LEG-07</span></div>
+        <div class="feature-body">
+            <p>Requires clear disclosure of operator details, transparent refund policy, and a Grievance Officer. Recent court rulings make aggregators jointly liable with operators for service failures.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">CERT-In Registration + 6hr Reporting <span class="feature-id">LEG-08</span></div>
+        <div class="feature-body">
+            <p>Registration on the CERT-In CSITe portal before an incident occurs. Any cyber incident must be reported within 6 hours. Logs must be retained for 180 days within India.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Passenger Travel Insurance <span class="feature-id">LEG-09</span></div>
+        <div class="feature-body">
+            <p>Minimum ₹5 lakh cover per trip, as required by aggregator guidelines. Bundled into the fare or offered as an optional add-on.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Driver Insurance <span class="feature-id">LEG-10</span></div>
+        <div class="feature-body">
+            <p>As per the Social Security Code 2020, drivers must have a minimum of ₹5 lakh cover. Verified during driver onboarding.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Cyber Liability Insurance <span class="feature-id">LEG-11</span></div>
+        <div class="feature-body">
+            <p>Recommended insurance covering data breach costs, legal liabilities, and regulatory fines. Not mandatory but strongly advised.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Operator Agreement <span class="feature-id">LEG-12</span></div>
+        <div class="feature-body">
+            <p>A signed contract between BusVerse and each operator. Defines commission/convenience fee structure, settlement terms, cancellation liability, data sharing, and service standards.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Terms of Service <span class="feature-id">LEG-13</span></div>
+        <div class="feature-body">
+            <p>Legal terms governing passenger use of the platform. Includes refund policy, cancellation policy, liability limits, and dispute resolution clauses.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Privacy Policy <span class="feature-id">LEG-14</span></div>
+        <div class="feature-body">
+            <p>Mandatory under DPDP Act and IT Rules. Explains what data is collected, why, how it's protected, and user rights. Must be in English and 22 Indian languages if BusVerse is deemed an "intermediary".</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund &amp; Cancellation Policy <span class="feature-id">LEG-15</span></div>
+        <div class="feature-body">
+            <p>A transparent policy accessible from every screen. Defines the time-based refund tiers and the process for cancellations.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Driver Agreement <span class="feature-id">LEG-16</span></div>
+        <div class="feature-body">
+            <p>Signed agreement between BusVerse (or the operator) and each driver. Covers verification, training, insurance, and code of conduct.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Trademark Registration <span class="feature-id">LEG-17</span></div>
+        <div class="feature-body">
+            <p>Register "BusVerse" name and logo with the Indian Trademark Registry. Protects brand identity.</p>
+        </div>
+    </div>
+
+    <!-- ============ 16 ============ -->
+    <div class="module-head" id="m16">
+        <div class="module-num">16</div>
+        <h2 class="module-title">Analytics &amp; Reporting</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">The data layer that helps BusVerse understand its business, its users, and its operators — and make informed decisions.</p>
+
+    <div class="feature">
+        <div class="feature-title">Bookings Analytics <span class="feature-id">ANA-01</span></div>
+        <div class="feature-body">
+            <p>Daily, weekly, and monthly booking counts, broken down by route, operator, and city. Trend graphs show growth over time.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Revenue Analytics <span class="feature-id">ANA-02</span></div>
+        <div class="feature-body">
+            <p>Revenue per route, operator, and city. Shows gross bookings, refunds, and net revenue. Used for financial planning.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Cancellation Rate <span class="feature-id">ANA-03</span></div>
+        <div class="feature-body">
+            <p>Percentage of bookings cancelled, split by who cancelled (user, operator, platform) and by reason. High rates on a route or operator are flagged.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund Rate <span class="feature-id">ANA-04</span></div>
+        <div class="feature-body">
+            <p>Total refunds processed vs. total bookings. High refund rates signal quality or UX issues.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">User Acquisition <span class="feature-id">ANA-05</span></div>
+        <div class="feature-body">
+            <p>New user signups per day, per source (organic, referral, paid), per city. Used to measure marketing effectiveness.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Retention <span class="feature-id">ANA-06</span></div>
+        <div class="feature-body">
+            <p>Percentage of users who book again within 30, 60, 90 days. Critical for long-term growth.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Conversion Funnel <span class="feature-id">ANA-07</span></div>
+        <div class="feature-body">
+            <p>Search → click → seat select → payment → booking. Shows where users drop off. Used to improve the booking flow.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">On-Time Performance <span class="feature-id">ANA-08</span></div>
+        <div class="feature-body">
+            <p>Percentage of trips that arrived at each stand within X minutes of schedule. Used in operator quality scoring.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Route Profitability <span class="feature-id">ANA-09</span></div>
+        <div class="feature-body">
+            <p>Revenue vs. refunds vs. convenience fee per route. Identifies high-performing and loss-making routes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Fleet Utilization <span class="feature-id">ANA-10</span></div>
+        <div class="feature-body">
+            <p>Percentage of time each bus is in service vs. idle. Helps operators optimise fleet size.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Peak Hours <span class="feature-id">ANA-11</span></div>
+        <div class="feature-body">
+            <p>Time-of-day and day-of-week demand patterns. Used for dynamic pricing and schedule planning.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Popular Routes <span class="feature-id">ANA-12</span></div>
+        <div class="feature-body">
+            <p>Top routes by bookings and revenue. Featured on homepage and used for operator recruiting.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Settlement Reports <span class="feature-id">ANA-13</span></div>
+        <div class="feature-body">
+            <p>Per-operator settlement statements showing gross bookings, deductions (refunds, fees), and net payout. Downloadable as PDF and CSV.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">GST Reports <span class="feature-id">ANA-14</span></div>
+        <div class="feature-body">
+            <p>Monthly GST summary showing taxable value, GST collected, and GST paid to government. Used for filing GSTR-1 and GSTR-3B.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Gateway Reconciliation <span class="feature-id">ANA-15</span></div>
+        <div class="feature-body">
+            <p>Daily reconciliation between BusVerse's records and the gateway's records. Flags any mismatches for investigation.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund Reconciliation <span class="feature-id">ANA-16</span></div>
+        <div class="feature-body">
+            <p>Matches every refund initiated with a corresponding gateway refund and bank settlement. Ensures no refunds are lost.</p>
+        </div>
+    </div>
+
+    <!-- ============ 17 ============ -->
+    <div class="module-head" id="m17">
+        <div class="module-num">17</div>
+        <h2 class="module-title">Multi-City / Multi-Region</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Pan-India operation with data partitioned by city, state-specific rules applied automatically, and regional onboarding for operators.</p>
+
+    <div class="feature">
+        <div class="feature-title">Multi-City Support <span class="feature-id">MC-01</span></div>
+        <div class="feature-body">
+            <p>Data is logically partitioned by city — stands, routes, operators, and analytics can be viewed city-wise or globally. Allows phased launch city by city.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">City-Based Stand Registry <span class="feature-id">MC-02</span></div>
+        <div class="feature-body">
+            <p>Each city has its own registry of stands with real coordinates. Prevents stand name collisions across cities.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">State-Specific Tax Rules <span class="feature-id">MC-03</span></div>
+        <div class="feature-body">
+            <p>Some states have different GST rules, permit requirements, or fare caps. Applied automatically based on the trip's origin and destination.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Time Zone Handling <span class="feature-id">MC-04</span></div>
+        <div class="feature-body">
+            <p>India has a single time zone, but if BusVerse expands to neighbouring countries, time zones are handled per region. All times are stored in UTC and displayed in the user's local time.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Regional Operator Onboarding <span class="feature-id">MC-05</span></div>
+        <div class="feature-body">
+            <p>Operators onboard by region. Their buses only appear in searches for routes that originate or terminate within their permitted region.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Government Bus Integration <span class="feature-id">MC-06</span></div>
+        <div class="feature-body">
+            <p>State transport corporations can be integrated at the city/state level. Their buses appear with a distinct label and their schedules are synced or manually entered.</p>
+        </div>
+    </div>
+
+    <!-- ============ 18 ============ -->
+    <div class="module-head" id="m18">
+        <div class="module-num">18</div>
+        <h2 class="module-title">Government Bus Integration</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">A real differentiator — state transport corporation buses bookable alongside private operators.</p>
+
+    <div class="feature">
+        <div class="feature-title">State Transport Corporation Partnership <span class="feature-id">GOV-01</span></div>
+        <div class="feature-body">
+            <p>Formal partnership with MSRTC, KSRTC, UPSRTC, and other state corporations. Requires MOUs, revenue-share agreements, and technical integration.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">API Sync <span class="feature-id">GOV-02</span></div>
+        <div class="feature-body">
+            <p>Where APIs exist, schedules, fares, and seat availability are synced in real time. Bookings flow back to the corporation's system.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Manual Route Entry <span class="feature-id">GOV-03</span></div>
+        <div class="feature-body">
+            <p>For corporations without APIs, admins manually enter their routes, schedules, and fares. Updated weekly.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Separate Branding for Government Buses <span class="feature-id">GOV-04</span></div>
+        <div class="feature-body">
+            <p>Government buses are visually distinct from private ones — different badge, colour, or label. Users know what they're booking.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Subsidized Fares <span class="feature-id">GOV-05</span></div>
+        <div class="feature-body">
+            <p>Where applicable, government-subsidized fares are applied (e.g., for students, senior citizens, differently-abled passengers).</p>
+        </div>
+    </div>
+
+    <!-- ============ 19 ============ -->
+    <div class="module-head" id="m19">
+        <div class="module-num">19</div>
+        <h2 class="module-title">Test / Demo Features</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">A hidden test layer used only for internal testing. Fully isolated from real bookings, analytics, and settlements.</p>
+
+    <div class="feature">
+        <div class="feature-title">Test Route <span class="feature-id">TST-01</span></div>
+        <div class="feature-body">
+            <p>A special route flagged <code>is_test = true</code>. Excluded from public search. Only accessible to internal test accounts.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">₹1 Virtual Bus <span class="feature-id">TST-02</span></div>
+        <div class="feature-body">
+            <p>A virtual bus with a ₹1 fare used to test the entire booking → payment → ticket → refund pipeline end-to-end. No real operator or driver is attached.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Auto-Refund on Test Booking <span class="feature-id">TST-03</span></div>
+        <div class="feature-body">
+            <p>The moment a test booking is confirmed, the refund is triggered automatically. Verifies that the refund engine works without needing manual cancellation.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Hidden from Public Search <span class="feature-id">TST-04</span></div>
+        <div class="feature-body">
+            <p>Test routes and schedules are filtered out of every public search query. Users never see them.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Excluded from Analytics <span class="feature-id">TST-05</span></div>
+        <div class="feature-body">
+            <p>Test bookings are excluded from all business, operational, and financial reports. They don't affect operator settlements, GST reports, or KPIs.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Rate-Limited <span class="feature-id">TST-06</span></div>
+        <div class="feature-body">
+            <p>Each internal test account can create at most one test booking per day. Prevents accidental inflation of test data.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Sandbox Gateway Mode <span class="feature-id">TST-07</span></div>
+        <div class="feature-body">
+            <p>Test bookings always use the gateway's sandbox mode (dummy money), never live mode. No real payment is ever processed for a test booking.</p>
+        </div>
+    </div>
+
+    <!-- ============ 20 ============ -->
+    <div class="module-head" id="m20">
+        <div class="module-num">20</div>
+        <h2 class="module-title">Operations &amp; DevOps</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Everything needed to build, test, deploy, and operate BusVerse reliably.</p>
+
+    <div class="feature">
+        <div class="feature-title">CI/CD Pipeline <span class="feature-id">OPS20-01</span></div>
+        <div class="feature-body">
+            <p>Automated linting, testing, building, and deploying via GitHub Actions or GitLab CI. Every commit is verified; every release is one click.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Staging Environment <span class="feature-id">OPS20-02</span></div>
+        <div class="feature-body">
+            <p>A production-like environment for testing. Uses sandbox gateways, separate database, and separate domain. Features are validated here before production.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Production Environment <span class="feature-id">OPS20-03</span></div>
+        <div class="feature-body">
+            <p>The live platform serving real users. Multi-region, load-balanced, monitored, and backed up. Only proven, tested code is deployed here.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Feature Flags <span class="feature-id">OPS20-04</span></div>
+        <div class="feature-body">
+            <p>Toggle features on and off without deploying code. Used for gradual rollouts, A/B tests, and emergency kill switches.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Database Migrations <span class="feature-id">OPS20-05</span></div>
+        <div class="feature-body">
+            <p>Versioned, reversible migrations using Flyway, Liquibase, or Prisma. Zero-downtime deploys ensure no user is impacted by schema changes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Incident Response <span class="feature-id">OPS20-06</span></div>
+        <div class="feature-body">
+            <p>Documented runbooks for common incidents — gateway down, WebSocket failure, database slow, DDoS. On-call rotation with PagerDuty or Slack alerts.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Backup &amp; Restore <span class="feature-id">OPS20-07</span></div>
+        <div class="feature-body">
+            <p>Daily automated database backups. Tested restore procedure. Point-in-time recovery available for the last 30 days. Essential for a platform handling real money.</p>
+        </div>
+    </div>
+
+    <!-- ============ 21 ============ -->
+    <div class="module-head" id="m21">
+        <div class="module-num">21</div>
+        <h2 class="module-title">Waitlist System</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">When a bus is full, passengers don't just leave — they join a waitlist and get notified when a seat opens. This is a huge revenue recovery tool on popular routes.</p>
+
+    <div class="feature">
+        <div class="feature-title">Join Waitlist <span class="feature-id">WL-01</span></div>
+        <div class="feature-body">
+            <p>When a bus is sold out, users see a "Join Waitlist" button. One tap adds them to the queue for that trip. Their position is shown.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Queue Position <span class="feature-id">WL-02</span></div>
+        <div class="feature-body">
+            <p>Users see their exact position in the waitlist (e.g., "You are #3"). Provides clarity and incentive to stay on the waitlist.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Notification When Seat Frees Up <span class="feature-id">WL-03</span></div>
+        <div class="feature-body">
+            <p>When a seat is cancelled, the first person on the waitlist is notified instantly via push, SMS, and email. They have a fixed window (e.g., 15 minutes) to book before it passes to the next person.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Time Window to Book <span class="feature-id">WL-04</span></div>
+        <div class="feature-body">
+            <p>The booking window for the notified user is limited (15 minutes by default). Prevents seats from being held indefinitely.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Auto-Booking Option <span class="feature-id">WL-05</span></div>
+        <div class="feature-body">
+            <p>Users can opt in to "Auto-Book" — when a seat frees up, the platform books it automatically using their saved payment method. Removes friction and increases conversion.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Cancel Waitlist Anytime <span class="feature-id">WL-06</span></div>
+        <div class="feature-body">
+            <p>Users can leave the waitlist at any time. Their position is released to the next person.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Priority Rules <span class="feature-id">WL-07</span></div>
+        <div class="feature-body">
+            <p>Default is first-in-first-out (FIFO). Higher loyalty tiers can be given priority. Configurable per route.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Conversion Tracking <span class="feature-id">WL-08</span></div>
+        <div class="feature-body">
+            <p>Track how many waitlist entries turn into bookings. Used to measure demand and improve pricing.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Waitlist Analytics <span class="feature-id">WL-09</span></div>
+        <div class="feature-body">
+            <p>Reports showing waitlist depth per route, conversion rate, and average wait time. Helps operators decide to add extra buses.</p>
+        </div>
+    </div>
+
+    <!-- ============ 22 ============ -->
+    <div class="module-head" id="m22">
+        <div class="module-num">22</div>
+        <h2 class="module-title">Promo Code Engine</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">A flexible promotion system used for marketing, user acquisition, and seasonality. Every successful marketplace has one.</p>
+
+    <div class="feature">
+        <div class="feature-title">Admin Creates Promo Codes <span class="feature-id">PRO-01</span></div>
+        <div class="feature-body">
+            <p>Admins create codes with a simple UI — code text, discount type, value, validity, and rules. Codes are instantly usable by users.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">% or Flat Discount <span class="feature-id">PRO-02</span></div>
+        <div class="feature-body">
+            <p>Discounts can be percentage-based (e.g., 10% off) or flat (e.g., ₹100 off). Every discount type can have a maximum cap to prevent abuse.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Minimum Fare <span class="feature-id">PRO-03</span></div>
+        <div class="feature-body">
+            <p>Codes apply only if the booking fare exceeds a threshold (e.g., ₹500). Prevents discounts on trivially small bookings.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Max Discount Cap <span class="feature-id">PRO-04</span></div>
+        <div class="feature-body">
+            <p>For percentage discounts, a cap ensures the discount doesn't exceed a set amount (e.g., 15% off up to ₹200).</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Applicable Routes / Operators <span class="feature-id">PRO-05</span></div>
+        <div class="feature-body">
+            <p>Codes can be restricted to specific routes, cities, or operators. Used for targeted campaigns — e.g., a promo for a new operator on a specific route.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Valid Date Range <span class="feature-id">PRO-06</span></div>
+        <div class="feature-body">
+            <p>Each code has start and end dates. Outside this window, the code is rejected.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Usage Limit per User <span class="feature-id">PRO-07</span></div>
+        <div class="feature-body">
+            <p>Limit how many times a single user can use a code (e.g., once per user). Prevents abuse and preserves the promo for new users.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Total Usage Limit <span class="feature-id">PRO-08</span></div>
+        <div class="feature-body">
+            <p>A cap on total redemptions across the platform (e.g., first 1,000 uses). Controls marketing cost.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">First-Time-User-Only <span class="feature-id">PRO-09</span></div>
+        <div class="feature-body">
+            <p>A flag that restricts a code to users making their first-ever booking. Common for acquisition campaigns.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Stacking Rules <span class="feature-id">PRO-10</span></div>
+        <div class="feature-body">
+            <p>Define whether a code can be combined with other offers (e.g., wallet credit + promo). Prevents double-discount abuse.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Referral Code Integration <span class="feature-id">PRO-11</span></div>
+        <div class="feature-body">
+            <p>Referral codes feed into the same engine. Applied at checkout with the same rules as promo codes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Promo Code Analytics <span class="feature-id">PRO-12</span></div>
+        <div class="feature-body">
+            <p>Reports showing each code's redemption count, total discount given, revenue impact, and user segments. Used to measure ROI of campaigns.</p>
+        </div>
+    </div>
+
+    <!-- ============ 23 ============ -->
+    <div class="module-head" id="m23">
+        <div class="module-num">23</div>
+        <h2 class="module-title">Fraud Detection</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">Real money attracts fraud. This module catches it before it becomes a problem.</p>
+
+    <div class="feature">
+        <div class="feature-title">Velocity Limits <span class="feature-id">FRD-01</span></div>
+        <div class="feature-body">
+            <p>Limit the number of bookings a single user can make per day. Anything above the limit is flagged for review. Prevents bulk fake bookings.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Duplicate Account Detection <span class="feature-id">FRD-02</span></div>
+        <div class="feature-body">
+            <p>Flag accounts that share the same phone number, device fingerprint, or IP address with another account. Common pattern for promo abuse.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Card Testing Prevention <span class="feature-id">FRD-03</span></div>
+        <div class="feature-body">
+            <p>Detect patterns where attackers test stolen cards by making small bookings. Block IPs and devices exhibiting this pattern.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund Abuse Detection <span class="feature-id">FRD-04</span></div>
+        <div class="feature-body">
+            <p>Users who repeatedly book and cancel are flagged. Too many cancellations in a short period leads to suspension of refund privileges.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Promo Code Abuse Detection <span class="feature-id">FRD-05</span></div>
+        <div class="feature-body">
+            <p>Detect users who create multiple accounts to exploit first-time-user promos. Auto-block these accounts.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">IP-Based Risk Scoring <span class="feature-id">FRD-06</span></div>
+        <div class="feature-body">
+            <p>Every request is scored based on the originating IP. VPNs, proxy networks, and known fraud IPs get higher risk scores.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Device Fingerprinting <span class="feature-id">FRD-07</span></div>
+        <div class="feature-body">
+            <p>A unique fingerprint is computed per device. Multiple accounts from the same device are flagged for investigation.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Blacklist Management <span class="feature-id">FRD-08</span></div>
+        <div class="feature-body">
+            <p>Admin can blacklist users, phone numbers, emails, IPs, and devices. All blacklisted entities are blocked from booking.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Manual Review Queue <span class="feature-id">FRD-09</span></div>
+        <div class="feature-body">
+            <p>High-risk bookings go to a manual review queue. An admin reviews and approves or rejects before the booking is confirmed.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Auto-Block Suspicious Users <span class="feature-id">FRD-10</span></div>
+        <div class="feature-body">
+            <p>Users with a risk score above a threshold are auto-blocked. Block is temporary by default; admin can make it permanent.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Fraud Analytics Dashboard <span class="feature-id">FRD-11</span></div>
+        <div class="feature-body">
+            <p>Real-time view of fraud patterns — velocity, duplicates, refund abuse, promo abuse. Used by the risk team to tune thresholds.</p>
+        </div>
+    </div>
+
+    <!-- ============ 24 ============ -->
+    <div class="module-head" id="m24">
+        <div class="module-num">24</div>
+        <h2 class="module-title">Corporate / B2B Booking</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">Companies book bulk seats for employees. This is one of the highest-margin and lowest-CAC channels for any booking platform.</p>
+
+    <div class="feature">
+        <div class="feature-title">Company Signup with GST Details <span class="feature-id">CORP-01</span></div>
+        <div class="feature-body">
+            <p>A separate signup flow for companies. Requires company name, GSTIN, PAN, and billing address. Verified by admin before activation.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Corporate Login (Multiple Sub-Users) <span class="feature-id">CORP-02</span></div>
+        <div class="feature-body">
+            <p>Each company can have multiple users — travel manager, finance, HR. Each with defined permissions.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Bulk Booking Interface <span class="feature-id">CORP-03</span></div>
+        <div class="feature-body">
+            <p>A dedicated interface for booking multiple seats or trips at once. Upload a CSV of employees and routes; the system books them all.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Employee Management <span class="feature-id">CORP-04</span></div>
+        <div class="feature-body">
+            <p>Add, edit, and remove employees. Employee list is used during booking so travel managers don't re-enter details.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Monthly Invoicing <span class="feature-id">CORP-05</span></div>
+        <div class="feature-body">
+            <p>All corporate bookings in a month are consolidated into a single invoice with GST breakup. Sent on the 1st of every month.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Credit Limit / Pay-Later <span class="feature-id">CORP-06</span></div>
+        <div class="feature-body">
+            <p>Approved corporate clients get a credit limit and can book now, pay later (typically net-30). Reduces friction for frequent bookings.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Corporate Dashboard <span class="feature-id">CORP-07</span></div>
+        <div class="feature-body">
+            <p>Travel managers see all bookings, spend, employee travel history, and reports. Filterable by department, route, or date.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">GST Invoice with Company Details <span class="feature-id">CORP-08</span></div>
+        <div class="feature-body">
+            <p>Every invoice carries the company's GSTIN and billing address. Input credit eligible for the company.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Dedicated Account Manager <span class="feature-id">CORP-09</span></div>
+        <div class="feature-body">
+            <p>Large corporate clients get a named account manager for escalations, custom contracts, and bulk changes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Corporate Analytics <span class="feature-id">CORP-10</span></div>
+        <div class="feature-body">
+            <p>Reports showing spend per department, per employee, per route. Used for budgeting and travel policy compliance.</p>
+        </div>
+    </div>
+
+    <!-- ============ 25 ============ -->
+    <div class="module-head" id="m25">
+        <div class="module-num">25</div>
+        <h2 class="module-title">Travel Agent Portal</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">Small travel agents book on behalf of customers. They drive volume in Tier-2 and Tier-3 cities where consumers still prefer assisted booking.</p>
+
+    <div class="feature">
+        <div class="feature-title">Agent Signup + KYC <span class="feature-id">AGT-01</span></div>
+        <div class="feature-body">
+            <p>Agents register with business name, GST (if applicable), PAN, and ID proof. KYC verified by admin before activation.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Own Login + Dashboard <span class="feature-id">AGT-02</span></div>
+        <div class="feature-body">
+            <p>A separate login and dashboard for agents. Shows bookings, wallet, commission, and history.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Bulk Booking for Customers <span class="feature-id">AGT-03</span></div>
+        <div class="feature-body">
+            <p>Agents can book on behalf of customers without asking them to log in. Customer details are entered manually or picked from saved contacts.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Agent Wallet (Pre-Funded) <span class="feature-id">AGT-04</span></div>
+        <div class="feature-body">
+            <p>Agents pre-fund a wallet. Bookings are paid from the wallet, removing payment friction and reducing failed transactions.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Commission Tracking <span class="feature-id">AGT-05</span></div>
+        <div class="feature-body">
+            <p>Each booking earns the agent a commission (flat or %). Commission is credited to the wallet after the trip completes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Booking History for Customers <span class="feature-id">AGT-06</span></div>
+        <div class="feature-body">
+            <p>Agents see all bookings they've made, searchable by customer name or phone. Used for repeat bookings and follow-ups.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Customer Management <span class="feature-id">AGT-07</span></div>
+        <div class="feature-body">
+            <p>Agents maintain a list of their regular customers with contact info. Speeds up repeat bookings.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Agent-Specific Pricing <span class="feature-id">AGT-08</span></div>
+        <div class="feature-body">
+            <p>Optional — agents can be given special rates or discounts not available to direct users. Encourages them to book through BusVerse.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Settlement with Agent <span class="feature-id">AGT-09</span></div>
+        <div class="feature-body">
+            <p>Periodic settlement between the agent and BusVerse. Any credit owed or commission earned is settled weekly.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Agent Support Priority <span class="feature-id">AGT-10</span></div>
+        <div class="feature-body">
+            <p>Agents get priority in support queues. Their issues are resolved faster because their volumes are higher.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Agent Leaderboard <span class="feature-id">AGT-11</span></div>
+        <div class="feature-body">
+            <p>Monthly leaderboard of top agents by bookings. Optional feature used to gamify and retain high performers.</p>
+        </div>
+    </div>
+
+    <!-- ============ 26 ============ -->
+    <div class="module-head" id="m26">
+        <div class="module-num">26</div>
+        <h2 class="module-title">Dispute Resolution</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">A structured workflow for passenger complaints. Prevents small issues from becoming public escalations.</p>
+
+    <div class="feature">
+        <div class="feature-title">Passenger Raises Dispute <span class="feature-id">DIS-01</span></div>
+        <div class="feature-body">
+            <p>Passengers can raise a dispute from the trip screen or the trip history. A form captures the issue, category, and evidence.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Dispute Categories <span class="feature-id">DIS-02</span></div>
+        <div class="feature-body">
+            <p>Categories include: refund not received, driver behaviour, bus condition, delay, no-show, wrong boarding point, overcharging. Routes the complaint to the right team.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Evidence Upload <span class="feature-id">DIS-03</span></div>
+        <div class="feature-body">
+            <p>Passengers can attach photos, screenshots, or short videos. Evidence is used by both the operator and admin during resolution.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Auto-Route to Operator First <span class="feature-id">DIS-04</span></div>
+        <div class="feature-body">
+            <p>Most disputes are first shown to the operator, who has 24–48 hours to respond. This resolves the majority of issues without admin involvement.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Operator Response Window <span class="feature-id">DIS-05</span></div>
+        <div class="feature-body">
+            <p>Operators see the dispute in their panel and can respond with a resolution or a request for more info. If they don't respond in time, the dispute escalates to admin.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Escalation to Admin <span class="feature-id">DIS-06</span></div>
+        <div class="feature-body">
+            <p>Unresolved disputes escalate to admin, who has full context — chats, evidence, and history — for arbitration.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Admin Arbitration Interface <span class="feature-id">DIS-07</span></div>
+        <div class="feature-body">
+            <p>A dedicated screen showing all pending disputes with the ability to view, decide, and communicate. Resolutions are recorded with reason.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Resolution Log <span class="feature-id">DIS-08</span></div>
+        <div class="feature-body">
+            <p>Every dispute has a resolution record showing who did what, when. Used for audits and pattern analysis.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Chargeback Handling <span class="feature-id">DIS-09</span></div>
+        <div class="feature-body">
+            <p>If a user initiates a chargeback with their bank, the case is tracked in the same workflow. Evidence and timelines are ready for submission.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Compensation Workflow <span class="feature-id">DIS-10</span></div>
+        <div class="feature-body">
+            <p>Admin can issue compensation — partial refund, full refund, wallet credit, or promo code — directly from the dispute screen. Compensation is logged and attributed.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Dispute Analytics <span class="feature-id">DIS-11</span></div>
+        <div class="feature-body">
+            <p>Reports showing dispute volume by category, operator, and route. High-dispute operators are flagged and can be suspended.</p>
+        </div>
+    </div>
+
+    <!-- ============ 27 ============ -->
+    <div class="module-head" id="m27">
+        <div class="module-num">27</div>
+        <h2 class="module-title">Operator Rating &amp; Quality Score</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">A composite score per operator that surfaces quality and affects search ranking. The single biggest lever for platform trust.</p>
+
+    <div class="feature">
+        <div class="feature-title">Passenger Rates Operator <span class="feature-id">ORT-01</span></div>
+        <div class="feature-body">
+            <p>After every trip, passengers rate the operator on a 1–5 star scale with optional written feedback. Only verified passengers can rate.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Composite Quality Metrics <span class="feature-id">ORT-02</span></div>
+        <div class="feature-body">
+            <p>The score combines: on-time %, cancellation rate, cleanliness rating, complaint count, and average star rating. Each metric has a weight.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Composite Quality Score <span class="feature-id">ORT-03</span></div>
+        <div class="feature-body">
+            <p>A single 0–100 score per operator, updated daily. Shown to admins; visible to users as a "Trust Score" or rating.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Visible to Passengers <span class="feature-id">ORT-04</span></div>
+        <div class="feature-body">
+            <p>The score is displayed on search results and the operator's profile page. Users see it and factor it into their decision.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Affects Search Ranking <span class="feature-id">ORT-05</span></div>
+        <div class="feature-body">
+            <p>Higher-scoring operators rank higher in search. This rewards quality and punishes poor service.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Low-Score Operators Flagged <span class="feature-id">ORT-06</span></div>
+        <div class="feature-body">
+            <p>Operators below a threshold are flagged for admin review. Admin can request improvements or suspend the operator.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Operator Improvement Dashboard <span class="feature-id">ORT-07</span></div>
+        <div class="feature-body">
+            <p>Operators see their own metrics and know what to fix. Includes historical trends and comparison to peers.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Admin Can Suspend Low-Score Operators <span class="feature-id">ORT-08</span></div>
+        <div class="feature-body">
+            <p>Admin can suspend an operator for consistently poor quality. Suspension removes all their buses from search until resolved.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Score History <span class="feature-id">ORT-09</span></div>
+        <div class="feature-body">
+            <p>The score history is stored and visible. Shows improvement or deterioration over time.</p>
+        </div>
+    </div>
+
+    <!-- ============ 28 ============ -->
+    <div class="module-head" id="m28">
+        <div class="module-num">28</div>
+        <h2 class="module-title">Charter / Full Bus Hire</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">A completely different booking mode — book the entire bus for an event, wedding, corporate trip, or pilgrimage.</p>
+
+    <div class="feature">
+        <div class="feature-title">Separate Booking Mode <span class="feature-id">CHR-01</span></div>
+        <div class="feature-body">
+            <p>A distinct flow from regular bus booking. Users specify pickup, drop, date, and duration instead of picking a scheduled trip.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Choose Bus Type, Date, Route, Duration <span class="feature-id">CHR-02</span></div>
+        <div class="feature-body">
+            <p>User picks the bus category (AC, sleeper, luxury), the travel dates, the pickup and drop cities, and the number of days.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Instant Quote or Request Quote <span class="feature-id">CHR-03</span></div>
+        <div class="feature-body">
+            <p>For standard routes, an instant quote is shown. For custom routes, the user requests a quote and receives one within a few hours.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Custom Stops Allowed <span class="feature-id">CHR-04</span></div>
+        <div class="feature-body">
+            <p>Unlike scheduled buses, charter trips allow any stops the customer wants — sightseeing points, multiple pickups, overnight halts.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Per-Day or Per-Trip Pricing <span class="feature-id">CHR-05</span></div>
+        <div class="feature-body">
+            <p>Pricing can be based on days (for multi-day trips) or on distance (for fixed-route charters). Configurable per operator.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Advance Booking Support <span class="feature-id">CHR-06</span></div>
+        <div class="feature-body">
+            <p>Charters can be booked weeks or months in advance. Calendar integration ensures the same bus isn't double-booked.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Charter Cancellation Policy <span class="feature-id">CHR-07</span></div>
+        <div class="feature-body">
+            <p>A distinct cancellation policy applies to charters — different from scheduled bus bookings. Typically, higher cancellation fees and earlier cutoffs.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Invoice Generation <span class="feature-id">CHR-08</span></div>
+        <div class="feature-body">
+            <p>A proper invoice is generated for charter bookings, with GST breakdown. Often needed for corporate and event clients.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Dedicated Support <span class="feature-id">CHR-09</span></div>
+        <div class="feature-body">
+            <p>Charter bookings are high-value; they get dedicated support and an account manager for coordination.</p>
+        </div>
+    </div>
+
+    <!-- ============ 29 ============ -->
+    <div class="module-head" id="m29">
+        <div class="module-num">29</div>
+        <h2 class="module-title">Boarding Pass &amp; Live Occupancy</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">A digital boarding pass plus real-time occupancy. Reduces boarding friction and gives passengers confidence.</p>
+
+    <div class="feature">
+        <div class="feature-title">Digital Boarding Pass <span class="feature-id">BRD-01</span></div>
+        <div class="feature-body">
+            <p>A simplified ticket view for boarding — just the QR, seat number, passenger name, and boarding point. Optimised for the driver's quick scan.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Live Occupancy <span class="feature-id">BRD-02</span></div>
+        <div class="feature-body">
+            <p>Shows how full the bus is right now (X out of Y seats filled). Updated in real time as passengers board.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">"Bus N Stops Away" Indicator <span class="feature-id">BRD-03</span></div>
+        <div class="feature-body">
+            <p>Instead of a raw ETA, passengers see "Bus is 2 stops away" — easier to interpret, especially on intracity routes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Boarding Status Per Stand <span class="feature-id">BRD-04</span></div>
+        <div class="feature-body">
+            <p>For each stand, the system tracks how many passengers boarded, how many are still pending, and any no-shows.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Boarding Verification via QR Scan <span class="feature-id">BRD-05</span></div>
+        <div class="feature-body">
+            <p>Every passenger is verified by scanning their ticket at boarding. Prevents wrong passengers from boarding and creates an accurate manifest.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Live Occupancy on Search Results <span class="feature-id">BRD-06</span></div>
+        <div class="feature-body">
+            <p>"Only 4 seats left" or "Filling fast" indicators on search results create urgency and inform user decisions.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Occupancy History <span class="feature-id">BRD-07</span></div>
+        <div class="feature-body">
+            <p>Historical occupancy data per route is stored and used for analytics — helps operators decide whether to add buses.</p>
+        </div>
+    </div>
+
+    <!-- ============ 30 ============ -->
+    <div class="module-head" id="m30">
+        <div class="module-num">30</div>
+        <h2 class="module-title">Infrastructure &amp; Reliability</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">The operational foundation — rate limiting, backups, monitoring, and incident response. Invisible when working; catastrophic when missing.</p>
+
+    <div class="feature">
+        <div class="feature-title">Rate Limiting <span class="feature-id">INF-01</span></div>
+        <div class="feature-body">
+            <p>Every API endpoint has rate limits — per user, per IP, per endpoint. Prevents abuse, DDoS, and accidental overload.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">DDoS Protection <span class="feature-id">INF-02</span></div>
+        <div class="feature-body">
+            <p>Cloudflare or AWS Shield in front of the platform. Absorbs volumetric attacks before they reach the origin.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">CDN <span class="feature-id">INF-03</span></div>
+        <div class="feature-body">
+            <p>Static assets (images, CSS, JS, PDFs) served from a CDN. Faster load times across India, lower origin load.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Daily DB Backups + Tested Restore <span class="feature-id">INF-04</span></div>
+        <div class="feature-body">
+            <p>Automated daily database backups. Restores are tested monthly to ensure they actually work. Point-in-time recovery for the last 30 days.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Point-in-Time Recovery <span class="feature-id">INF-05</span></div>
+        <div class="feature-body">
+            <p>Restore the database to any moment in the last 30 days. Critical for recovering from data corruption or accidental deletes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Metrics Dashboard + Alerts <span class="feature-id">INF-06</span></div>
+        <div class="feature-body">
+            <p>Real-time metrics — CPU, memory, request rate, error rate, latency. Alerts fire when thresholds are breached.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Centralized Logging <span class="feature-id">INF-07</span></div>
+        <div class="feature-body">
+            <p>All logs from all services are collected in one place (ELK or Loki). Searchable, filterable, retained per compliance requirements.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Health Checks <span class="feature-id">INF-08</span></div>
+        <div class="feature-body">
+            <p>Liveness, readiness, and dependency checks. Load balancers use these to route traffic only to healthy instances.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Uptime Monitoring <span class="feature-id">INF-09</span></div>
+        <div class="feature-body">
+            <p>External probes (BetterStack, UptimeRobot) check the platform every minute from multiple regions. Alerts fire on downtime.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Load Balancing + Auto-Scaling <span class="feature-id">INF-10</span></div>
+        <div class="feature-body">
+            <p>Traffic distributed across instances. Auto-scaling adds capacity during peak hours (festivals, weekends) and scales down during off-peak.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">SSL/TLS Everywhere <span class="feature-id">INF-11</span></div>
+        <div class="feature-body">
+            <p>HTTPS on every endpoint, HSTS enforced, auto-renewing certificates. No insecure connections ever.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Secrets Management <span class="feature-id">INF-12</span></div>
+        <div class="feature-body">
+            <p>API keys, database passwords, and signing secrets stored in Vault or AWS Secrets Manager. Never in code or config files.</p>
+        </div>
+    </div>
+
+    <!-- ============ 31 ============ -->
+    <div class="module-head" id="m31">
+        <div class="module-num">31</div>
+        <h2 class="module-title">Loyalty &amp; Rewards</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Points, tiers, and benefits that reward repeat passengers. Cheap retention — every frequent traveler loves being recognised.</p>
+
+    <div class="feature">
+        <div class="feature-title">Points on Every Booking <span class="feature-id">LOY-01</span></div>
+        <div class="feature-body">
+            <p>Every completed booking earns points. Typically 1 point per ₹10 spent. Points are credited after trip completion to prevent gaming.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Points = % of Fare <span class="feature-id">LOY-02</span></div>
+        <div class="feature-body">
+            <p>The exact earning rate is configurable — a percentage of the fare converts into points.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Redeem Points for Discounts <span class="feature-id">LOY-03</span></div>
+        <div class="feature-body">
+            <p>Points can be redeemed at checkout — e.g., 100 points = ₹10 off. Redemption is applied like a promo code.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Tiers: Silver / Gold / Platinum <span class="feature-id">LOY-04</span></div>
+        <div class="feature-body">
+            <p>Users are grouped into tiers based on annual spend or trips. Higher tiers unlock better benefits.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Tier Benefits <span class="feature-id">LOY-05</span></div>
+        <div class="feature-body">
+            <p>Silver: 5% cashback. Gold: 10% cashback + priority support. Platinum: 15% cashback + free cancellations + dedicated support.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Birthday Bonus <span class="feature-id">LOY-06</span></div>
+        <div class="feature-body">
+            <p>On their birthday, users get a bonus — extra points or a promo code. Sent by push and email.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Anniversary Bonus <span class="feature-id">LOY-07</span></div>
+        <div class="feature-body">
+            <p>On the anniversary of their first booking, users get a bonus. Reinforces long-term loyalty.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Points Expiry Policy <span class="feature-id">LOY-08</span></div>
+        <div class="feature-body">
+            <p>Points expire 12–24 months after earning. Users are notified before expiry to encourage redemption.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Loyalty Dashboard for User <span class="feature-id">LOY-09</span></div>
+        <div class="feature-body">
+            <p>Users see their current points, tier, next-tier progress, and redemption history in a dedicated screen.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Loyalty Analytics <span class="feature-id">LOY-10</span></div>
+        <div class="feature-body">
+            <p>Admin sees loyalty program impact — tier distribution, redemption rate, and impact on retention.</p>
+        </div>
+    </div>
+
+    <!-- ============ 32 ============ -->
+    <div class="module-head" id="m32">
+        <div class="module-num">32</div>
+        <h2 class="module-title">Referral System</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Cheapest user acquisition channel. Every active user becomes a marketing asset with a unique referral code.</p>
+
+    <div class="feature">
+        <div class="feature-title">Unique Referral Code per User <span class="feature-id">REF-01</span></div>
+        <div class="feature-body">
+            <p>Every user gets a unique referral code (e.g., "RAHUL123"). Shareable via WhatsApp, SMS, or social.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Share via WhatsApp / SMS / Social <span class="feature-id">REF-02</span></div>
+        <div class="feature-body">
+            <p>One-tap sharing to WhatsApp, SMS, Twitter, and Facebook. Pre-filled message with the code.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Referrer Gets Credit <span class="feature-id">REF-03</span></div>
+        <div class="feature-body">
+            <p>When a referred friend completes their first booking, the referrer gets credit — wallet cash or points.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Friend Gets Discount <span class="feature-id">REF-04</span></div>
+        <div class="feature-body">
+            <p>The referred friend gets a discount on their first booking (e.g., ₹100 off). Encourages them to complete the signup.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Referral Tracking <span class="feature-id">REF-05</span></div>
+        <div class="feature-body">
+            <p>Users see who they've referred, whether they signed up, and whether they've booked. Full transparency.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Referral Leaderboard <span class="feature-id">REF-06</span></div>
+        <div class="feature-body">
+            <p>Optional monthly leaderboard of top referrers. Extra rewards for the top 10.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Anti-Abuse (Self-Referral Blocked) <span class="feature-id">REF-07</span></div>
+        <div class="feature-body">
+            <p>Users cannot refer themselves or use their own code on another account. Multiple accounts on the same device are blocked.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Referral Analytics <span class="feature-id">REF-08</span></div>
+        <div class="feature-body">
+            <p>Admin sees total referrals, conversion rate, CAC via referrals, and impact on bookings.</p>
+        </div>
+    </div>
+
+    <!-- ============ 33 ============ -->
+    <div class="module-head" id="m33">
+        <div class="module-num">33</div>
+        <h2 class="module-title">Reviews &amp; Ratings (Full)</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Full review system with photos, replies, and moderation. Where users discover quality operators.</p>
+
+    <div class="feature">
+        <div class="feature-title">Trip-Level Review <span class="feature-id">REV-01</span></div>
+        <div class="feature-body">
+            <p>Post-trip, passengers review the overall trip experience. Star rating + written feedback.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Operator-Level Review <span class="feature-id">REV-02</span></div>
+        <div class="feature-body">
+            <p>A separate review for the operator — separate from the specific trip. Aggregated into the operator's profile.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Driver-Level Review <span class="feature-id">REV-03</span></div>
+        <div class="feature-body">
+            <p>A separate review for the driver. Contributes to the driver's individual rating.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Star Rating (1–5) <span class="feature-id">REV-04</span></div>
+        <div class="feature-body">
+            <p>Simple 1–5 star input for each dimension. Options for tags ("clean bus", "on time", "friendly driver").</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Written Review <span class="feature-id">REV-05</span></div>
+        <div class="feature-body">
+            <p>Free-text feedback up to 500 characters. Used by other passengers to make informed decisions.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Photo Upload <span class="feature-id">REV-06</span></div>
+        <div class="feature-body">
+            <p>Users can attach photos (bus interior, stand condition). Moderation ensures no abusive content.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Verified Reviews <span class="feature-id">REV-07</span></div>
+        <div class="feature-body">
+            <p>Only passengers who actually completed a trip can review. Prevents fake reviews.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Filter by Rating <span class="feature-id">REV-08</span></div>
+        <div class="feature-body">
+            <p>Filters on operator pages — e.g., show only 4+ star reviews, or show only 1-star complaints.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Sort by Recent / Helpful <span class="feature-id">REV-09</span></div>
+        <div class="feature-body">
+            <p>Reviews sortable by most recent, most helpful, or highest/lowest rating.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Reply to Reviews <span class="feature-id">REV-10</span></div>
+        <div class="feature-body">
+            <p>Operators and admins can reply publicly to reviews. Shows the operator is listening.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Report Abuse <span class="feature-id">REV-11</span></div>
+        <div class="feature-body">
+            <p>Users can report abusive or fake reviews. Reports go to moderation.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Review Moderation <span class="feature-id">REV-12</span></div>
+        <div class="feature-body">
+            <p>Admin team moderates reviews — removes profanity, spam, and false claims. Moderation log retained.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Review Analytics <span class="feature-id">REV-13</span></div>
+        <div class="feature-body">
+            <p>Reports showing review volume, rating distribution, and sentiment trends per operator and route.</p>
+        </div>
+    </div>
+
+    <!-- ============ 34 ============ -->
+    <div class="module-head" id="m34">
+        <div class="module-num">34</div>
+        <h2 class="module-title">Price &amp; Seat Alerts</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Users set alerts for price drops or seat availability. Brings users back to the platform when their preferred route becomes affordable or available.</p>
+
+    <div class="feature">
+        <div class="feature-title">Set Price Threshold for a Route <span class="feature-id">ALR-01</span></div>
+        <div class="feature-body">
+            <p>User picks a route and a maximum acceptable fare. System watches for any bus on that route under that price.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Get Notified When Price Drops <span class="feature-id">ALR-02</span></div>
+        <div class="feature-body">
+            <p>When a bus on the route becomes cheaper than the threshold, the user is notified instantly.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Set Seat Availability Alert <span class="feature-id">ALR-03</span></div>
+        <div class="feature-body">
+            <p>Users can set an alert for a sold-out bus. Notified when a seat opens up (via cancellation or new schedule).</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Alert via Push + Email + SMS <span class="feature-id">ALR-04</span></div>
+        <div class="feature-body">
+            <p>Alerts fire across all three channels to maximise the chance the user sees them.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Manage Alerts Dashboard <span class="feature-id">ALR-05</span></div>
+        <div class="feature-body">
+            <p>Users see all active alerts, edit thresholds, and pause or delete alerts.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Alert Expiry Policy <span class="feature-id">ALR-06</span></div>
+        <div class="feature-body">
+            <p>Alerts auto-expire after a set period (e.g., 30 days) unless renewed. Prevents stale alerts from piling up.</p>
+        </div>
+    </div>
+
+    <!-- ============ 35 ============ -->
+    <div class="module-head" id="m35">
+        <div class="module-num">35</div>
+        <h2 class="module-title">Dynamic Pricing Engine</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Fare calculation that responds to demand, time, and season — capped by regulation. The single biggest lever for increasing operator revenue without adding buses.</p>
+
+    <div class="feature">
+        <div class="feature-title">Base Fare + Demand Multiplier <span class="feature-id">DYN-01</span></div>
+        <div class="feature-body">
+            <p>Starts from a base fare set by the operator. Then applies a multiplier based on current demand (seats sold vs total).</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Time-of-Day Pricing <span class="feature-id">DYN-02</span></div>
+        <div class="feature-body">
+            <p>Early morning and late-night buses may be cheaper. Peak hour (rush) buses may be slightly more expensive.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Festival / Holiday Surcharge <span class="feature-id">DYN-03</span></div>
+        <div class="feature-body">
+            <p>Diwali, Holi, Eid, long weekends — demand spikes; prices adjust. Capped by regulation.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Last-Minute Premium <span class="feature-id">DYN-04</span></div>
+        <div class="feature-body">
+            <p>Bookings made within 2 hours of departure may carry a small premium — reflecting the value of last-minute availability.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Advance Booking Discount <span class="feature-id">DYN-05</span></div>
+        <div class="feature-body">
+            <p>Bookings made 30+ days in advance get a discount. Encourages early planning and gives operators cash flow.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Route Popularity Factor <span class="feature-id">DYN-06</span></div>
+        <div class="feature-body">
+            <p>Higher-demand routes carry slightly higher base prices. Reflects cost of running buses on popular routes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Regulatory Cap <span class="feature-id">DYN-07</span></div>
+        <div class="feature-body">
+            <p>Maximum dynamic pricing is capped by law (e.g., +50% of base in some states). The engine never exceeds the cap.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Admin Controls per Route <span class="feature-id">DYN-08</span></div>
+        <div class="feature-body">
+            <p>Dynamic pricing can be enabled or disabled per route. Some routes use flat pricing; others use dynamic.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Pricing Transparency <span class="feature-id">DYN-09</span></div>
+        <div class="feature-body">
+            <p>The user sees the fare breakdown — base + surcharge = total. No hidden dynamic pricing.</p>
+        </div>
+    </div>
+
+    <!-- ============ 36 ============ -->
+    <div class="module-head" id="m36">
+        <div class="module-num">36</div>
+        <h2 class="module-title">Operator Cancellation → Rebooking</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">When an operator cancels, don't just refund — offer alternatives and make rebooking one tap away. Turns a bad experience into a neutral one.</p>
+
+    <div class="feature">
+        <div class="feature-title">Auto-Detect Operator Cancellation <span class="feature-id">RCB-01</span></div>
+        <div class="feature-body">
+            <p>The moment an operator cancels a trip, the system flags all affected bookings for rebooking flow.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Refund Initiated Automatically <span class="feature-id">RCB-02</span></div>
+        <div class="feature-body">
+            <p>Every affected passenger gets 100% refund automatically. No need to request it.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Suggest 3 Alternative Buses <span class="feature-id">RCB-03</span></div>
+        <div class="feature-body">
+            <p>System suggests 3 alternative buses on the same route, similar time window, from high-rated operators.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">One-Tap Rebook <span class="feature-id">RCB-04</span></div>
+        <div class="feature-body">
+            <p>User taps an alternative — the new booking is created instantly, using the refund credit as payment (if fare matches).</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Price Difference Handling <span class="feature-id">RCB-05</span></div>
+        <div class="feature-body">
+            <p>If the alternative costs more, user pays the difference. If it costs less, the difference is credited back. Transparent.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Priority Rebooking <span class="feature-id">RCB-06</span></div>
+        <div class="feature-body">
+            <p>Higher loyalty tiers get priority access to remaining seats on alternatives.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Notification with Alternatives <span class="feature-id">RCB-07</span></div>
+        <div class="feature-body">
+            <p>Sent via push + SMS + email. Includes a direct link to rebook with one tap.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Rebooking Analytics <span class="feature-id">RCB-08</span></div>
+        <div class="feature-body">
+            <p>Track what percentage of users rebook vs. take refund and leave. High rebooking rate is a strong quality signal.</p>
+        </div>
+    </div>
+
+    <!-- ============ 37 ============ -->
+    <div class="module-head" id="m37">
+        <div class="module-num">37</div>
+        <h2 class="module-title">Bus Substitution Handling</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Operators sometimes swap the bus at the last minute. Different layout, different amenities. This module handles the fallout gracefully.</p>
+
+    <div class="feature">
+        <div class="feature-title">Detect Bus Substitution <span class="feature-id">SUB-01</span></div>
+        <div class="feature-body">
+            <p>When the operator assigns a different bus to a trip, the system detects the change and flags affected bookings.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Auto Re-Seat Passengers <span class="feature-id">SUB-02</span></div>
+        <div class="feature-body">
+            <p>If the new bus has the same layout, passengers keep their seat numbers. If different, the system assigns equivalent seats automatically.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Notify if Seat Change is Required <span class="feature-id">SUB-03</span></div>
+        <div class="feature-body">
+            <p>If the seat number changes, the passenger is notified with the new seat. New ticket is issued.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Offer Refund if Major Change <span class="feature-id">SUB-04</span></div>
+        <div class="feature-body">
+            <p>If the substitution is major (AC → non-AC, seater → sleeper), the passenger can choose to cancel for a full refund.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Amenity Difference → Partial Refund <span class="feature-id">SUB-05</span></div>
+        <div class="feature-body">
+            <p>If the new bus lacks an amenity (Wi-Fi, blanket), a partial refund or wallet credit is issued automatically.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Passenger Confirmation for Major Changes <span class="feature-id">SUB-06</span></div>
+        <div class="feature-body">
+            <p>For significant changes, the passenger is asked to confirm acceptance before the change is final. No silent downgrades.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Substitution Log <span class="feature-id">SUB-07</span></div>
+        <div class="feature-body">
+            <p>Every substitution is logged with reason, timestamp, and affected bookings. Used to penalise operators who substitute frequently.</p>
+        </div>
+    </div>
+
+    <!-- ============ 38 ============ -->
+    <div class="module-head" id="m38">
+        <div class="module-num">38</div>
+        <h2 class="module-title">Overbooking Resolution</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">A defined policy when the operator overbooks or double-books. Handled fairly and transparently.</p>
+
+    <div class="feature">
+        <div class="feature-title">Detect Overbooking <span class="feature-id">OVB-01</span></div>
+        <div class="feature-body">
+            <p>The system automatically detects when more bookings exist than seats on a trip. Alerts admin and the operator immediately.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Bump Policy (FCFS or Tier-Based) <span class="feature-id">OVB-02</span></div>
+        <div class="feature-body">
+            <p>When a passenger must be bumped, the policy is either first-come-first-served or tier-based (higher tiers protected). Configurable.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Compensation for Bumped Passengers <span class="feature-id">OVB-03</span></div>
+        <div class="feature-body">
+            <p>Bumped passengers receive compensation — full refund plus a wallet credit and/or a future-trip promo code.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Auto-Refund + Credit <span class="feature-id">OVB-04</span></div>
+        <div class="feature-body">
+            <p>Refund is processed automatically. The compensation credit is added to the wallet within minutes.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Rebooking to Next Available Bus <span class="feature-id">OVB-05</span></div>
+        <div class="feature-body">
+            <p>Bumped passengers are offered the next available bus on the same route at no extra cost.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Notification to Affected Passengers <span class="feature-id">OVB-06</span></div>
+        <div class="feature-body">
+            <p>Every affected passenger is notified via push, SMS, and email with clear next steps.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Overbooking Log <span class="feature-id">OVB-07</span></div>
+        <div class="feature-body">
+            <p>Every instance is logged with cause, impacted passengers, and resolution. Used for pattern detection.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Operator Penalty for Repeated Overbooking <span class="feature-id">OVB-08</span></div>
+        <div class="feature-body">
+            <p>Operators who overbook repeatedly face penalties — lower quality score, higher commission, or suspension.</p>
+        </div>
+    </div>
+
+    <!-- ============ 39 ============ -->
+    <div class="module-head" id="m39">
+        <div class="module-num">39</div>
+        <h2 class="module-title">External Navigation</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Deep integration with Google Maps and Apple Maps for stand navigation. Small feature, big UX win.</p>
+
+    <div class="feature">
+        <div class="feature-title">Open in Google Maps for Boarding Point <span class="feature-id">NAV-01</span></div>
+        <div class="feature-body">
+            <p>One tap opens Google Maps with the exact boarding point as destination. Walking or driving directions.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Open in Apple Maps for iOS <span class="feature-id">NAV-02</span></div>
+        <div class="feature-body">
+            <p>On iOS, one tap opens Apple Maps. Preference is user-selectable.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Directions to Stand <span class="feature-id">NAV-03</span></div>
+        <div class="feature-body">
+            <p>For passengers unfamiliar with the stand, the app provides walking directions from their current location.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Turn-by-Turn for Passengers <span class="feature-id">NAV-04</span></div>
+        <div class="feature-body">
+            <p>Full turn-by-turn navigation inside the BusVerse app for reaching the boarding point. No need to switch apps.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Copy Coordinates Button <span class="feature-id">NAV-05</span></div>
+        <div class="feature-body">
+            <p>A "Copy coordinates" button on the stand card. Useful for sharing on chat or pasting into another map app.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Share Location with Family <span class="feature-id">NAV-06</span></div>
+        <div class="feature-body">
+            <p>Share the stand location or live trip location with family via WhatsApp or SMS.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Last-Mile Connectivity (Phase 2) <span class="feature-id">NAV-07</span></div>
+        <div class="feature-body">
+            <p>Future integration with Ola, Uber, or auto-rickshaw booking to complete the last mile from the drop point to the passenger's destination.</p>
+        </div>
+    </div>
+
+    <div class="end-note">
+        <h3>End of Feature Descriptions</h3>
+        <p>BusVerse Real · 39 Modules · Every feature explained</p>
+    </div>
+
+</main>
+
+<script>
+    // Mobile menu
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    menuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+    });
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+        });
+    });
+
+    // Scroll progress
+    const progress = document.getElementById('progress');
+    window.addEventListener('scroll', () => {
+        const h = document.documentElement;
+        const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+        progress.style.width = scrolled + '%';
+    });
+
+    // Active nav highlighting
+    const sections = document.querySelectorAll('.module-head[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(l => l.classList.remove('active'));
+                const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+                if (active) active.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-15% 0px -75% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

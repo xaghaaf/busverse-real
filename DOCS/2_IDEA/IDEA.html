@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusVerse - Complete Idea Documentation</title>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --primary-light: #7a9cc6;
+            --accent: #f4a261;
+            --accent-light: #f9c49a;
+            --bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --text-light: #5d6d7e;
+            --border: #dcdde1;
+            --sidebar-bg: #f0f3f7;
+            --sidebar-text: #34495e;
+            --sidebar-hover: #e0e6ed;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --sidebar-width: 320px;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Segoe UI', 'Nunito', 'Quicksand', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 25px 20px;
+            z-index: 100;
+            transition: transform 0.3s;
+            border-right: 1px solid var(--border);
+        }
+        .sidebar h2 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent);
+            color: var(--primary);
+        }
+        .sidebar ul {
+            list-style: none;
+        }
+        .sidebar li {
+            margin: 4px 0;
+        }
+        .sidebar a {
+            color: var(--sidebar-text);
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: block;
+            padding: 8px 14px;
+            border-radius: 8px;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .sidebar a:hover {
+            background: var(--sidebar-hover);
+            transform: translateX(4px);
+        }
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 30px 40px;
+            flex: 1;
+            max-width: 1100px;
+        }
+        h1, h2, h3, h4 {
+            color: var(--primary);
+            margin: 1.5em 0 0.5em;
+        }
+        h1 {
+            font-size: 2.5rem;
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 10px;
+            margin-top: 0;
+            color: #2e3f55;
+        }
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--accent-light);
+            padding-bottom: 5px;
+            margin-top: 2em;
+        }
+        h3 {
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+        h4 {
+            font-size: 1.1rem;
+            color: var(--primary-light);
+        }
+        p {
+            margin-bottom: 1em;
+        }
+        ul, ol {
+            margin-left: 2em;
+            margin-bottom: 1em;
+        }
+        li {
+            margin-bottom: 0.4em;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background: var(--primary);
+            color: #fff;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: #f0f4f8;
+        }
+        .callout {
+            background: var(--card-bg);
+            border-left: 6px solid var(--accent);
+            padding: 18px 22px;
+            margin: 25px 0;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            box-shadow: var(--shadow);
+        }
+        .callout-info {
+            border-left-color: var(--primary);
+            background: #eaf0f8;
+        }
+        .callout-warning {
+            border-left-color: #e76f51;
+            background: #fef0ec;
+        }
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 200;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            font-weight: bold;
+        }
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 100%;
+                max-width: 350px;
+                border-right: none;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .menu-toggle {
+                display: block;
+            }
+        }
+        .section-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">Menu</button>
+    <nav class="sidebar">
+        <h2>BusVerse</h2>
+        <ul>
+            <li><a href="#overview">1. Overview</a></li>
+            <li><a href="#loading">2. Loading Screen</a></li>
+            <li><a href="#user">3. User Application</a></li>
+            <li><a href="#admin">4. Admin Panel (Separate)</a></li>
+            <li><a href="#bus-controls">5. Per-Bus Controls</a></li>
+            <li><a href="#route-controls">6. Per-Route Controls</a></li>
+            <li><a href="#sim-time">7. Simulation Time</a></li>
+            <li><a href="#fare">8. Fare System</a></li>
+            <li><a href="#roles">9. Admin Roles</a></li>
+            <li><a href="#announcements">10. Announcements</a></li>
+            <li><a href="#emergency">11. Emergency</a></li>
+            <li><a href="#preferences">12. Preferences</a></li>
+            <li><a href="#waitlist">13. Waitlist</a></li>
+            <li><a href="#group">14. Group Booking</a></li>
+            <li><a href="#return">15. Return Journey</a></li>
+            <li><a href="#luggage">16. Luggage</a></li>
+            <li><a href="#food">17. Food Stops</a></li>
+            <li><a href="#transfer">18. Transfers</a></li>
+            <li><a href="#weather">19. Weather</a></li>
+            <li><a href="#driver">20. Driver Management</a></li>
+            <li><a href="#complaint">21. Feedback</a></li>
+            <li><a href="#achievements">22. Rewards</a></li>
+            <li><a href="#darkmode">23. Dark Mode</a></li>
+            <li><a href="#offline">24. Offline Mode</a></li>
+            <li><a href="#accessibility">25. Accessibility</a></li>
+            <li><a href="#language">26. Multi-Language</a></li>
+            <li><a href="#sound">27. Sound Effects</a></li>
+            <li><a href="#realtime">28. Real-Time Updates</a></li>
+            <li><a href="#interior">29. Bus Interior</a></li>
+            <li><a href="#scenarios">30. Scenarios</a></li>
+            <li><a href="#chat">31. Chat Support</a></li>
+            <li><a href="#social">32. Social Login</a></li>
+            <li><a href="#ticket-design">33. Ticket Design</a></li>
+            <li><a href="#bus-exterior">34. Bus Exterior</a></li>
+            <li><a href="#timezone">35. Time Zone</a></li>
+            <li><a href="#map">36. Virtual Map</a></li>
+            <li><a href="#currency">37. Currency & UPI</a></li>
+            <li><a href="#bus-models">38. Bus Models</a></li>
+            <li><a href="#passengers">39. Virtual Passengers</a></li>
+            <li><a href="#cctv">40. CCTV</a></li>
+            <li><a href="#permissions">41. Permissions</a></li>
+            <li><a href="#database">42. Database Schema</a></li>
+            <li><a href="#summary">43. Summary</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <h1>BusVerse - Complete Idea Documentation</h1>
+        <p><strong>Virtual Bus Booking & Simulation Platform</strong> | Version 6.0</p>
+        <p>This document explains every aspect of BusVerse in detail, as if explaining the entire idea to someone who wants to understand the full scope of the platform.</p>
+
+        <section id="overview" class="section-card">
+            <h2>1. Overview</h2>
+            <p>BusVerse is a fully simulated online bus booking and real-time tracking platform. It operates entirely within a virtual environment: virtual currency, virtual buses, virtual passengers, virtual UPI, and a custom virtual map. The system mimics a real-world bus service while giving administrators complete control over every aspect of the simulation.</p>
+            <p>The platform is split into two separate applications: the <strong>User Application</strong> (for passengers) and the <strong>Admin Panel</strong> (for administrators). These are completely separate interfaces with different URLs, login screens, and features.</p>
+            <p>Users can browse routes, book seats, manage a digital wallet, pay via virtual UPI, track buses live, and receive notifications. Administrators manage buses, routes, schedules, drivers, simulate delays, adjust speeds, populate buses with virtual passengers, monitor bus interiors via simulated CCTV, and access a database viewer for all records.</p>
+            <p>The virtual map uses a custom coordinate system (e.g., 1000x1000 units). Buses move along polylines, stands are points on the map, and everything is rendered in-browser without external services.</p>
+            <div class="callout-info">
+                <strong>Separation:</strong> The User Application runs at <code>busverse.app</code> while the Admin Panel runs at <code>admin.busverse.app</code>. They share the same backend but have completely different frontends and authentication flows.
+            </div>
+        </section>
+
+        <section id="loading" class="section-card">
+            <h2>2. Loading Screen</h2>
+            <p>When the application first loads, users are greeted with a branded loading screen.</p>
+            <ul>
+                <li><strong>Logo:</strong> A stylized bus icon combined with a map pin or road element, in brand colors (primary blue and accent orange). Admin can upload a custom logo.</li>
+                <li><strong>App Name:</strong> "BusVerse" displayed prominently below the logo in a rounded font.</li>
+                <li><strong>Tagline:</strong> Optional: "Your Virtual Journey Starts Here".</li>
+                <li><strong>Progress Indicator:</strong> Options include a moving bus along a road line, a circular spinner, or a progress bar. Admin can select the style.</li>
+                <li><strong>Background:</strong> Soft pastel gradient (light blue to cream) matching the overall theme.</li>
+                <li><strong>Minimum Display Time:</strong> Configurable by admin, default 1 second, then fades out.</li>
+                <li><strong>Version Number:</strong> Displayed at the bottom corner (e.g., "v1.0.0").</li>
+                <li><strong>Maintenance Mode:</strong> If system is down for maintenance, the loading screen displays a maintenance message instead of proceeding.</li>
+                <li><strong>No Interaction:</strong> Automatically transitions to login or dashboard once loaded.</li>
+            </ul>
+        </section>
+
+        <section id="user" class="section-card">
+            <h2>3. User Application</h2>
+            <p>The User Application is the passenger-facing web app. It is designed to be intuitive, fast, and complete.</p>
+
+            <h3>3.1 Registration and Login</h3>
+            <ul>
+                <li><strong>Sign Up:</strong> Users create an account with username, email, and password. Optional display name and avatar. Email verification is simulated (no real email sent).</li>
+                <li><strong>Login:</strong> Secure authentication with username/email and password. Session persists until logout.</li>
+                <li><strong>Social Login:</strong> Simulated Google and Facebook login buttons. The flow mimics OAuth: user clicks button, sees a simulated consent screen, then is logged in. No real OAuth connection.</li>
+                <li><strong>Guest Checkout:</strong> Option to book without creating an account. Limited features: no wallet, no history, no notifications. Guest provides name and email for ticket.</li>
+                <li><strong>Profile Management:</strong> Edit profile, change password, update avatar, manage linked social accounts, manage notification preferences.</li>
+                <li><strong>Initial Wallet Credit:</strong> 500 BVC credited to new user's wallet on registration.</li>
+            </ul>
+
+            <h3>3.2 User Dashboard</h3>
+            <ul>
+                <li>Wallet balance in BVC prominently displayed.</li>
+                <li>Upcoming bookings with countdown timer to departure.</li>
+                <li>Quick links to search buses, view history, access live map, manage wallet.</li>
+                <li>Recent notifications (booking confirmation, delay alerts).</li>
+                <li>Achievements and loyalty points summary at the bottom.</li>
+                <li>Favorite routes displayed for quick access.</li>
+            </ul>
+
+            <h3>3.3 Virtual Wallet</h3>
+            <ul>
+                <li><strong>Balance Display:</strong> Current BVC balance shown prominently. Stored as integer, no decimals.</li>
+                <li><strong>Transaction History:</strong> Complete ledger of all credits and debits with timestamp, reference ID, and description.</li>
+                <li><strong>Top-Up:</strong> Users cannot self-top-up. Only admin can add coins. Users may claim promotional bonuses if admin enables them.</li>
+                <li><strong>Refunds:</strong> Cancelled bookings automatically refund to wallet instantly.</li>
+                <li><strong>Wallet to Wallet Transfer:</strong> Option to send BVC to another user (simulated). Admin can disable this feature.</li>
+            </ul>
+
+            <h3>3.4 Search and Browse Buses</h3>
+            <ul>
+                <li><strong>Search Parameters:</strong> Origin stand, destination stand, date, preferred time range.</li>
+                <li><strong>Results List:</strong> Shows available trips with bus model, departure time, arrival time, duration, fare per seat, seats remaining, and driver name.</li>
+                <li><strong>Filters:</strong> Sort by price, departure time, duration, or available seats. Filter by bus model, price range, departure time window.</li>
+                <li><strong>Route Preview:</strong> Clicking a result shows the route on the virtual map with all stands highlighted.</li>
+                <li><strong>Multi-Leg Search:</strong> Option to plan a journey with transfers. User enters origin, destination, and the system suggests connecting routes.</li>
+            </ul>
+
+            <h3>3.5 Seat Selection and Booking</h3>
+            <ul>
+                <li><strong>Interactive Seat Map:</strong> Visual seat map based on bus model. Available seats are green, occupied red, selected blue, unavailable gray.</li>
+                <li><strong>Seat Information:</strong> Hover over a seat shows number, class (window, aisle, standard, premium), and price (if premium).</li>
+                <li><strong>Temporary Lock:</strong> Seat is locked for 5 minutes when selected. Lock extends if user is active on the page.</li>
+                <li><strong>Fare Summary:</strong> Total fare displayed with breakdown (base fare, taxes, extra charges).</li>
+                <li><strong>Payment Options:</strong> Wallet balance or virtual UPI.</li>
+                <li><strong>Group Booking:</strong> Select multiple seats in one transaction. Group leader can pay for all seats.</li>
+                <li><strong>Return Journey:</strong> Option to book return trip at the same time, possibly on a different bus.</li>
+                <li><strong>Waitlist:</strong> If bus is full, user can join waitlist. Auto-booking if seat opens and wallet has sufficient balance.</li>
+                <li><strong>Booking Confirmation:</strong> Screen with booking ID, trip details, seat number, QR code, and ticket design.</li>
+            </ul>
+
+            <h3>3.6 Live Bus Tracking</h3>
+            <ul>
+                <li><strong>Virtual Map View:</strong> Real-time positions of all active buses on the user's selected route.</li>
+                <li><strong>Bus Position Updates:</strong> Buses move smoothly along the route polyline. Updates multiple times per second.</li>
+                <li><strong>Estimated Arrival:</strong> ETA for each upcoming stand based on current speed and position.</li>
+                <li><strong>Bus Status:</strong> Bus icon color changes based on status (on time, delayed, stopped, emergency). Tooltip shows speed, delay duration, next stop, and driver name.</li>
+                <li><strong>Route Overlay:</strong> Full route drawn on map. Stands labeled. Traversed path highlighted in a different color.</li>
+            </ul>
+
+            <h3>3.7 Booking History and Cancellation</h3>
+            <ul>
+                <li><strong>History List:</strong> All past and upcoming bookings with status (confirmed, completed, cancelled, pending, no-show).</li>
+                <li><strong>Cancellation Policy:</strong> Cancel up to 30 minutes before departure. Full refund to wallet. Cancellation fee configurable by admin.</li>
+                <li><strong>Rescheduling:</strong> Option to change booking to a different trip (subject to availability and rescheduling fee).</li>
+                <li><strong>No-Show:</strong> If user does not cancel and trip departs, booking marked as no-show. No refund.</li>
+            </ul>
+
+            <h3>3.8 Notifications</h3>
+            <ul>
+                <li><strong>In-App Notifications:</strong> Alerts for booking confirmation, cancellation, refund, delay, trip start, driver assignment.</li>
+                <li><strong>Real-Time Alerts:</strong> Instant notification when bus is delayed or arrives at a stand.</li>
+                <li><strong>Email Notifications:</strong> Simulated email alerts (visible in a notification center).</li>
+            </ul>
+
+            <h3>3.9 User Preferences</h3>
+            <ul>
+                <li><strong>Favorite Routes:</strong> Save routes for quick access.</li>
+                <li><strong>Preferred Seat Type:</strong> Window or aisle. System auto-suggests preferred seat.</li>
+                <li><strong>Notification Preferences:</strong> Toggle in-app notifications, email notifications, and specific alert types.</li>
+                <li><strong>Language Preference:</strong> Choose from available languages.</li>
+                <li><strong>Theme Preference:</strong> Light or dark mode. Auto-switch based on time of day option.</li>
+            </ul>
+
+            <h3>3.10 Luggage Management</h3>
+            <ul>
+                <li><strong>Luggage Allowance:</strong> One bag free per passenger (up to 20kg virtual weight). Additional bags cost extra BVC.</li>
+                <li><strong>Oversized Luggage:</strong> Option to declare oversized luggage (extra fee).</li>
+                <li><strong>Luggage Tag:</strong> Generated with booking QR code for identification.</li>
+                <li><strong>Lost Luggage Simulation:</strong> Admin can simulate a lost luggage event.</li>
+                <li><strong>Luggage Insurance:</strong> Optional virtual insurance for an additional fee.</li>
+            </ul>
+
+            <h3>3.11 Food and Refreshment Stops</h3>
+            <ul>
+                <li><strong>Refreshment Stops:</strong> Admin marks certain stands as refreshment stops with longer buffer time.</li>
+                <li><strong>Pre-Order Food:</strong> Users can pre-order virtual snacks during booking. Snacks are delivered to seat (simulated).</li>
+                <li><strong>Food Menu:</strong> Simple virtual menu with items and prices in BVC.</li>
+                <li><strong>Dietary Restrictions:</strong> User can select dietary preferences (vegetarian, vegan).</li>
+            </ul>
+
+            <h3>3.12 Complaint and Feedback</h3>
+            <ul>
+                <li><strong>Submit Complaint:</strong> Users can submit complaints about a trip (e.g., bus delayed, driver behavior).</li>
+                <li><strong>Post-Trip Rating:</strong> Rate trip 1-5 stars with optional comment.</li>
+                <li><strong>Anonymous Feedback:</strong> Option to submit feedback anonymously.</li>
+                <li><strong>Complaint Status:</strong> Users can track the status of their complaints (pending, resolved).</li>
+            </ul>
+
+            <h3>3.13 Achievements and Rewards</h3>
+            <ul>
+                <li><strong>Badges:</strong> Earn badges for milestones: first booking, 10 trips, 50 trips, early bird, night rider.</li>
+                <li><strong>Loyalty Points:</strong> Separate from BVC. Earn points per trip. Redeem for fare discounts.</li>
+                <li><strong>Referral Program:</strong> Invite friends with a referral code. Both get bonus BVC when the friend books.</li>
+            </ul>
+
+            <h3>3.14 Offline Mode</h3>
+            <ul>
+                <li><strong>Cached Data:</strong> Basic booking details and tickets cached for offline viewing.</li>
+                <li><strong>Offline Ticket:</strong> View ticket QR code without internet.</li>
+                <li><strong>Sync:</strong> When back online, app syncs any pending actions.</li>
+            </ul>
+
+            <h3>3.15 Sound Effects</h3>
+            <ul>
+                <li><strong>Booking Confirmation Sound:</strong> Pleasant chime when booking confirmed.</li>
+                <li><strong>Bus Arrival Alert:</strong> Sound when bus is approaching user's stand.</li>
+                <li><strong>Notification Sounds:</strong> Different sounds for different notification types.</li>
+                <li><strong>Mute Option:</strong> Toggle all sounds in preferences. Volume control per sound type.</li>
+            </ul>
+
+            <h3>3.16 Real-Time Seat Availability</h3>
+            <ul>
+                <li><strong>Live Updates:</strong> Seat map updates in real-time. If another user books a seat, it turns red instantly. If a seat is freed, it turns green.</li>
+                <li><strong>Conflict Resolution:</strong> Two users selecting the same seat simultaneously: first to confirm wins. Second user gets an error message.</li>
+                <li><strong>Seat Lock Extension:</strong> User can extend the seat lock if they are still deciding.</li>
+                <li><strong>Seat Release on Page Close:</strong> If user closes the page, seat lock is released automatically.</li>
+            </ul>
+        </section>
+
+        <section id="admin" class="section-card">
+            <h2>4. Admin Panel (Separate Application)</h2>
+            <p>The Admin Panel is a completely separate application from the User Application. It has its own URL, login screen, and interface. Only users with admin roles can access it.</p>
+            <div class="callout">
+                <strong>Admin Panel URL:</strong> <code>admin.busverse.app</code><br>
+                <strong>User App URL:</strong> <code>busverse.app</code>
+            </div>
+
+            <h3>4.1 Admin Login</h3>
+            <ul>
+                <li>Separate login screen with admin branding.</li>
+                <li>Same authentication system but checks for admin role.</li>
+                <li>Two-factor authentication simulation (optional, admin can enable).</li>
+                <li>Failed login attempts are logged and rate-limited.</li>
+            </ul>
+
+            <h3>4.2 Admin Dashboard</h3>
+            <ul>
+                <li><strong>Overview Cards:</strong> Total users, active buses, ongoing trips, bookings today, revenue today, active drivers.</li>
+                <li><strong>Live Fleet Map:</strong> Mini-map showing all buses with real-time positions.</li>
+                <li><strong>Recent Activity Feed:</strong> Log of recent admin actions with timestamps.</li>
+                <li><strong>System Health:</strong> Simulation engine status, WebSocket connections, database status.</li>
+                <li><strong>Customizable Widgets:</strong> Admin can drag-and-drop widgets, add/remove widgets, and customize the dashboard layout.</li>
+                <li><strong>Real-Time Charts:</strong> Live-updating charts for bookings, revenue, and active buses.</li>
+                <li><strong>Alert Notifications:</strong> System alerts for low fuel, driver fatigue, bus breakdown, etc.</li>
+            </ul>
+
+            <h3>4.3 Bus Management</h3>
+            <ul>
+                <li><strong>Bus List:</strong> Table of all buses with ID, name, model, capacity, status, current route, current position, assigned driver.</li>
+                <li><strong>Add Bus:</strong> Create new bus by selecting model, assigning name/number, and optionally a driver.</li>
+                <li><strong>Edit Bus:</strong> Change name, model (changes seat layout), status, assigned driver.</li>
+                <li><strong>Remove Bus:</strong> Deactivate bus. Cannot be scheduled but remains in history.</li>
+                <li><strong>Bus Details:</strong> Clicking a bus shows: seat map, current passengers (real and virtual), current position, driver info, CCTV feed, per-bus controls, maintenance history.</li>
+            </ul>
+
+            <h3>4.4 Route Management</h3>
+            <ul>
+                <li><strong>Route List:</strong> All routes with name, number of stands, total distance, status.</li>
+                <li><strong>Create Route:</strong> Draw polyline on virtual map by clicking points. Each click creates a stand. Save with name.</li>
+                <li><strong>Edit Route:</strong> Add/remove/reposition stands. Polylines update automatically.</li>
+                <li><strong>Delete Route:</strong> Deactivate route. Cannot be scheduled.</li>
+                <li><strong>Route Preview:</strong> Visual preview with distance markers.</li>
+                <li><strong>Layer Control:</strong> Show/hide routes, stands, buses on the map.</li>
+            </ul>
+
+            <h3>4.5 Stand Management</h3>
+            <ul>
+                <li><strong>Stand List:</strong> All stands with name, coordinates, associated routes.</li>
+                <li><strong>Add Stand:</strong> Place on map by clicking. Assign name.</li>
+                <li><strong>Edit Stand:</strong> Rename or move coordinates.</li>
+                <li><strong>Delete Stand:</strong> Remove stand. Warns if part of a route.</li>
+                <li><strong>Stand Clustering:</strong> When zoomed out, nearby stands cluster together.</li>
+            </ul>
+
+            <h3>4.6 Schedule Management</h3>
+            <ul>
+                <li><strong>Schedule List:</strong> All trips with date, time, bus, route, driver, status.</li>
+                <li><strong>Create Schedule:</strong> Select bus, route, driver, departure date/time. System calculates ETA.</li>
+                <li><strong>Edit Schedule:</strong> Change bus, route, driver, or time.</li>
+                <li><strong>Cancel Schedule:</strong> Cancel trip. All confirmed bookings automatically refunded.</li>
+                <li><strong>Duplicate Schedule:</strong> Copy to another date/time.</li>
+            </ul>
+
+            <h3>4.7 Virtual Passenger Management</h3>
+            <ul>
+                <li><strong>Passenger Pool:</strong> List of all virtual passengers with name, age, avatar, current assignment.</li>
+                <li><strong>Create Passenger:</strong> Add new virtual passenger with name, age, avatar, behavior tag, seat preference.</li>
+                <li><strong>Assign to Trip:</strong> Select trip and seat. Assign passenger.</li>
+                <li><strong>Bulk Assign:</strong> Auto-fill empty seats with random virtual passengers.</li>
+                <li><strong>Remove Passenger:</strong> Unassign from seat.</li>
+                <li><strong>Board/Alight:</strong> Simulate boarding at stand or alighting.</li>
+                <li><strong>Behavior Tags:</strong> Quiet, chatty, demanding, sleeping, reading. Intensity 1-10.</li>
+                <li><strong>Interaction Simulation:</strong> Virtual passengers can interact with each other (simple social simulation).</li>
+            </ul>
+
+            <h3>4.8 Database Viewer</h3>
+            <ul>
+                <li><strong>Tables Available:</strong> Users, wallets, wallet transactions, UPI accounts, buses, routes, stands, schedules, bookings, virtual passengers, drivers, notifications, audit logs, feedback, achievements, complaints, chat messages.</li>
+                <li><strong>View Records:</strong> Click any table to see all records in paginated table.</li>
+                <li><strong>Search and Filter:</strong> Search by specific fields. Filter by date range or status.</li>
+                <li><strong>Sort:</strong> Sort by any column.</li>
+                <li><strong>Export:</strong> Export current view as CSV, JSON, or PDF.</li>
+                <li><strong>Data Masking:</strong> Sensitive fields (passwords, PINs) are masked automatically.</li>
+                <li><strong>Custom Views:</strong> Admin can create and save custom queries.</li>
+                <li><strong>Full Database Dump:</strong> Export entire database.</li>
+                <li><strong>Audit Trail:</strong> Every admin action logged with timestamp, admin username, action type, affected record.</li>
+            </ul>
+
+            <h3>4.9 Analytics and Reports</h3>
+            <ul>
+                <li><strong>Revenue Report:</strong> Total BVC earned. Breakdown by route, bus model, payment method (wallet vs UPI).</li>
+                <li><strong>Occupancy Rate:</strong> Percentage of seats filled per trip. Average per route.</li>
+                <li><strong>Popular Routes:</strong> Top routes by booking count.</li>
+                <li><strong>On-Time Performance:</strong> Percentage of trips on time vs delayed. Average delay duration.</li>
+                <li><strong>User Activity:</strong> New registrations, active users, bookings per user, retention rate.</li>
+                <li><strong>Bus Utilization:</strong> Percentage of time each bus is in use.</li>
+                <li><strong>Driver Performance:</strong> On-time percentage, average delay, rating per driver.</li>
+                <li><strong>Route Profitability:</strong> Fare collected vs simulated operating cost.</li>
+                <li><strong>Cancellation Rate:</strong> Percentage of bookings cancelled.</li>
+                <li><strong>Average Booking Lead Time:</strong> How far in advance users book.</li>
+                <li><strong>Graphs:</strong> Visual charts for all metrics. Export as image or PDF.</li>
+            </ul>
+
+            <h3>4.10 User Management</h3>
+            <ul>
+                <li><strong>User List:</strong> All registered users with username, email, role, wallet balance, booking count.</li>
+                <li><strong>Edit User:</strong> Change display name, reset password, change role.</li>
+                <li><strong>Suspend User:</strong> Temporarily block login.</li>
+                <li><strong>Delete User:</strong> Permanently remove. Associated data anonymized or deleted.</li>
+                <li><strong>Wallet Adjustment:</strong> Add or subtract BVC with reason.</li>
+                <li><strong>Linked Social Accounts:</strong> View which social accounts are linked.</li>
+            </ul>
+
+            <h3>4.11 Notification Management</h3>
+            <ul>
+                <li><strong>Send Notification:</strong> Broadcast to all users or targeted to specific trip/route.</li>
+                <li><strong>Notification Templates:</strong> Predefined templates for common alerts.</li>
+                <li><strong>Notification History:</strong> Log of all sent notifications with delivery status.</li>
+            </ul>
+
+            <h3>4.12 Ticket Design Customization</h3>
+            <ul>
+                <li><strong>Layout Options:</strong> Choose ticket size, layout, colors, fonts.</li>
+                <li><strong>Branding:</strong> Add custom logo, company name, tagline.</li>
+                <li><strong>Barcode/QR Placement:</strong> Position QR code and barcode on ticket.</li>
+                <li><strong>Multi-Language Ticket:</strong> Ticket text in multiple languages.</li>
+                <li><strong>Watermark:</strong> Add security watermark.</li>
+                <li><strong>Preview:</strong> Real-time preview of ticket design.</li>
+            </ul>
+
+            <h3>4.13 Bus Exterior Customization</h3>
+            <ul>
+                <li><strong>Color/Livery:</strong> Change bus color scheme.</li>
+                <li><strong>Custom Names:</strong> Display custom name on bus exterior.</li>
+                <li><strong>LED Destination Sign:</strong> Customize destination display on front of bus.</li>
+                <li><strong>Bus Wrap:</strong> Simulated advertising wrap on bus exterior.</li>
+                <li><strong>Number Plate:</strong> Custom number plate display.</li>
+                <li><strong>Per-Route Designs:</strong> Different bus designs for different routes.</li>
+            </ul>
+
+            <h3>4.14 Simulation Scenarios</h3>
+            <ul>
+                <li><strong>Pre-Built Scenarios:</strong>
+                    <ul>
+                        <li>Rush Hour: all buses delayed, high traffic.</li>
+                        <li>Holiday Peak: high demand, full buses.</li>
+                        <li>Weather Emergency: all routes slowed, rain/fog effects.</li>
+                        <li>Strike Simulation: some buses out of service.</li>
+                        <li>Festival Rush: special event, extra buses needed.</li>
+                        <li>Night Service: limited visibility, reduced speed.</li>
+                        <li>Driver Strike: no drivers available.</li>
+                        <li>Fuel Shortage: fuel prices high, some buses cannot run.</li>
+                        <li>Road Closure: specific route segments blocked.</li>
+                        <li>Pandemic Simulation: reduced capacity, social distancing.</li>
+                    </ul>
+                </li>
+                <li><strong>Custom Scenarios:</strong> Admin can create and save custom scenarios.</li>
+                <li><strong>Load Scenario:</strong> Applies settings to all affected buses/routes instantly.</li>
+            </ul>
+
+            <h3>4.15 Chat Support</h3>
+            <ul>
+                <li><strong>Live Chat:</strong> Real-time chat between user and admin.</li>
+                <li><strong>Chat History:</strong> Full conversation history.</li>
+                <li><strong>Chatbot:</strong> Automated responses for common questions.</li>
+                <li><strong>File Attachment:</strong> Users can attach screenshots or files.</li>
+                <li><strong>Chat Rating:</strong> Users rate support experience.</li>
+                <li><strong>Escalation:</strong> Escalate to higher-level admin.</li>
+                <li><strong>Canned Responses:</strong> Pre-written responses for quick replies.</li>
+                <li><strong>Support Tickets:</strong> Create, track, and resolve tickets.</li>
+            </ul>
+
+            <h3>4.16 Time Zone Handling</h3>
+            <ul>
+                <li><strong>Default Time Zone:</strong> Admin sets the simulation's default time zone.</li>
+                <li><strong>User Time Zone Detection:</strong> Auto-detect user's time zone from browser.</li>
+                <li><strong>Time Conversion:</strong> All times displayed in user's local time zone.</li>
+                <li><strong>Daylight Saving:</strong> Simulated DST changes.</li>
+                <li><strong>Booking Confirmation:</strong> Shows both local time and simulation time.</li>
+            </ul>
+
+            <h3>4.17 Data Export</h3>
+            <ul>
+                <li><strong>PDF Reports:</strong> Export any report as PDF.</li>
+                <li><strong>Excel Export:</strong> Export tables as Excel files.</li>
+                <li><strong>API Access:</strong> REST API for external data access (read-only).</li>
+                <li><strong>Full Database Dump:</strong> Export entire database as JSON or SQL.</li>
+            </ul>
+        </section>
+
+        <section id="bus-controls" class="section-card">
+            <h2>5. Full Per-Bus Admin Controls</h2>
+            <p>Administrators have granular control over each individual bus. The following is a comprehensive list of every parameter and action.</p>
+
+            <h3>5.1 Movement and Navigation</h3>
+            <ul>
+                <li><strong>Set Speed:</strong> Adjust speed in units/sec (1-100).</li>
+                <li><strong>Acceleration/Deceleration Rate:</strong> Set how quickly bus reaches target speed.</li>
+                <li><strong>Inject Delay:</strong> Pause bus for specified duration. Assign reason (traffic, breakdown, rest stop).</li>
+                <li><strong>Stop Bus:</strong> Complete stop until manually resumed.</li>
+                <li><strong>Resume Bus:</strong> Resume after stop or delay.</li>
+                <li><strong>Reset Position:</strong> Move back to start of route.</li>
+                <li><strong>Teleport:</strong> Click any point on route to move bus there instantly.</li>
+                <li><strong>Set Direction:</strong> Forward or reverse.</li>
+                <li><strong>Route Deviation:</strong> Temporarily divert to alternate path.</li>
+            </ul>
+
+            <h3>5.2 Status and Health</h3>
+            <ul>
+                <li><strong>Engine On/Off:</strong> Toggle engine. Bus cannot move when off.</li>
+                <li><strong>Fuel Level:</strong> Set or drain. Low fuel triggers warning.</li>
+                <li><strong>Battery Status:</strong> For electric buses.</li>
+                <li><strong>Temperature:</strong> Interior temperature control.</li>
+                <li><strong>Breakdown Simulation:</strong> Trigger mechanical failure.</li>
+                <li><strong>Status Override:</strong> Manually set status (on time, delayed, stopped, out of service, emergency).</li>
+                <li><strong>Mileage/Odometer:</strong> Display and reset.</li>
+            </ul>
+
+            <h3>5.3 Passenger Environment</h3>
+            <ul>
+                <li><strong>Lighting:</strong> On/off/dim.</li>
+                <li><strong>Air Conditioning:</strong> On/off, set temperature.</li>
+                <li><strong>Announcement System:</strong> Play pre-recorded announcement or type message for interior display.</li>
+                <li><strong>Seat Belt Sign:</strong> Toggle on/off.</li>
+                <li><strong>Passenger Count:</strong> Display and manually adjust.</li>
+                <li><strong>Entertainment System:</strong> Toggle per-seat screens on/off (if model supports).</li>
+                <li><strong>Wi-Fi:</strong> Toggle virtual Wi-Fi on/off.</li>
+            </ul>
+
+            <h3>5.4 Communication and Alerts</h3>
+            <ul>
+                <li><strong>Send Bus-Specific Notification:</strong> Message to all users booked on this bus.</li>
+                <li><strong>Emergency Alert:</strong> Trigger alert on user dashboards.</li>
+            </ul>
+
+            <h3>5.5 CCTV and Monitoring</h3>
+            <ul>
+                <li><strong>Open Interior CCTV:</strong> View simulated interior feed.</li>
+                <li><strong>Camera Switching:</strong> Cycle through camera angles (front, middle, rear, driver-facing, door).</li>
+                <li><strong>Zoom/Pan:</strong> Zoom into specific areas of feed.</li>
+                <li><strong>Night Vision:</strong> Toggle night vision mode.</li>
+                <li><strong>Motion Detection:</strong> Alert when passenger moves.</li>
+                <li><strong>Record Simulation:</strong> Record feed for specified duration.</li>
+                <li><strong>Camera Timestamp:</strong> Overlay timestamp on feed.</li>
+            </ul>
+
+            <h3>5.6 Maintenance and Logs</h3>
+            <ul>
+                <li><strong>Maintenance Mode:</strong> Mark bus as under maintenance.</li>
+                <li><strong>Service History:</strong> Log of past maintenance and repairs.</li>
+                <li><strong>Error Logs:</strong> Simulation errors and warnings.</li>
+            </ul>
+
+            <h3>5.7 Bus Interior Visualization</h3>
+            <ul>
+                <li><strong>2D View:</strong> Overhead view of bus interior with seat map.</li>
+                <li><strong>3D View:</strong> 3D model of bus interior. Walk through aisle.</li>
+                <li><strong>Seat Selection in 3D:</strong> Click seats in 3D view to assign passengers.</li>
+                <li><strong>VR Support:</strong> Optional VR mode for immersive walkthrough.</li>
+            </ul>
+        </section>
+
+        <section id="route-controls" class="section-card">
+            <h2>6. Full Per-Route Admin Controls</h2>
+            <h3>6.1 Route Geometry</h3>
+            <ul>
+                <li><strong>Edit Polyline:</strong> Add/remove/drag points.</li>
+                <li><strong>Add/Remove Stand:</strong> Insert or delete stands.</li>
+                <li><strong>Reverse Route:</strong> Reverse stand order.</li>
+                <li><strong>Set Distance Scale:</strong> Adjust virtual distance units.</li>
+                <li><strong>Snap to Grid:</strong> Option for grid alignment when drawing.</li>
+            </ul>
+            <h3>6.2 Route Speed and Timing</h3>
+            <ul>
+                <li><strong>Default Speed:</strong> Set default speed for buses.</li>
+                <li><strong>Speed Limits:</strong> Min and max speed.</li>
+                <li><strong>Expected Travel Time:</strong> Set duration between stands.</li>
+                <li><strong>Time Buffer:</strong> Extra buffer at specific stands.</li>
+            </ul>
+            <h3>6.3 Traffic and Delay Simulation</h3>
+            <ul>
+                <li><strong>Traffic Zones:</strong> Define segments with congestion levels.</li>
+                <li><strong>Random Delay Generator:</strong> Configure probability and duration.</li>
+                <li><strong>Weather Simulation:</strong> Set weather for this route.</li>
+                <li><strong>Road Works:</strong> Mark segment under construction.</li>
+            </ul>
+            <h3>6.4 Route Availability</h3>
+            <ul>
+                <li><strong>Activate/Deactivate:</strong> Enable/disable for scheduling.</li>
+                <li><strong>Operating Hours:</strong> Time window for operation.</li>
+                <li><strong>Weekday Restrictions:</strong> Specific days of week.</li>
+            </ul>
+            <h3>6.5 Route-Specific Notifications</h3>
+            <ul>
+                <li><strong>Broadcast:</strong> Send notification to all users on this route.</li>
+                <li><strong>Route Advisory:</strong> Persistent message on search results.</li>
+            </ul>
+            <h3>6.6 Analytics</h3>
+            <ul>
+                <li><strong>Performance Metrics:</strong> Average speed, on-time percentage, occupancy.</li>
+                <li><strong>Heat Map:</strong> Visualize bus density.</li>
+                <li><strong>Distance Measurement:</strong> Measure distance between points on map.</li>
+            </ul>
+        </section>
+
+        <section id="sim-time" class="section-card">
+            <h2>7. Simulation Time Controls</h2>
+            <ul>
+                <li><strong>Pause Simulation:</strong> Freeze all bus movements.</li>
+                <li><strong>Fast-Forward:</strong> 2x, 4x, 10x speed.</li>
+                <li><strong>Slow Motion:</strong> 0.5x speed.</li>
+                <li><strong>Jump to Time:</strong> Set simulation clock to specific date/time.</li>
+                <li><strong>Reset Clock:</strong> Reset simulation clock to start.</li>
+                <li><strong>Speed Presets:</strong> Normal, fast, very fast buttons.</li>
+                <li><strong>Pause on Event:</strong> Auto-pause when specific event occurs (e.g., breakdown).</li>
+                <li><strong>Simulation Time Zone:</strong> Set time zone for simulation clock.</li>
+            </ul>
+        </section>
+
+        <section id="fare" class="section-card">
+            <h2>8. Fare and Pricing System</h2>
+            <ul>
+                <li><strong>Base Fare:</strong> Flat fee per trip.</li>
+                <li><strong>Per-KM Charge:</strong> Distance-based component.</li>
+                <li><strong>Toll Simulation:</strong> Add toll charges to fare.</li>
+                <li><strong>Dynamic Pricing:</strong> Price increases with demand (peak hours, holidays).</li>
+                <li><strong>Peak Hour Pricing:</strong> Morning/evening rush surcharge.</li>
+                <li><strong>Seasonal Pricing:</strong> Holiday surcharge.</li>
+                <li><strong>Discount Codes:</strong> Promo codes with percentage or flat discount.</li>
+                <li><strong>Student/Senior Discount:</strong> Percentage off for eligible users.</li>
+                <li><strong>Group Discount:</strong> Tiered discount for group bookings.</li>
+                <li><strong>Loyalty Points Redemption:</strong> Use points for fare discount.</li>
+                <li><strong>Cancellation Fee:</strong> Fee for cancelling after grace period.</li>
+                <li><strong>Rescheduling Fee:</strong> Fee for changing booking.</li>
+                <li><strong>Refund Processing:</strong> Instant refund to wallet.</li>
+                <li><strong>Tax Simulation:</strong> Virtual GST added to fare.</li>
+                <li><strong>Discount Cap:</strong> Maximum discount per user.</li>
+                <li><strong>Currency Exchange:</strong> Simulated exchange between BVC and other virtual currencies.</li>
+                <li><strong>Inflation/Deflation Control:</strong> Admin can adjust currency value.</li>
+                <li><strong>Transaction Fees:</strong> Admin-set fee per transaction.</li>
+            </ul>
+        </section>
+
+        <section id="roles" class="section-card">
+            <h2>9. Multiple Admin Roles</h2>
+            <ul>
+                <li><strong>Super Admin:</strong> Full access including user management, database viewer, analytics.</li>
+                <li><strong>Route Manager:</strong> Route and stand control only.</li>
+                <li><strong>Fleet Manager:</strong> Bus management, driver management.</li>
+                <li><strong>Support Staff:</strong> View bookings, handle complaints, chat support.</li>
+                <li><strong>Auditor:</strong> Read-only access to database and logs.</li>
+                <li><strong>Custom Roles:</strong> Admin can create custom roles with specific permissions.</li>
+            </ul>
+            <table>
+                <tr><th>Permission</th><th>Super Admin</th><th>Route Manager</th><th>Fleet Manager</th><th>Support Staff</th><th>Auditor</th></tr>
+                <tr><td>View dashboard</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+                <tr><td>Manage buses</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td><td>No</td></tr>
+                <tr><td>Manage routes/stands</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+                <tr><td>Manage schedules</td><td>Yes</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td></tr>
+                <tr><td>Manage drivers</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td><td>No</td></tr>
+                <tr><td>Simulation control</td><td>Yes</td><td>Yes (routes)</td><td>Yes (buses)</td><td>No</td><td>No</td></tr>
+                <tr><td>Manage virtual passengers</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td><td>No</td></tr>
+                <tr><td>View CCTV</td><td>Yes</td><td>No</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+                <tr><td>Database viewer</td><td>Yes</td><td>No</td><td>No</td><td>No</td><td>Yes</td></tr>
+                <tr><td>Analytics</td><td>Yes</td><td>Yes (route)</td><td>Yes (fleet)</td><td>No</td><td>Yes</td></tr>
+                <tr><td>User management</td><td>Yes</td><td>No</td><td>No</td><td>No</td><td>No</td></tr>
+                <tr><td>Chat support</td><td>Yes</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+            </table>
+            <p>All admin actions are logged with timestamp, admin username, action type, and affected record.</p>
+        </section>
+
+        <section id="announcements" class="section-card">
+            <h2>10. Bus Stop Announcements</h2>
+            <ul>
+                <li><strong>Voice Announcement:</strong> Simulated voice announces "Bus 101 arriving in 5 minutes" at stands.</li>
+                <li><strong>Visual Display Boards:</strong> Each stand has a display board showing upcoming arrivals with ETAs.</li>
+                <li><strong>Text-to-Speech:</strong> Admin can type a message and have it announced at selected stands.</li>
+                <li><strong>Captioning:</strong> Announcements also displayed as text for accessibility.</li>
+                <li><strong>Multi-Language Announcements:</strong> Announcements in multiple languages based on user preference.</li>
+            </ul>
+        </section>
+
+        <section id="emergency" class="section-card">
+            <h2>11. Emergency Scenarios</h2>
+            <ul>
+                <li><strong>Accident Simulation:</strong> Bus stops, emergency services respond, users notified.</li>
+                <li><strong>Medical Emergency:</strong> Passenger needs help, bus diverts to nearest stand.</li>
+                <li><strong>Fire Drill:</strong> Evacuation procedure displayed.</li>
+                <li><strong>Evacuation:</strong> Step-by-step evacuation instructions shown to users.</li>
+                <li><strong>Emergency Contact:</strong> Simulated emergency contact list.</li>
+                <li><strong>Post-Emergency Report:</strong> Generated after emergency resolved.</li>
+                <li><strong>Bus Status During Emergency:</strong> "Emergency Stop" status.</li>
+            </ul>
+        </section>
+
+        <section id="preferences" class="section-card">
+            <h2>12. User Preferences and Personalization</h2>
+            <ul>
+                <li>Favorite routes.</li>
+                <li>Preferred seat type (window/aisle).</li>
+                <li>Notification preferences.</li>
+                <li>Language preference.</li>
+                <li>Theme preference (light/dark).</li>
+                <li>Keyboard shortcuts.</li>
+                <li>Voice navigation.</li>
+            </ul>
+        </section>
+
+        <section id="waitlist" class="section-card">
+            <h2>13. Waitlist System</h2>
+            <ul>
+                <li>Join waitlist when bus full.</li>
+                <li>Notification when seat opens.</li>
+                <li>Auto-booking option with sufficient wallet balance.</li>
+                <li>Waitlist position displayed.</li>
+                <li>Cancel waitlist anytime.</li>
+            </ul>
+        </section>
+
+        <section id="group" class="section-card">
+            <h2>14. Group Booking</h2>
+            <ul>
+                <li>Book multiple seats in one transaction.</li>
+                <li>Select seats for family/friends together.</li>
+                <li>Single payment for entire group.</li>
+                <li>Group ticket with all passenger names.</li>
+                <li>Split payment among group members.</li>
+                <li>Group leader assigned.</li>
+                <li>Group discount tiers.</li>
+                <li>Name change on ticket.</li>
+            </ul>
+        </section>
+
+        <section id="return" class="section-card">
+            <h2>15. Return Journey (Round Trip)</h2>
+            <ul>
+                <li>Book outbound and return together.</li>
+                <li>Different buses for each leg.</li>
+                <li>Combined fare with discount.</li>
+                <li>Open-jaw return (different origin/destination).</li>
+                <li>Change return trip after booking.</li>
+                <li>Same bus guarantee option.</li>
+            </ul>
+        </section>
+
+        <section id="luggage" class="section-card">
+            <h2>16. Luggage Management</h2>
+            <ul>
+                <li>Virtual luggage allowance per passenger (1 bag free, up to 20kg).</li>
+                <li>Extra luggage option (additional BVC).</li>
+                <li>Oversized luggage handling.</li>
+                <li>Luggage tag with QR code.</li>
+                <li>Lost luggage simulation.</li>
+                <li>Luggage insurance option.</li>
+                <li>Real-time luggage tracking (virtual).</li>
+            </ul>
+        </section>
+
+        <section id="food" class="section-card">
+            <h2>17. Food and Refreshment Stops</h2>
+            <ul>
+                <li>Admin marks stands as refreshment stops.</li>
+                <li>Longer buffer time at those stands.</li>
+                <li>Pre-order virtual snacks during booking.</li>
+                <li>Virtual menu with items and prices.</li>
+                <li>Delivery to seat simulation.</li>
+                <li>Dietary restrictions selection.</li>
+                <li>Payment for food included in total fare.</li>
+                <li>Pre-order cutoff time.</li>
+            </ul>
+        </section>
+
+        <section id="transfer" class="section-card">
+            <h2>18. Bus Transfer / Connecting Routes</h2>
+            <ul>
+                <li>Multi-leg journey booking.</li>
+                <li>Transfer stands where passengers change buses.</li>
+                <li>Combined ticket with through-fare.</li>
+                <li>Transfer time calculation.</li>
+                <li>Guaranteed connection option.</li>
+                <li>Missed connection handling (rebooking).</li>
+                <li>Combined ticket price breakdown.</li>
+                <li>Transfer stand display on map.</li>
+            </ul>
+        </section>
+
+        <section id="weather" class="section-card">
+            <h2>19. Weather Simulation Detail</h2>
+            <ul>
+                <li>Visual effects on map (rain, fog, snow).</li>
+                <li>Impact on bus speed (reduced visibility = slower).</li>
+                <li>Weather alerts to users.</li>
+                <li>Seasonal weather patterns.</li>
+                <li>Wind speed simulation.</li>
+                <li>Temperature display.</li>
+                <li>Visibility distance.</li>
+                <li>Road condition (wet, icy).</li>
+                <li>Weather forecast display for users.</li>
+                <li>Admin weather control panel.</li>
+            </ul>
+        </section>
+
+        <section id="driver" class="section-card">
+            <h2>20. Driver Management</h2>
+            <p>BusVerse includes a complete virtual driver management system with detailed driver profiles, behavior simulation, fatigue tracking, and scheduling.</p>
+
+            <h3>20.1 Driver Pool</h3>
+            <ul>
+                <li><strong>Driver List:</strong> All drivers with name, age, experience, license number, rating, status.</li>
+                <li><strong>Add Driver:</strong> Create new driver with name, age, experience, license number, avatar.</li>
+                <li><strong>Edit Driver:</strong> Update details, status, rating.</li>
+                <li><strong>Remove Driver:</strong> Deactivate from pool.</li>
+            </ul>
+
+            <h3>20.2 Driver Attributes</h3>
+            <ul>
+                <li><strong>Name:</strong> Full name of virtual driver.</li>
+                <li><strong>Age:</strong> Affects fatigue simulation.</li>
+                <li><strong>Experience Level:</strong> Years of driving experience.</li>
+                <li><strong>License Number:</strong> Unique identifier.</li>
+                <li><strong>License Expiry Date:</strong> Tracks license validity.</li>
+                <li><strong>Medical Fitness Certificate:</strong> Simulated medical clearance.</li>
+                <li><strong>Rating:</strong> Average from user feedback (1-5 stars).</li>
+                <li><strong>Status:</strong> Available, assigned, on leave, suspended.</li>
+                <li><strong>Fatigue Level:</strong> Current fatigue percentage (0-100%).</li>
+                <li><strong>Skill Level:</strong> Beginner, intermediate, expert.</li>
+                <li><strong>Behavior Traits:</strong> Attentive, distracted, cautious, aggressive.</li>
+                <li><strong>Earnings:</strong> Virtual wages earned.</li>
+                <li><strong>Training Records:</strong> Completed training courses.</li>
+            </ul>
+
+            <h3>20.3 Driver Assignment</h3>
+            <ul>
+                <li><strong>Assign to Bus:</strong> One driver per bus.</li>
+                <li><strong>Assign to Schedule:</strong> Assign driver to specific trip.</li>
+                <li><strong>Auto-Assign:</strong> System suggests available drivers.</li>
+                <li><strong>Driver Swap:</strong> Swap at any stand.</li>
+                <li><strong>Schedule Conflict Detection:</strong> Prevent double-booking drivers.</li>
+            </ul>
+
+            <h3>20.4 Driver Fatigue Simulation</h3>
+            <ul>
+                <li><strong>Fatigue Accumulation:</strong> Increases with driving time.</li>
+                <li><strong>Rest Periods:</strong> Scheduled rest stops decrease fatigue.</li>
+                <li><strong>Fatigue Effects:</strong> High fatigue increases delay probability.</li>
+                <li><strong>Fatigue Display:</strong> Bar graph on admin dashboard.</li>
+                <li><strong>Rest Reminder:</strong> Notification at 70% fatigue.</li>
+            </ul>
+
+            <h3>20.5 Driver Behavior Simulation</h3>
+            <ul>
+                <li><strong>Attentive:</strong> Minimal delays, consistent speed.</li>
+                <li><strong>Distracted:</strong> Higher probability of small delays.</li>
+                <li><strong>Cautious:</strong> Slightly slower in challenging conditions.</li>
+                <li><strong>Aggressive:</strong> Faster acceleration, less buffer time.</li>
+            </ul>
+
+            <h3>20.6 Driver Analytics</h3>
+            <ul>
+                <li><strong>Performance Report:</strong> On-time percentage, average delay, trips count.</li>
+                <li><strong>Rating History:</strong> User feedback over time.</li>
+                <li><strong>Fatigue Log:</strong> Timeline of fatigue levels.</li>
+                <li><strong>Incident Log:</strong> Simulated incidents involving driver.</li>
+                <li><strong>Performance Review:</strong> Admin can add review notes.</li>
+            </ul>
+
+            <h3>20.7 Driver Notifications</h3>
+            <ul>
+                <li><strong>Assignment Alert:</strong> Notified when assigned to trip.</li>
+                <li><strong>Rest Reminder:</strong> When fatigue exceeds 70%.</li>
+                <li><strong>Route Change Alert:</strong> If route modified mid-trip.</li>
+            </ul>
+
+            <h3>20.8 Driver in CCTV</h3>
+            <ul>
+                <li>Driver appears in front camera angle.</li>
+                <li>Driver status shown in CCTV overlay.</li>
+                <li>Driver avatar with name and status.</li>
+            </ul>
+
+            <h3>20.9 Driver Scheduling</h3>
+            <ul>
+                <li><strong>Shift Management:</strong> Create driver shifts.</li>
+                <li><strong>Weekly Roster:</strong> View driver availability.</li>
+                <li><strong>Leave Management:</strong> Mark driver on leave.</li>
+            </ul>
+
+            <h3>20.10 Driver Database Viewer</h3>
+            <ul>
+                <li>Drivers table in database viewer.</li>
+                <li>Driver audit log.</li>
+            </ul>
+        </section>
+
+        <section id="complaint" class="section-card">
+            <h2>21. Complaint and Feedback System</h2>
+            <ul>
+                <li>Users submit complaints about trips.</li>
+                <li>Admin views and resolves complaints.</li>
+                <li>Post-trip rating (1-5 stars).</li>
+                <li>Anonymous feedback option.</li>
+                <li>Complaint status tracking.</li>
+                <li>Complaint categories (delay, driver, cleanliness, etc.).</li>
+                <li>Admin response to complaints.</li>
+            </ul>
+        </section>
+
+        <section id="achievements" class="section-card">
+            <h2>22. Achievements and Rewards</h2>
+            <ul>
+                <li>Badges for milestones.</li>
+                <li>Loyalty points system.</li>
+                <li>Referral program.</li>
+                <li>Redeem loyalty points for discounts.</li>
+                <li>Achievement display on user profile.</li>
+            </ul>
+        </section>
+
+        <section id="darkmode" class="section-card">
+            <h2>23. Dark Mode</h2>
+            <ul>
+                <li>Dark theme for night use.</li>
+                <li>Auto-switch based on time of day.</li>
+                <li>Manual toggle in user preferences.</li>
+            </ul>
+        </section>
+
+        <section id="offline" class="section-card">
+            <h2>24. Offline Mode</h2>
+            <ul>
+                <li>Cached booking details and tickets.</li>
+                <li>Offline ticket viewing.</li>
+                <li>Offline seat map caching.</li>
+                <li>Offline payment (stored and synced later).</li>
+                <li>Offline notifications queue.</li>
+                <li>Offline map viewing.</li>
+                <li>Sync when back online.</li>
+            </ul>
+        </section>
+
+        <section id="accessibility" class="section-card">
+            <h2>25. Accessibility Features</h2>
+            <ul>
+                <li>Screen reader support.</li>
+                <li>High contrast mode.</li>
+                <li>Font size adjustment.</li>
+                <li>Colorblind-friendly seat map colors.</li>
+                <li>Voice navigation.</li>
+                <li>Keyboard shortcuts.</li>
+                <li>Captioning for announcements.</li>
+                <li>Screen reader labels for all interactive elements.</li>
+            </ul>
+        </section>
+
+        <section id="language" class="section-card">
+            <h2>26. Multi-Language Support</h2>
+            <ul>
+                <li>Default language selection.</li>
+                <li>Admin adds translations.</li>
+                <li>Automatic language detection based on browser.</li>
+                <li>Right-to-left language support.</li>
+                <li>Language switch in user profile.</li>
+                <li>Admin translation interface.</li>
+                <li>Default languages: English, Hindi, Spanish, French, German, Chinese, Arabic.</li>
+            </ul>
+        </section>
+
+        <section id="sound" class="section-card">
+            <h2>27. Sound Effects</h2>
+            <ul>
+                <li>Booking confirmation sound.</li>
+                <li>Bus arrival alert sound.</li>
+                <li>Notification sounds (different per type).</li>
+                <li>Volume control per sound type.</li>
+                <li>Custom sound upload by admin.</li>
+                <li>Mute all option.</li>
+            </ul>
+        </section>
+
+        <section id="realtime" class="section-card">
+            <h2>28. Real-Time Seat Availability Push</h2>
+            <ul>
+                <li>Seat map updates live.</li>
+                <li>Occupied seats turn red instantly.</li>
+                <li>Freed seats turn green instantly.</li>
+                <li>Conflict resolution: first to confirm wins.</li>
+                <li>Seat lock extension.</li>
+                <li>Seat release on page close.</li>
+                <li>WebSocket event types for updates.</li>
+            </ul>
+        </section>
+
+        <section id="interior" class="section-card">
+            <h2>29. Bus Interior Visualization</h2>
+            <ul>
+                <li>2D overhead view.</li>
+                <li>3D model of bus interior.</li>
+                <li>Walk through aisle animation.</li>
+                <li>Seat selection in 3D.</li>
+                <li>VR support (optional).</li>
+                <li>Overhead view of layout.</li>
+            </ul>
+        </section>
+
+        <section id="scenarios" class="section-card">
+            <h2>30. Simulation Scenarios</h2>
+            <ul>
+                <li><strong>Rush Hour:</strong> All buses delayed, high traffic.</li>
+                <li><strong>Holiday Peak:</strong> High demand, full buses.</li>
+                <li><strong>Weather Emergency:</strong> All routes slowed.</li>
+                <li><strong>Strike Simulation:</strong> Some buses out of service.</li>
+                <li><strong>Festival Rush:</strong> Special event, extra buses.</li>
+                <li><strong>Night Service:</strong> Limited visibility, reduced speed.</li>
+                <li><strong>Driver Strike:</strong> No drivers available.</li>
+                <li><strong>Fuel Shortage:</strong> Some buses cannot run.</li>
+                <li><strong>Road Closure:</strong> Route segments blocked.</li>
+                <li><strong>Pandemic Simulation:</strong> Reduced capacity, social distancing.</li>
+                <li><strong>Custom Scenarios:</strong> Admin creates and saves custom scenarios.</li>
+            </ul>
+        </section>
+
+        <section id="chat" class="section-card">
+            <h2>31. Chat Support</h2>
+            <ul>
+                <li>Live chat between user and admin.</li>
+                <li>Chat history.</li>
+                <li>Chatbot for common questions.</li>
+                <li>File attachment.</li>
+                <li>Chat rating.</li>
+                <li>Escalation levels.</li>
+                <li>Canned responses.</li>
+                <li>Support ticket system.</li>
+            </ul>
+        </section>
+
+        <section id="social" class="section-card">
+            <h2>32. Social Login</h2>
+            <ul>
+                <li>Simulated Google login.</li>
+                <li>Simulated Facebook login.</li>
+                <li>Simulated OAuth flow.</li>
+                <li>User data import from social profile (name, avatar).</li>
+                <li>Link/unlink social accounts.</li>
+                <li>Privacy settings.</li>
+                <li>Guest checkout.</li>
+            </ul>
+        </section>
+
+        <section id="ticket-design" class="section-card">
+            <h2>33. Ticket Design Customization</h2>
+            <ul>
+                <li>Custom ticket layout, colors, fonts.</li>
+                <li>Custom branding and logo.</li>
+                <li>Barcode/QR placement.</li>
+                <li>Ticket size presets.</li>
+                <li>Multi-language ticket.</li>
+                <li>Watermark.</li>
+                <li>Real-time preview.</li>
+            </ul>
+        </section>
+
+        <section id="bus-exterior" class="section-card">
+            <h2>34. Bus Exterior Customization</h2>
+            <ul>
+                <li>Bus color/livery.</li>
+                <li>Custom bus names.</li>
+                <li>LED destination sign.</li>
+                <li>Bus wrap advertising.</li>
+                <li>Number plate display.</li>
+                <li>Per-route bus designs.</li>
+            </ul>
+        </section>
+
+        <section id="timezone" class="section-card">
+            <h2>35. Time Zone Handling</h2>
+            <ul>
+                <li>Default time zone (admin-set).</li>
+                <li>User time zone auto-detect.</li>
+                <li>Time conversion for users.</li>
+                <li>Daylight saving simulation.</li>
+                <li>Time zone display in booking confirmation.</li>
+            </ul>
+        </section>
+
+        <section id="map" class="section-card">
+            <h2>36. Virtual Map System</h2>
+            <ul>
+                <li>Custom coordinate system (1000x1000).</li>
+                <li>Stands as labeled circles.</li>
+                <li>Routes as polylines.</li>
+                <li>Buses as icons with real-time movement.</li>
+                <li>Zoom and pan.</li>
+                <li>Route highlighting.</li>
+                <li>Stand details popup.</li>
+                <li>Layer control (show/hide routes, stands, buses).</li>
+                <li>Distance measurement tool.</li>
+                <li>Stand clustering when zoomed out.</li>
+                <li>Custom map themes (day/night).</li>
+                <li>Export map as image.</li>
+            </ul>
+        </section>
+
+        <section id="currency" class="section-card">
+            <h2>37. Virtual Currency & UPI</h2>
+            <h3>37.1 Virtual Wallet</h3>
+            <ul>
+                <li>BVC stored as integer.</li>
+                <li>Earning: registration bonus, admin top-up.</li>
+                <li>Spending: booking fare deduction.</li>
+                <li>Refunds on cancellation.</li>
+                <li>Transaction ledger with references.</li>
+                <li>Fare calculation: distance-based or flat.</li>
+                <li>Wallet-to-wallet transfer.</li>
+                <li>Currency exchange simulation.</li>
+                <li>Inflation/deflation control.</li>
+                <li>Transaction fees.</li>
+            </ul>
+            <h3>37.2 Virtual UPI System</h3>
+            <ul>
+                <li>User creates virtual UPI ID (username@busverse).</li>
+                <li>Multiple UPI IDs per user.</li>
+                <li>Payment flow: enter recipient UPI ID, amount, simulated PIN.</li>
+                <li>PIN reset flow (forgot PIN, admin reset).</li>
+                <li>QR code simulation (static and dynamic).</li>
+                <li>Transaction history with UPI reference.</li>
+                <li>Admin controls: view UPI accounts, limits, block/unblock.</li>
+                <li>Merchant account: busverse@merchant.</li>
+                <li>Security: hashed PIN, lock after multiple incorrect attempts.</li>
+                <li>Transaction limits per day.</li>
+                <li>Payment failure simulation (insufficient balance, wrong PIN, timeout).</li>
+                <li>UPI transaction reversal (refund via UPI).</li>
+                <li>Merchant settlement reports.</li>
+            </ul>
+        </section>
+
+        <section id="bus-models" class="section-card">
+            <h2>38. Bus Models and Seat Layouts</h2>
+            <table>
+                <tr><th>Model Name</th><th>Capacity</th><th>Seat Layout</th><th>Seat Pitch</th><th>Seat Width</th><th>Recline</th><th>Entertainment</th><th>Power</th><th>Wi-Fi</th><th>Toilet</th><th>Accessibility</th><th>Description</th></tr>
+                <tr><td>Mini Coach</td><td>20</td><td>2+1</td><td>30 inch</td><td>17 inch</td><td>No</td><td>No</td><td>No</td><td>No</td><td>No</td><td>No</td><td>Short routes, compact</td></tr>
+                <tr><td>Standard Coach</td><td>40</td><td>2+2</td><td>32 inch</td><td>18 inch</td><td>Partial</td><td>No</td><td>Yes</td><td>Yes</td><td>No</td><td>Yes</td><td>Most common</td></tr>
+                <tr><td>Luxury Coach</td><td>30</td><td>2+1 (wide)</td><td>38 inch</td><td>22 inch</td><td>Full</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Extra legroom</td></tr>
+                <tr><td>Double Decker</td><td>60</td><td>2+2 lower/upper</td><td>32 inch</td><td>18 inch</td><td>Partial</td><td>No</td><td>Yes</td><td>Yes</td><td>No</td><td>Yes</td><td>Two levels</td></tr>
+                <tr><td>Sleeper Bus</td><td>24</td><td>1+1 (berths)</td><td>N/A</td><td>30 inch berth</td><td>Full</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Beds for overnight</td></tr>
+            </table>
+            <ul>
+                <li><strong>Seat Numbering:</strong> Row number + column letter (1A, 1B, 2A, 2B).</li>
+                <li><strong>Seat Types:</strong> Window, aisle, standard, premium.</li>
+                <li><strong>Visual Indicators:</strong> Green available, red occupied, blue selected, gray unavailable.</li>
+                <li><strong>Admin Seat Editor:</strong> Create custom layouts with rows, columns, aisle positions, seat types.</li>
+                <li><strong>Emergency Exit Locations:</strong> Marked on seat map.</li>
+                <li><strong>Accessibility Seats:</strong> Wheelchair spaces marked.</li>
+            </ul>
+        </section>
+
+        <section id="passengers" class="section-card">
+            <h2>39. Virtual Passengers</h2>
+            <ul>
+                <li><strong>Attributes:</strong> Name, age, avatar, behavior tag, seat preference, luggage, ticket type, destination stand, boarding stand.</li>
+                <li><strong>Behavior:</strong> Quiet, chatty, demanding, sleeping, reading. Intensity 1-10.</li>
+                <li><strong>Interaction:</strong> Simple social simulation between passengers.</li>
+                <li><strong>Movement:</strong> Passenger can move inside bus (restroom, seat switching).</li>
+                <li><strong>Assign to Seat:</strong> Admin assigns to specific seat.</li>
+                <li><strong>Board/Alight:</strong> Simulate boarding and alighting.</li>
+                <li><strong>Bulk Operations:</strong> Auto-fill or clear all.</li>
+                <li><strong>Visibility:</strong> Occupied but not identifiable by default. Admin can reveal names.</li>
+            </ul>
+        </section>
+
+        <section id="cctv" class="section-card">
+            <h2>40. Bus CCTV (Interior and Exterior)</h2>
+            <h3>40.1 Camera Types</h3>
+            <ul>
+                <li><strong>Interior Front:</strong> Looking back from front of bus.</li>
+                <li><strong>Interior Middle:</strong> Aisle view.</li>
+                <li><strong>Interior Rear:</strong> Looking forward from rear.</li>
+                <li><strong>Driver-Facing:</strong> View of driver.</li>
+                <li><strong>Door Camera:</strong> View of entrance/exit.</li>
+                <li><strong>External Front:</strong> Road ahead.</li>
+                <li><strong>External Rear:</strong> Road behind.</li>
+                <li><strong>External Side:</strong> Side view of bus.</li>
+                <li><strong>Under-Bus:</strong> View of undercarriage.</li>
+            </ul>
+            <h3>40.2 Camera Features</h3>
+            <ul>
+                <li><strong>Live View:</strong> Simulated real-time feed.</li>
+                <li><strong>Zoom/Pan:</strong> Admin can zoom and pan.</li>
+                <li><strong>Night Vision:</strong> Toggle for low-light conditions.</li>
+                <li><strong>Motion Detection:</strong> Alert on movement.</li>
+                <li><strong>Timestamp Overlay:</strong> Time and date on feed.</li>
+                <li><strong>Recording:</strong> Simulated video recording with replay.</li>
+                <li><strong>Storage:</strong> Recordings stored in simulated video archive.</li>
+            </ul>
+            <h3>40.3 Privacy</h3>
+            <ul>
+                <li>No real video or personal data captured.</li>
+                <li>Real users identified only by username.</li>
+                <li>Virtual passengers are fictional.</li>
+            </ul>
+        </section>
+
+        <section id="permissions" class="section-card">
+            <h2>41. Roles & Permissions</h2>
+            <table>
+                <tr><th>Feature</th><th>User</th><th>Super Admin</th><th>Route Manager</th><th>Fleet Manager</th><th>Support Staff</th><th>Auditor</th></tr>
+                <tr><td>Search and book buses</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td></tr>
+                <tr><td>Manage own wallet/UPI</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td></tr>
+                <tr><td>Track buses live</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+                <tr><td>View booking history</td><td>Own</td><td>All</td><td>All</td><td>All</td><td>All</td><td>All</td></tr>
+                <tr><td>Manage buses</td><td>No</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td><td>No</td></tr>
+                <tr><td>Manage routes/stands</td><td>No</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+                <tr><td>Simulation control</td><td>No</td><td>Yes</td><td>Yes (routes)</td><td>Yes (buses)</td><td>No</td><td>No</td></tr>
+                <tr><td>Manage drivers</td><td>No</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td><td>No</td></tr>
+                <tr><td>Manage virtual passengers</td><td>No</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td><td>No</td></tr>
+                <tr><td>View CCTV</td><td>No</td><td>Yes</td><td>No</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+                <tr><td>Database viewer</td><td>No</td><td>Yes</td><td>No</td><td>No</td><td>No</td><td>Yes</td></tr>
+                <tr><td>Analytics</td><td>No</td><td>Yes</td><td>Yes (route)</td><td>Yes (fleet)</td><td>No</td><td>Yes</td></tr>
+                <tr><td>User management</td><td>No</td><td>Yes</td><td>No</td><td>No</td><td>No</td><td>No</td></tr>
+                <tr><td>Chat support</td><td>Yes (as user)</td><td>Yes</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+            </table>
+            <p>All admin actions are logged with timestamp, admin username, action type, affected record.</p>
+        </section>
+
+        <section id="database" class="section-card">
+            <h2>42. Database Schema (Tables)</h2>
+            <table>
+                <tr><th>Table Name</th><th>Key Fields</th><th>Description</th></tr>
+                <tr><td>users</td><td>id, username, email, password_hash, role, avatar, created_at</td><td>User accounts</td></tr>
+                <tr><td>wallets</td><td>id, user_id, balance, version</td><td>Virtual wallet balances</td></tr>
+                <tr><td>wallet_transactions</td><td>id, wallet_id, amount, type, reference, created_at</td><td>Ledger of all transactions</td></tr>
+                <tr><td>upi_accounts</td><td>id, user_id, upi_id, pin_hash, status, daily_limit</td><td>Virtual UPI accounts</td></tr>
+                <tr><td>buses</td><td>id, name, model_id, capacity, status, current_route_id, position_x, position_y, speed, fuel, driver_id</td><td>Bus fleet</td></tr>
+                <tr><td>routes</td><td>id, name, polyline, total_distance, status</td><td>Route definitions</td></tr>
+                <tr><td>stands</td><td>id, name, coord_x, coord_y, route_id</td><td>Bus stops</td></tr>
+                <tr><td>schedules</td><td>id, bus_id, route_id, driver_id, departure_time, arrival_time, date, status</td><td>Trip schedules</td></tr>
+                <tr><td>bookings</td><td>id, user_id, schedule_id, seat_number, status, amount, created_at</td><td>Seat bookings</td></tr>
+                <tr><td>virtual_passengers</td><td>id, name, age, avatar, behavior_tag, seat_preference</td><td>Simulated passengers</td></tr>
+                <tr><td>drivers</td><td>id, name, age, experience, license_number, license_expiry, rating, status, fatigue_level, skill_level, behavior_trait</td><td>Virtual drivers</td></tr>
+                <tr><td>notifications</td><td>id, user_id, type, message, read, created_at</td><td>User notifications</td></tr>
+                <tr><td>audit_logs</td><td>id, admin_id, action_type, affected_record, timestamp</td><td>Admin action log</td></tr>
+                <tr><td>feedback</td><td>id, user_id, trip_id, rating, comment, anonymous</td><td>Trip ratings</td></tr>
+                <tr><td>complaints</td><td>id, user_id, trip_id, category, description, status, admin_response</td><td>Complaints</td></tr>
+                <tr><td>achievements</td><td>id, user_id, badge_name, earned_at</td><td>User badges</td></tr>
+                <tr><td>loyalty_points</td><td>id, user_id, points, earned_at, redeemed</td><td>Loyalty points</td></tr>
+                <tr><td>chat_messages</td><td>id, sender_id, receiver_id, message, timestamp</td><td>Chat history</td></tr>
+                <tr><td>support_tickets</td><td>id, user_id, subject, description, status, priority</td><td>Support tickets</td></tr>
+                <tr><td>cctv_recordings</td><td>id, bus_id, camera_angle, start_time, end_time, file_path</td><td>Simulated CCTV recordings</td></tr>
+                <tr><td>scenarios</td><td>id, name, settings_json, created_by</td><td>Saved simulation scenarios</td></tr>
+            </table>
+            <p>The Database Viewer in the Admin Panel provides read-only access to all these tables with search, filter, sort, and export capabilities. Sensitive fields (passwords, PINs) are masked automatically.</p>
+        </section>
+
+        <section id="summary" class="section-card">
+            <h2>43. Summary</h2>
+            <p>BusVerse is an extremely comprehensive virtual bus booking and simulation platform. It includes every feature needed for a full user experience and a complete separate admin panel. The platform covers:</p>
+            <ul>
+                <li><strong>User Application:</strong> Registration, social login, wallet, UPI, search, booking, group booking, return journeys, waitlist, live tracking, luggage, food, feedback, achievements, offline mode, accessibility, multi-language, sounds.</li>
+                <li><strong>Admin Panel:</strong> Dashboard with widgets, bus management, route management, stand management, schedule management, driver management, virtual passenger management, CCTV monitoring, database viewer, analytics, user management, notification management, ticket design, bus exterior customization, simulation scenarios, chat support, time zone handling, data export.</li>
+                <li><strong>Simulation:</strong> Per-bus controls, per-route controls, time controls, weather, traffic, emergencies, driver fatigue and behavior, virtual passengers, scenarios.</li>
+                <li><strong>Virtual Economy:</strong> BVC currency, UPI system, fare calculation, discounts, loyalty points, achievements.</li>
+            </ul>
+            <p>The platform is fully simulated, secure, and highly customizable, making it ideal for demos, training, testing, and educational purposes. Every aspect of the system is controllable and observable, from passenger behavior to bus engine status, from driver fatigue to weather conditions.</p>
+        </section>
+    </main>
+
+    <script>
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelector('.sidebar').classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>

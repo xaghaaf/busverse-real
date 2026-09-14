@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BusVerse — World Rules</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --space-2xs: 8px;
+      --space-xs: 12px;
+      --space-sm: 16px;
+      --space-md: 20px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+
+      --radius-xs: 4px;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+      --radius-pill: 9999px;
+
+      --ease-instant: 0.1s cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-smooth: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      --sidebar-width: 340px;
+    }
+
+    [data-theme="light"] {
+      --canvas-bg: #F4F7FB;
+      --canvas-subtle: #EAEFF6;
+      --surface-card: #FFFFFF;
+      --surface-hover: #F1F5F9;
+      --surface-sunken: #E5ECF4;
+      --text-bright: #09101D;
+      --text-primary: #1E293B;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --text-brand: #0052E0;
+      --border-hairline: rgba(15, 23, 42, 0.07);
+      --border-subtle: rgba(15, 23, 42, 0.12);
+      --border-strong: rgba(15, 23, 42, 0.22);
+      --brand-primary: #0055ED;
+      --brand-primary-hover: #0044C0;
+      --brand-primary-subtle: rgba(0, 85, 237, 0.08);
+      --brand-primary-border: rgba(0, 85, 237, 0.25);
+      --telemetry-cyan: #008DA6;
+      --telemetry-cyan-subtle: rgba(0, 141, 166, 0.1);
+      --signal-emerald: #059669;
+      --signal-emerald-subtle: rgba(5, 150, 105, 0.1);
+      --warning-amber: #D97706;
+      --warning-amber-subtle: rgba(217, 119, 6, 0.1);
+      --danger-crimson: #DC2626;
+      --danger-crimson-subtle: rgba(220, 38, 38, 0.1);
+      --shadow-ambient: 0 4px 18px -2px rgba(9, 16, 29, 0.05);
+      --shadow-floating: 0 16px 36px -8px rgba(9, 16, 29, 0.1), 0 0 0 1px rgba(9, 16, 29, 0.04);
+      --code-bg: #E7EDF5;
+      --code-border: #D3DEEC;
+      --code-text: #0F172A;
+      --rule-num-bg: #FFFFFF;
+      --rule-num-border: rgba(15, 23, 42, 0.12);
+    }
+
+    [data-theme="dark"] {
+      --canvas-bg: #060A12;
+      --canvas-subtle: #0B111D;
+      --surface-card: #0D1525;
+      --surface-hover: #192742;
+      --surface-sunken: #080D17;
+      --text-bright: #FFFFFF;
+      --text-primary: #F1F5F9;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --text-brand: #3B82F6;
+      --border-hairline: rgba(255, 255, 255, 0.07);
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --border-strong: rgba(255, 255, 255, 0.24);
+      --brand-primary: #2B75FF;
+      --brand-primary-hover: #4586FF;
+      --brand-primary-subtle: rgba(43, 117, 255, 0.14);
+      --brand-primary-border: rgba(43, 117, 255, 0.35);
+      --telemetry-cyan: #00E5FF;
+      --telemetry-cyan-subtle: rgba(0, 229, 255, 0.14);
+      --signal-emerald: #10B981;
+      --signal-emerald-subtle: rgba(16, 185, 129, 0.14);
+      --warning-amber: #F59E0B;
+      --warning-amber-subtle: rgba(245, 158, 11, 0.14);
+      --danger-crimson: #EF4444;
+      --danger-crimson-subtle: rgba(239, 68, 68, 0.14);
+      --shadow-ambient: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+      --shadow-floating: 0 16px 48px -8px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.06);
+      --code-bg: #03060A;
+      --code-border: #141E2F;
+      --code-text: #93C5FD;
+      --rule-num-bg: #131E34;
+      --rule-num-border: rgba(255, 255, 255, 0.1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 40px; }
+
+    body {
+      background-color: var(--canvas-bg);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color var(--ease-smooth), color var(--ease-smooth);
+      display: flex;
+    }
+
+    /* ============ THEME HUD ============ */
+    .theme-hud {
+      position: fixed;
+      top: 16px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-strong);
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      box-shadow: var(--shadow-floating);
+      backdrop-filter: blur(12px);
+    }
+
+    .theme-btn-group { display: flex; gap: 4px; }
+
+    .theme-toggle-btn {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--ease-instant);
+    }
+
+    .theme-toggle-btn:hover { color: var(--text-bright); background: var(--surface-hover); }
+    .theme-toggle-btn.active {
+      background: var(--brand-primary);
+      color: #FFFFFF;
+      box-shadow: 0 0 12px var(--brand-primary-border);
+    }
+
+    /* ============ SIDEBAR ============ */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: var(--canvas-subtle);
+      border-right: 1px solid var(--border-subtle);
+      overflow-y: auto;
+      padding: 32px 0 60px;
+      z-index: 200;
+      transition: background-color var(--ease-smooth), border-color var(--ease-smooth);
+    }
+
+    .sidebar::-webkit-scrollbar { width: 5px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+    .sidebar-header {
+      padding: 0 28px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 20px;
+    }
+
+    .brand-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--telemetry-cyan);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .brand-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-bright);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .sidebar-nav { list-style: none; padding: 0 16px; }
+
+    .nav-category {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      padding: 16px 14px 6px;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.87rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      transition: all var(--ease-instant);
+      line-height: 1.45;
+    }
+
+    .nav-item a:hover { color: var(--text-bright); background: var(--surface-hover); }
+    .nav-item a.active {
+      color: var(--text-brand);
+      background: var(--brand-primary-subtle);
+      font-weight: 700;
+    }
+
+    .nav-num {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      opacity: 0.65;
+      min-width: 26px;
+      flex-shrink: 0;
+    }
+
+    /* ============ MAIN ============ */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      max-width: 960px;
+      padding: 64px 64px 140px;
+    }
+
+    .doc-hero {
+      margin-bottom: 60px;
+      padding-bottom: 36px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-brand);
+      background: var(--brand-primary-subtle);
+      border: 1px solid var(--brand-primary-border);
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      margin-bottom: 18px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-title {
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: var(--text-bright);
+      letter-spacing: -1.2px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero-lead {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 720px;
+      line-height: 1.75;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-top: 28px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .hero-meta span strong {
+      color: var(--text-bright);
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    /* ============ SECTIONS ============ */
+    .section-wrap {
+      margin-bottom: 72px;
+      scroll-margin-top: 40px;
+    }
+
+    .section-header { margin-bottom: 28px; }
+
+    .section-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.6px;
+      color: var(--telemetry-cyan);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text-bright);
+      letter-spacing: -0.6px;
+      margin-bottom: 12px;
+    }
+
+    .section-desc {
+      font-size: 1.02rem;
+      color: var(--text-secondary);
+      max-width: 800px;
+    }
+
+    p { color: var(--text-secondary); margin-bottom: 16px; font-size: 0.98rem; }
+    strong { color: var(--text-bright); font-weight: 700; }
+
+    /* ============ RULE CARD ============ */
+    .rule {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 20px;
+      padding: 22px 0;
+      border-bottom: 1px solid var(--border-hairline);
+    }
+
+    .rule:last-child { border-bottom: none; }
+
+    .rule-num {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-brand);
+      background: var(--brand-primary-subtle);
+      border: 1px solid var(--brand-primary-border);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      height: fit-content;
+      letter-spacing: 0.5px;
+    }
+
+    .rule-body { padding-top: 2px; }
+
+    .rule-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      letter-spacing: -0.2px;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .rule-desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .rule-desc:last-child { margin-bottom: 0; }
+
+    .rule-desc code {
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--code-text);
+    }
+
+    /* ============ CALLOUT ============ */
+    .callout {
+      display: flex;
+      gap: 14px;
+      padding: 18px 22px;
+      border-radius: var(--radius-md);
+      margin: 24px 0;
+      font-size: 0.94rem;
+      line-height: 1.65;
+      border-left-width: 4px;
+      border-left-style: solid;
+    }
+
+    .callout-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+    }
+
+    .callout p { margin: 0; color: inherit; font-size: 0.94rem; }
+    .callout strong { color: inherit; }
+
+    .callout-info {
+      background: var(--brand-primary-subtle);
+      border-left-color: var(--brand-primary);
+      color: var(--text-primary);
+    }
+    .callout-info .callout-icon { color: var(--brand-primary); }
+
+    .callout-warn {
+      background: var(--warning-amber-subtle);
+      border-left-color: var(--warning-amber);
+      color: var(--text-primary);
+    }
+    .callout-warn .callout-icon { color: var(--warning-amber); }
+
+    .callout-danger {
+      background: var(--danger-crimson-subtle);
+      border-left-color: var(--danger-crimson);
+      color: var(--text-primary);
+    }
+    .callout-danger .callout-icon { color: var(--danger-crimson); }
+
+    .callout-success {
+      background: var(--signal-emerald-subtle);
+      border-left-color: var(--signal-emerald);
+      color: var(--text-primary);
+    }
+    .callout-success .callout-icon { color: var(--signal-emerald); }
+
+    /* ============ TABLE ============ */
+    .table-frame {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      background: var(--surface-card);
+      margin: 24px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      text-align: left;
+    }
+
+    th {
+      background: var(--canvas-subtle);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-weight: 700;
+    }
+
+    td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-hairline);
+      color: var(--text-secondary);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-hover); }
+    td strong { color: var(--text-bright); }
+
+    /* ============ IMMUTABLE / VERSION BADGES ============ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .badge-immutable {
+      background: var(--danger-crimson-subtle);
+      color: var(--danger-crimson);
+      border: 1px solid var(--danger-crimson);
+    }
+
+    .badge-flexible {
+      background: var(--signal-emerald-subtle);
+      color: var(--signal-emerald);
+      border: 1px solid var(--signal-emerald);
+    }
+
+    .badge-configurable {
+      background: var(--warning-amber-subtle);
+      color: var(--warning-amber);
+      border: 1px solid var(--warning-amber);
+    }
+
+    /* ============ PREAMBLE BOX ============ */
+    .preamble {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      margin: 32px 0;
+      box-shadow: var(--shadow-ambient);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preamble::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--brand-primary), var(--telemetry-cyan));
+    }
+
+    .preamble-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--telemetry-cyan);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .preamble-text {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-primary);
+      font-weight: 400;
+    }
+
+    .preamble-text strong { font-weight: 700; }
+
+    /* ============ FOOTER NOTE ============ */
+    .doc-footer {
+      margin-top: 80px;
+      padding: 32px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+    }
+
+    .doc-footer-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      margin-bottom: 8px;
+    }
+
+    .doc-footer-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 1024px) {
+      .main { padding: 60px 40px 100px; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform var(--ease-smooth); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 80px 20px 80px; }
+      .theme-hud { top: 12px; right: 12px; padding: 4px 8px; }
+      .hero-title { font-size: 2rem; }
+      .section-title { font-size: 1.45rem; }
+      .preamble { padding: 24px; }
+      .rule { grid-template-columns: 1fr; gap: 10px; }
+      .rule-num { width: fit-content; }
+      .hero-meta { gap: 14px; font-size: 0.76rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- THEME HUD -->
+  <div class="theme-hud">
+    <div class="theme-btn-group">
+      <button class="theme-toggle-btn active" id="btn-dark" onclick="setTheme('dark')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        Dark
+      </button>
+      <button class="theme-toggle-btn" id="btn-light" onclick="setTheme('light')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Light
+      </button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-eyebrow">Foundational Document</div>
+      <div class="brand-title">World Rules</div>
+      <div class="brand-sub">BusVerse Real · v1.0</div>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li><span class="nav-category">Foundation</span></li>
+      <li class="nav-item"><a href="#preamble"><span class="nav-num">—</span><span>Preamble</span></a></li>
+      <li class="nav-item"><a href="#identity"><span class="nav-num">01</span><span>Identity</span></a></li>
+      <li class="nav-item"><a href="#boundary"><span class="nav-num">02</span><span>Real vs Simulated Boundary</span></a></li>
+      <li class="nav-item"><a href="#actors"><span class="nav-num">03</span><span>Actors</span></a></li>
+
+      <li><span class="nav-category">Core Rules</span></li>
+      <li class="nav-item"><a href="#money"><span class="nav-num">04</span><span>Money Rules</span></a></li>
+      <li class="nav-item"><a href="#time"><span class="nav-num">05</span><span>Time Rules</span></a></li>
+      <li class="nav-item"><a href="#data"><span class="nav-num">06</span><span>Data Rules</span></a></li>
+      <li class="nav-item"><a href="#booking"><span class="nav-num">07</span><span>Booking Rules</span></a></li>
+      <li class="nav-item"><a href="#refund"><span class="nav-num">08</span><span>Cancellation &amp; Refund Rules</span></a></li>
+
+      <li><span class="nav-category">Actors In Detail</span></li>
+      <li class="nav-item"><a href="#passenger"><span class="nav-num">09</span><span>Passenger Rules</span></a></li>
+      <li class="nav-item"><a href="#driver"><span class="nav-num">10</span><span>Driver Rules</span></a></li>
+      <li class="nav-item"><a href="#operator"><span class="nav-num">11</span><span>Operator Rules</span></a></li>
+      <li class="nav-item"><a href="#admin"><span class="nav-num">12</span><span>Admin &amp; Support Rules</span></a></li>
+
+      <li><span class="nav-category">System Behavior</span></li>
+      <li class="nav-item"><a href="#failure"><span class="nav-num">13</span><span>Failure Rules</span></a></li>
+      <li class="nav-item"><a href="#immutable"><span class="nav-num">14</span><span>Immutable Rules</span></a></li>
+      <li class="nav-item"><a href="#amendment"><span class="nav-num">15</span><span>Amendment Process</span></a></li>
+    </ul>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <header class="doc-hero">
+      <div class="hero-badge">FOUNDATIONAL DOCUMENT // v1.0</div>
+      <h1 class="hero-title">World Rules</h1>
+      <p class="hero-lead">
+        The constitution of BusVerse Real. This document defines what the platform is, what it is not, how it behaves under pressure, and what rules never change. Every other document in BusVerse derives from these rules. If any feature, flow, or design contradicts this document, the feature is wrong.
+      </p>
+      <div class="hero-meta">
+        <span><strong>Version:</strong> 1.0</span>
+        <span><strong>Status:</strong> Locked</span>
+        <span><strong>Owner:</strong> Founder</span>
+        <span><strong>Applies to:</strong> All BusVerse Real systems</span>
+      </div>
+    </header>
+
+    <!-- PREAMBLE -->
+    <section class="section-wrap" id="preamble">
+      <div class="preamble">
+        <div class="preamble-label">Preamble</div>
+        <p class="preamble-text">
+          BusVerse Real is a <strong>real bus booking platform</strong> operating in India. It connects verified bus operators with real passengers, handles real money, and moves people between real cities. Unlike a demo or simulation, every transaction on BusVerse Real has real-world consequences. Because of this, ambiguity is dangerous. Every question must have one answer. Every rule must be explicit. This document exists to remove ambiguity from the system before a single line of product code is written.
+        </p>
+      </div>
+    </section>
+
+    <!-- 01 — IDENTITY -->
+    <section class="section-wrap" id="identity">
+      <div class="section-header">
+        <span class="section-tag">Article 01</span>
+        <h2 class="section-title">Identity</h2>
+        <p class="section-desc">What BusVerse Real is. Every downstream decision derives from this.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">1.1</div>
+        <div class="rule-body">
+          <div class="rule-title">BusVerse Real is a marketplace</div>
+          <div class="rule-desc">It connects two sides — bus operators who own buses and passengers who buy seats. BusVerse does not own buses. BusVerse does not employ drivers. BusVerse does not set final fares. BusVerse enables transactions between the two sides.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">1.2</div>
+        <div class="rule-body">
+          <div class="rule-title">BusVerse is operated by a single founder (Phase 1)</div>
+          <div class="rule-desc">No team. No co-founder. No investors. This means every rule must assume one human being handles production incidents, support, and development. Rules that require a team (24/7 rotation, multi-person approvals) are deferred until Phase 2.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">1.3</div>
+        <div class="rule-body">
+          <div class="rule-title">BusVerse operates pan-India, starting with one region</div>
+          <div class="rule-desc">The platform is built for multi-city, multi-state operation from day one. Launch, however, is region-scoped. The first region is chosen for operator density and route demand — likely Delhi-NCR to Rajasthan, or Mumbai–Pune corridor.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">1.4</div>
+        <div class="rule-body">
+          <div class="rule-title">BusVerse supports intercity and intracity travel</div>
+          <div class="rule-desc">Intercity (Delhi → Jaipur) is the primary use case. Intracity (within-city routes) is supported by the same platform but launched later. The data model treats both uniformly.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">1.5</div>
+        <div class="rule-body">
+          <div class="rule-title">BusVerse integrates private and government operators</div>
+          <div class="rule-desc">Private operators onboard directly. Government buses (state transport corporations) are integrated as a separate class — with distinct branding, subsidized fares, and separate settlement rules.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">1.6</div>
+        <div class="rule-body">
+          <div class="rule-title">BusVerse earns through a passenger convenience fee</div>
+          <div class="rule-desc">Operators pay nothing to list. Passengers pay a small convenience fee (₹10–₹20) disclosed at checkout. This is the primary revenue stream for Phase 1. Additional revenue streams may be added later but never at the operator's expense.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 — BOUNDARY -->
+    <section class="section-wrap" id="boundary">
+      <div class="section-header">
+        <span class="section-tag">Article 02</span>
+        <h2 class="section-title">Real vs Simulated Boundary</h2>
+        <p class="section-desc">Every system in BusVerse is one of three: Real, Simulated, or Configurable. Nothing is ambiguous.</p>
+      </div>
+
+      <div class="table-frame">
+        <table>
+          <thead>
+            <tr><th>System</th><th>Classification</th><th>Reason</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Users</strong></td><td><span class="badge badge-immutable">Real</span></td><td>Real people with real phone numbers and emails</td></tr>
+            <tr><td><strong>Operators</strong></td><td><span class="badge badge-immutable">Real</span></td><td>Real companies with GST, PAN, bank accounts</td></tr>
+            <tr><td><strong>Drivers</strong></td><td><span class="badge badge-immutable">Real</span></td><td>Real licensed drivers with KYC</td></tr>
+            <tr><td><strong>Buses</strong></td><td><span class="badge badge-immutable">Real</span></td><td>Real vehicles with registration, insurance, fitness</td></tr>
+            <tr><td><strong>Routes &amp; stands</strong></td><td><span class="badge badge-immutable">Real</span></td><td>Real geography, real coordinates</td></tr>
+            <tr><td><strong>Money</strong></td><td><span class="badge badge-immutable">Real</span></td><td>Real INR through licensed payment gateways</td></tr>
+            <tr><td><strong>Payments</strong></td><td><span class="badge badge-immutable">Real</span></td><td>Real gateway transactions with real money</td></tr>
+            <tr><td><strong>Refunds</strong></td><td><span class="badge badge-immutable">Real</span></td><td>Real refunds to original payment method</td></tr>
+            <tr><td><strong>Tickets &amp; QR</strong></td><td><span class="badge badge-immutable">Real</span></td><td>Real signed QR codes used at boarding</td></tr>
+            <tr><td><strong>GPS tracking</strong></td><td><span class="badge badge-immutable">Real</span></td><td>Real device location from driver phone</td></tr>
+            <tr><td><strong>Time zone</strong></td><td><span class="badge badge-flexible">Real (IST)</span></td><td>All times in Indian Standard Time</td></tr>
+            <tr><td><strong>Traffic data</strong></td><td><span class="badge badge-configurable">Configurable</span></td><td>Real API (Google/TomTom) or degraded fallback</td></tr>
+            <tr><td><strong>Test routes</strong></td><td><span class="badge badge-flexible">Isolated</span></td><td>Hidden routes used only for internal testing</td></tr>
+            <tr><td><strong>Sandbox mode</strong></td><td><span class="badge badge-flexible">Isolated</span></td><td>Gateway test mode used only in staging</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-danger">
+        <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <p><strong>Absolute rule:</strong> Test data never mixes with production data. Test bookings never appear in real analytics, settlements, or GST reports. Test routes never appear in public search. If this boundary is ever violated, it is a critical bug.</p>
+      </div>
+    </section>
+
+    <!-- 03 — ACTORS -->
+    <section class="section-wrap" id="actors">
+      <div class="section-header">
+        <span class="section-tag">Article 03</span>
+        <h2 class="section-title">Actors</h2>
+        <p class="section-desc">Five human actor types interact with BusVerse. Each has a distinct identity, permissions, and life cycle.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">3.1</div>
+        <div class="rule-body">
+          <div class="rule-title">Passenger</div>
+          <div class="rule-desc">A person who searches, books, pays for, and travels on a seat. Identified by phone number. Can book as guest (limited) or registered user (full). A passenger may also be a driver or operator in different contexts, but the roles never mix within a single session.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">3.2</div>
+        <div class="rule-body">
+          <div class="rule-title">Driver</div>
+          <div class="rule-desc">A licensed person who drives a bus for an operator. Onboarded by the operator. Verified by BusVerse via KYC. Uses the Driver App. Can receive trip assignments, stream GPS, scan tickets, and report delays. Never books tickets as a passenger while on duty.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">3.3</div>
+        <div class="rule-body">
+          <div class="rule-title">Operator</div>
+          <div class="rule-desc">A company that owns buses and employs drivers. Identified by GSTIN. Onboards via the Operator Panel, verified by BusVerse admin. Creates routes, schedules, fares. Manages fleet and drivers. Receives settlements. Cannot be a passenger, driver, or admin.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">3.4</div>
+        <div class="rule-body">
+          <div class="rule-title">Admin</div>
+          <div class="rule-desc">The BusVerse operations team (Phase 1: the founder). Approves operators, buses, and routes. Handles disputes, refunds, and fraud. Has full read access to every record with an immutable audit log. Cannot modify bookings directly — only cancel or refund with reason.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">3.5</div>
+        <div class="rule-body">
+          <div class="rule-title">Support</div>
+          <div class="rule-desc">Subset of admin for customer service. Handles tickets, live chat, and low-value refunds. Cannot approve operator KYC, modify routes, or access financial configuration. Escalates to admin when needed.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">3.6</div>
+        <div class="rule-body">
+          <div class="rule-title">Government operator (special class)</div>
+          <div class="rule-desc">State transport corporations. Onboarded by admin, not self-service. Follow different KYC rules, use subsidized fares, and settle via government channels. Appear in search with distinct branding.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 — MONEY RULES -->
+    <section class="section-wrap" id="money">
+      <div class="section-header">
+        <span class="section-tag">Article 04</span>
+        <h2 class="section-title">Money Rules</h2>
+        <p class="section-desc">Real INR. Real gateways. Real consequences. These rules govern every rupee that moves through the platform.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">4.1</div>
+        <div class="rule-body">
+          <div class="rule-title">All payments flow through licensed gateways</div>
+          <div class="rule-desc">BusVerse never holds customer funds directly. Every payment goes through an RBI-licensed Payment Aggregator — Razorpay, PhonePe, Paytm, or Cashfree. BusVerse's role is to <em>initiate</em> payments and <em>receive settlements</em>. It is not a Payment Aggregator itself.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">4.2</div>
+        <div class="rule-body">
+          <div class="rule-title">Fare + convenience fee is the only amount charged</div>
+          <div class="rule-desc">The passenger pays the operator's fare plus the BusVerse convenience fee. No hidden charges. No taxes added after. The total shown at checkout is the exact amount debited. GST is included in the fare, not added on top.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">4.3</div>
+        <div class="rule-body">
+          <div class="rule-title">Money is idempotent</div>
+          <div class="rule-desc">Every payment carries a unique idempotency key. Retrying a payment never charges twice. If the gateway processes the same payment twice (rare but possible), the duplicate is auto-detected and refunded within 24 hours.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">4.4</div>
+        <div class="rule-body">
+          <div class="rule-title">Refunds go to the original payment method</div>
+          <div class="rule-desc">UPI refund goes to UPI. Card refund goes to card. BusVerse never redirects a refund to a different account, even if requested by the passenger. This is a legal requirement and a fraud prevention measure.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">4.5</div>
+        <div class="rule-body">
+          <div class="rule-title">Refunds are never instant</div>
+          <div class="rule-desc">BusVerse initiates refunds within minutes of cancellation. The gateway then takes 3–7 business days to credit the passenger's account. BusVerse never promises instant refunds. The user sees the actual status at every step.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">4.6</div>
+        <div class="rule-body">
+          <div class="rule-title">Operators are settled after the refund window closes</div>
+          <div class="rule-desc">Operators do not receive payment immediately after a booking. Settlement happens after the trip completes and the refund window closes (typically T+7). This protects BusVerse from chargebacks and operator-failure scenarios.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">4.7</div>
+        <div class="rule-body">
+          <div class="rule-title">Gateway fees are absorbed by BusVerse</div>
+          <div class="rule-desc">For UPI, gateway fees are zero (as per NPCI rules). For cards and netbanking, the gateway charges a fee that BusVerse absorbs — it is not passed to the passenger or deducted from the operator's settlement. This is factored into the convenience fee model.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">4.8</div>
+        <div class="rule-body">
+          <div class="rule-title">No wallet for Phase 1</div>
+          <div class="rule-desc">BusVerse does not offer a proprietary wallet in Phase 1. Wallets introduce RBI compliance, KYC overhead, and float management — none of which are worth it until scale demands it. Payments are always direct to gateway.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 — TIME RULES -->
+    <section class="section-wrap" id="time">
+      <div class="section-header">
+        <span class="section-tag">Article 05</span>
+        <h2 class="section-title">Time Rules</h2>
+        <p class="section-desc">Time is used inconsistently in most systems. BusVerse is explicit about which clock each system uses.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">5.1</div>
+        <div class="rule-body">
+          <div class="rule-title">All user-facing times are in IST</div>
+          <div class="rule-desc">Departure, arrival, boarding, ETA — every time shown to a user is in Indian Standard Time (UTC+5:30). No time-zone conversion for the user. Buses in India operate on IST regardless of where the app is used.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">5.2</div>
+        <div class="rule-body">
+          <div class="rule-title">All internal timestamps are in UTC</div>
+          <div class="rule-desc">Every record in the database stores time in UTC. Conversion to IST happens only at the presentation layer. This ensures correctness across DST transitions (which India does not observe but future expansion might) and simplifies time-zone-aware queries.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">5.3</div>
+        <div class="rule-body">
+          <div class="rule-title">Seat locks are always real-time</div>
+          <div class="rule-desc">A seat lock lasts exactly 5 minutes in real wall-clock time. It does not scale with any simulation factor. There is no simulation mode in BusVerse Real. If a user's clock differs from the server's clock, the server always wins.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">5.4</div>
+        <div class="rule-body">
+          <div class="rule-title">Cancellation windows use real time</div>
+          <div class="rule-desc">"More than 24 hours before departure" is measured in real IST against the scheduled departure time. Not in business hours. Not excluding weekends. Real time only.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">5.5</div>
+        <div class="rule-body">
+          <div class="rule-title">Schedules are always in IST</div>
+          <div class="rule-desc">A bus scheduled for 21:45 departs at 21:45 IST. If the bus is late, the delay is measured against this IST schedule. All ETA calculations output IST.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">5.6</div>
+        <div class="rule-body">
+          <div class="rule-title">Server time is authoritative</div>
+          <div class="rule-desc">The server's clock is the single source of truth. If a client's clock is off by hours, the client is wrong. The server rejects any request that relies on client time for critical decisions (payment confirmation, seat lock expiry, cancellation timing).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 — DATA RULES -->
+    <section class="section-wrap" id="data">
+      <div class="section-header">
+        <span class="section-tag">Article 06</span>
+        <h2 class="section-title">Data Rules</h2>
+        <p class="section-desc">Personal data, business data, and system data. Who owns what, who sees what, how long it lives.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">6.1</div>
+        <div class="rule-body">
+          <div class="rule-title">Users own their personal data</div>
+          <div class="rule-desc">Name, phone, email, and ID details belong to the user. BusVerse holds them only to enable bookings and support. Users can export or delete their data on request, subject to legal retention requirements.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">6.2</div>
+        <div class="rule-body">
+          <div class="rule-title">Operators own their booking data</div>
+          <div class="rule-desc">Operators can access every booking made on their buses — passenger names, seats, boarding points, fare collected. Operators cannot see bookings on other operators' buses. BusVerse does not sell or share operator data.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">6.3</div>
+        <div class="rule-body">
+          <div class="rule-title">Passwords and PINs are never stored in plain text</div>
+          <div class="rule-desc">Passwords are hashed with bcrypt or Argon2. UPI PINs are never stored by BusVerse at all — they are entered directly on the gateway's hosted page. Card numbers are tokenized by the gateway; BusVerse sees only the last 4 digits.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">6.4</div>
+        <div class="rule-body">
+          <div class="rule-title">PII is masked in logs</div>
+          <div class="rule-desc">Phone numbers, email addresses, and ID numbers are masked before they reach any log file. <code>9876543210</code> becomes <code>9876XXXXX0</code> in logs. No raw PII appears in Sentry, CloudWatch, or any monitoring tool.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">6.5</div>
+        <div class="rule-body">
+          <div class="rule-title">Booking data is retained for 8 years</div>
+          <div class="rule-desc">GST and income tax laws require booking and payment records for 8 years. Refund records similarly. After 8 years, records are archived or purged in compliance with legal requirements.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">6.6</div>
+        <div class="rule-body">
+          <div class="rule-title">GPS data is retained for 90 days</div>
+          <div class="rule-desc">Position history from driver phones is retained for 90 days for dispute resolution, safety investigations, and ETA accuracy analysis. After 90 days, only aggregated data is kept. Raw GPS traces are deleted.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">6.7</div>
+        <div class="rule-body">
+          <div class="rule-title">Audit logs are never deleted</div>
+          <div class="rule-desc">Every admin action, every refund, every dispute resolution, every operator suspension is logged permanently. Audit logs are append-only. No one, not even the founder, can delete an audit entry.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">6.8</div>
+        <div class="rule-body">
+          <div class="rule-title">Data is stored in India</div>
+          <div class="rule-desc">All user data, booking data, and payment data is stored on servers physically located in India. This is a DPDP Act compliance requirement and will remain true even as the platform scales.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 — BOOKING RULES -->
+    <section class="section-wrap" id="booking">
+      <div class="section-header">
+        <span class="section-tag">Article 07</span>
+        <h2 class="section-title">Booking Rules</h2>
+        <p class="section-desc">The atomic unit of BusVerse. Every rule here protects the integrity of a booking.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">7.1</div>
+        <div class="rule-body">
+          <div class="rule-title">One seat = one passenger</div>
+          <div class="rule-desc">A seat can never be booked for more than one passenger at a time. If a group travels together, each passenger has their own seat and their own entry on the ticket.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">7.2</div>
+        <div class="rule-body">
+          <div class="rule-title">Seat locks are atomic</div>
+          <div class="rule-desc">The moment a seat is locked, no other user can lock it. This is enforced by the database, not the application. Two concurrent lock attempts on the same seat result in exactly one success and one failure — never two successes, never two failures.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">7.3</div>
+        <div class="rule-body">
+          <div class="rule-title">A lock converts to a booking or expires — never both</div>
+          <div class="rule-desc">If payment succeeds, the lock is deleted and a booking is created in a single atomic transaction. If payment fails or the lock expires, the lock is deleted and no booking exists. There is no intermediate state.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">7.4</div>
+        <div class="rule-body">
+          <div class="rule-title">Payments are never partial</div>
+          <div class="rule-desc">A booking is either fully paid or not created. There is no "half-paid" state. If a passenger tries to pay ₹500 for a ₹1000 fare, the payment fails and the booking is not created. Partial payments are not a feature.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">7.5</div>
+        <div class="rule-body">
+          <div class="rule-title">Confirmed bookings cannot be silently modified</div>
+          <div class="rule-desc">Once a booking is confirmed, the seat number, passenger name, and fare cannot be changed without the passenger's explicit action. Operators cannot move passengers to different seats without notifying them and getting confirmation (or issuing a refund).</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">7.6</div>
+        <div class="rule-body">
+          <div class="rule-title">Every booking has exactly one ticket</div>
+          <div class="rule-desc">A booking generates exactly one ticket with one QR code. The ticket is immutable once issued. If the booking is cancelled, the ticket becomes invalid but is not deleted — it is marked cancelled for audit purposes.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">7.7</div>
+        <div class="rule-body">
+          <div class="rule-title">Guest bookings have limited features</div>
+          <div class="rule-desc">A guest can search, book, and pay. A guest cannot access booking history, cannot use support chat, and cannot receive refunds to a different contact. To unlock full features, they must register.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">7.8</div>
+        <div class="rule-body">
+          <div class="rule-title">Every booking is auditable forever</div>
+          <div class="rule-desc">Every state change of a booking (created, paid, confirmed, checked-in, cancelled, refunded, completed) is recorded with a timestamp, actor, and reason. The complete lifecycle of any booking can be reconstructed years later.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 — REFUND RULES -->
+    <section class="section-wrap" id="refund">
+      <div class="section-header">
+        <span class="section-tag">Article 08</span>
+        <h2 class="section-title">Cancellation &amp; Refund Rules</h2>
+        <p class="section-desc">The refund policy is public. Every rupee is accounted for. No exceptions.</p>
+      </div>
+
+      <div class="table-frame">
+        <table>
+          <thead>
+            <tr><th>Cancellation timing</th><th>Refund to passenger</th><th>Who initiated</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>More than 24 hours before departure</td><td>100% of fare + fee</td><td>Passenger</td></tr>
+            <tr><td>12–24 hours before departure</td><td>90% of fare + 100% of fee</td><td>Passenger</td></tr>
+            <tr><td>6–12 hours before departure</td><td>75% of fare + 100% of fee</td><td>Passenger</td></tr>
+            <tr><td>2–6 hours before departure</td><td>50% of fare + 100% of fee</td><td>Passenger</td></tr>
+            <tr><td>Less than 2 hours before departure</td><td>0% of fare + 100% of fee</td><td>Passenger</td></tr>
+            <tr><td>No-show (did not board)</td><td>0%</td><td>Passenger</td></tr>
+            <tr><td>Operator cancelled trip</td><td>100% + ₹100 credit</td><td>Operator</td></tr>
+            <tr><td>Bus breakdown (verified)</td><td>100% + ₹100 credit</td><td>Operator</td></tr>
+            <tr><td>Platform cancelled (emergency)</td><td>100% + ₹200 credit</td><td>BusVerse</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">8.1</div>
+        <div class="rule-body">
+          <div class="rule-title">The convenience fee is always refunded on cancellation</div>
+          <div class="rule-desc">Regardless of when the passenger cancels, the BusVerse convenience fee is fully refunded. The refund policy only applies to the operator's fare. This ensures passengers are never penalized for using BusVerse.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">8.2</div>
+        <div class="rule-body">
+          <div class="rule-title">Cancellations by the operator always refund 100%</div>
+          <div class="rule-desc">If the operator cancels a trip, every passenger receives a full refund regardless of timing. Additionally, the operator is penalized in their quality score. Repeated cancellations can lead to suspension.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">8.3</div>
+        <div class="rule-body">
+          <div class="rule-title">Refunds are initiated within 15 minutes</div>
+          <div class="rule-desc">When a cancellation is confirmed, the refund is initiated to the gateway within 15 minutes. The passenger sees "Refund initiated" immediately. The gateway then takes 3–7 business days to credit the account.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">8.4</div>
+        <div class="rule-body">
+          <div class="rule-title">No manual refunds for standard cancellations</div>
+          <div class="rule-desc">Every standard cancellation is refunded automatically by the refund engine. Manual refunds are only issued for exceptional cases (disputes, fraud, gateways failures) and require admin approval with a reason.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">8.5</div>
+        <div class="rule-body">
+          <div class="rule-title">Refunds cannot be redirected</div>
+          <div class="rule-desc">Even if a passenger asks, a refund goes to the original payment method. No exceptions. This is a hard rule that protects BusVerse from fraud and complies with RBI and PCI-DSS requirements.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 09 — PASSENGER RULES -->
+    <section class="section-wrap" id="passenger">
+      <div class="section-header">
+        <span class="section-tag">Article 09</span>
+        <h2 class="section-title">Passenger Rules</h2>
+        <p class="section-desc">What a passenger can do, cannot do, and what BusVerse owes them.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">9.1</div>
+        <div class="rule-body">
+          <div class="rule-title">Passenger can cancel any booking before departure</div>
+          <div class="rule-desc">No booking is locked-in. A passenger can cancel any confirmed booking up to 2 minutes before departure, receiving the refund due per the policy. After departure, no cancellation is possible.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">9.2</div>
+        <div class="rule-body">
+          <div class="rule-title">Passenger sees exactly where their bus is</div>
+          <div class="rule-desc">Once the driver starts the trip, the passenger sees the bus moving on the map in real time. If GPS data is temporarily unavailable, the passenger sees the last known position with a "stale" indicator — never a fake position.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">9.3</div>
+        <div class="rule-body">
+          <div class="rule-title">Passenger cannot contact the driver directly</div>
+          <div class="rule-desc">For safety and liability reasons, passengers cannot call, message, or contact the driver. All communication flows through BusVerse support. Emergency SOS alerts the platform, not the driver.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">9.4</div>
+        <div class="rule-body">
+          <div class="rule-title">Passenger can share their live trip</div>
+          <div class="rule-desc">A passenger can generate a shareable live-tracking link (via WhatsApp or SMS) that shows their trip in real time. This link works without login for anyone who has it. It can be revoked at any time.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">9.5</div>
+        <div class="rule-body">
+          <div class="rule-title">Passenger can rate every trip</div>
+          <div class="rule-desc">After each completed trip, the passenger can rate the operator and driver on a 1–5 scale. Ratings are public on the operator profile. Fake ratings are filtered out by a fraud detection system.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">9.6</div>
+        <div class="rule-body">
+          <div class="rule-title">Passenger cannot be discriminated against</div>
+          <div class="rule-desc">BusVerse does not allow operators to refuse boarding based on caste, religion, gender, or disability. Any such incident reported and verified leads to immediate operator suspension.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">9.7</div>
+        <div class="rule-body">
+          <div class="rule-title">Passenger safety is non-negotiable</div>
+          <div class="rule-desc">If a passenger feels unsafe, SOS triggers an immediate alert to BusVerse support with live location. Support responds within 2 minutes during daytime, 5 minutes at night. In critical cases, local authorities are contacted.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 — DRIVER RULES -->
+    <section class="section-wrap" id="driver">
+      <div class="section-header">
+        <span class="section-tag">Article 10</span>
+        <h2 class="section-title">Driver Rules</h2>
+        <p class="section-desc">A driver represents the operator and BusVerse. Behavior on the road defines the platform's reputation.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">10.1</div>
+        <div class="rule-body">
+          <div class="rule-title">Driver is verified before first trip</div>
+          <div class="rule-desc">A driver must have a valid commercial license, KYC verification, and operator authorization before any trip assignment. If any document expires, the driver is blocked from new trips until renewed.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">10.2</div>
+        <div class="rule-body">
+          <div class="rule-title">Driver streams GPS during active trips</div>
+          <div class="rule-desc">The Driver App must stream location every 10 seconds while a trip is active. If GPS is disabled, the app prompts the driver to enable it. If the driver refuses, the trip is flagged to admin and passengers see "GPS unavailable."</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">10.3</div>
+        <div class="rule-body">
+          <div class="rule-title">Driver scans every boarding passenger</div>
+          <div class="rule-desc">Every passenger's QR is scanned before boarding. Unscanned passengers cannot board. This ensures accurate manifests, prevents fraud, and helps with safety investigations.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">10.4</div>
+        <div class="rule-body">
+          <div class="rule-title">Driver reports delays immediately</div>
+          <div class="rule-desc">If a trip is delayed by more than 15 minutes, the driver must pick a reason (traffic, breakdown, rest stop, medical) and report it. This triggers notifications to passengers with an updated ETA.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">10.5</div>
+        <div class="rule-body">
+          <div class="rule-title">Driver cannot cancel a trip</div>
+          <div class="rule-desc">Only the operator can cancel a trip. A driver who cannot operate a bus must contact the operator, who then decides to cancel or reassign. Passengers are protected from last-minute cancellations without consequence.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">10.6</div>
+        <div class="rule-body">
+          <div class="rule-title">Driver has emergency authority</div>
+          <div class="rule-desc">In an emergency (medical, security, breakdown), the driver has full authority to deviate from the route, stop the bus, or reroute to the nearest safe point. BusVerse support is notified automatically. The driver's decision is protected from penalty in genuine emergencies.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 — OPERATOR RULES -->
+    <section class="section-wrap" id="operator">
+      <div class="section-header">
+        <span class="section-tag">Article 11</span>
+        <h2 class="section-title">Operator Rules</h2>
+        <p class="section-desc">Operators own the buses and the responsibility. BusVerse holds them to a standard.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">11.1</div>
+        <div class="rule-body">
+          <div class="rule-title">Operator is verified before listing any bus</div>
+          <div class="rule-desc">GST, PAN, company registration, and bank account are verified before any bus goes live. Buses need valid registration, insurance, and fitness certificates. No exceptions.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">11.2</div>
+        <div class="rule-body">
+          <div class="rule-title">Operator is responsible for the trip</div>
+          <div class="rule-desc">If the bus breaks down, if the driver doesn't show up, if the trip is cancelled — the operator is responsible. BusVerse facilitates the booking and handles the refund, but the operational failure is the operator's liability.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">11.3</div>
+        <div class="rule-body">
+          <div class="rule-title">Operator cannot see other operators' data</div>
+          <div class="rule-desc">An operator sees only their own buses, routes, bookings, drivers, and revenue. Cross-operator data is never visible. BusVerse does not share competitor intelligence.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">11.4</div>
+        <div class="rule-body">
+          <div class="rule-title">Operator pays no commission in Phase 1</div>
+          <div class="rule-desc">BusVerse does not charge commission. The operator receives the full fare. The passenger pays the convenience fee. This is a deliberate Phase 1 strategy to attract operators without competing with RedBus on commission.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">11.5</div>
+        <div class="rule-body">
+          <div class="rule-title">Operator is settled after the refund window</div>
+          <div class="rule-desc">Settlements happen after the trip completes and the refund window closes. Typically T+7. This protects BusVerse from chargebacks if a passenger disputes a fare after travel.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">11.6</div>
+        <div class="rule-body">
+          <div class="rule-title">Operator quality is scored continuously</div>
+          <div class="rule-desc">Every operator has a quality score based on on-time performance, cancellation rate, complaint count, and passenger ratings. The score affects search ranking. Operators with consistently low scores are suspended.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">11.7</div>
+        <div class="rule-body">
+          <div class="rule-title">Operator cannot discriminate</div>
+          <div class="rule-desc">Operators cannot refuse boarding based on caste, religion, gender, or disability. Violations lead to immediate suspension and potential legal action. BusVerse stands with passengers in every verified discrimination case.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 — ADMIN RULES -->
+    <section class="section-wrap" id="admin">
+      <div class="section-header">
+        <span class="section-tag">Article 12</span>
+        <h2 class="section-title">Admin &amp; Support Rules</h2>
+        <p class="section-desc">Admin has power. Support has limited power. Both have accountability.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">12.1</div>
+        <div class="rule-body">
+          <div class="rule-title">Every admin action is logged</div>
+          <div class="rule-desc">Approving an operator, rejecting a bus, issuing a refund, suspending a user, modifying a route — every action is logged with timestamp, admin ID, reason, and affected record. Logs are append-only.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">12.2</div>
+        <div class="rule-body">
+          <div class="rule-title">Admin cannot modify a confirmed booking</div>
+          <div class="rule-desc">Admin can cancel a booking with a reason, but cannot change the seat, passenger, or fare of a confirmed booking. If a change is needed, the booking is cancelled and a new one is created — full audit trail preserved.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">12.3</div>
+        <div class="rule-body">
+          <div class="rule-title">Admin cannot access passwords or PINs</div>
+          <div class="rule-desc">Passwords are hashed. PINs are never stored. Admin cannot reset passwords — users reset their own via OTP. Admin cannot see card details — only last 4 digits and token reference.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">12.4</div>
+        <div class="rule-body">
+          <div class="rule-title">Support refunds are capped</div>
+          <div class="rule-desc">Support agents can issue refunds up to ₹5,000 per booking without approval. Refunds above ₹5,000 require admin approval. This prevents abuse while allowing support to resolve common cases quickly.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">12.5</div>
+        <div class="rule-body">
+          <div class="rule-title">Admin cannot bypass legal compliance</div>
+          <div class="rule-desc">Admin cannot disable GST invoicing. Admin cannot delete audit logs. Admin cannot modify booking records retroactively. Admin cannot process refunds to non-original payment methods. These constraints are enforced by code, not by policy.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">12.6</div>
+        <div class="rule-body">
+          <div class="rule-title">Every dispute is arbitrated with reason</div>
+          <div class="rule-desc">When a passenger and operator disagree, admin reviews evidence and issues a decision with a written reason. The decision is logged and communicated to both sides. There is no silent resolution.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 — FAILURE RULES -->
+    <section class="section-wrap" id="failure">
+      <div class="section-header">
+        <span class="section-tag">Article 13</span>
+        <h2 class="section-title">Failure Rules</h2>
+        <p class="section-desc">What happens when things break. Because they will.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">13.1</div>
+        <div class="rule-body">
+          <div class="rule-title">Money never silently disappears</div>
+          <div class="rule-desc">If a payment is debited but the booking fails, the payment is detected, logged, and refunded automatically within 24 hours. If a refund is initiated but the gateway fails, the refund is retried and monitored. A passenger never loses money without a record.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">13.2</div>
+        <div class="rule-body">
+          <div class="rule-title">Seat locks fail safe</div>
+          <div class="rule-desc">If Redis (the lock store) crashes, the system falls back to PostgreSQL for locks. If PostgreSQL also fails, the system refuses new bookings rather than risk double-booking. A failed lock is always better than a wrong lock.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">13.3</div>
+        <div class="rule-body">
+          <div class="rule-title">GPS failures degrade gracefully</div>
+          <div class="rule-desc">If GPS data stops for a trip, passengers see "GPS unavailable — last known position at HH:MM." The ETA switches to schedule-based estimate. The passenger is never shown a fake or frozen position.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">13.4</div>
+        <div class="rule-body">
+          <div class="rule-title">Payment gateway failure does not block bookings</div>
+          <div class="rule-desc">If one gateway is down, the payment adapter automatically routes to an alternate gateway. If all gateways are down, bookings are disabled with a clear message — "Payments temporarily unavailable, please try again in a few minutes."</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">13.5</div>
+        <div class="rule-body">
+          <div class="rule-title">WebSocket failure does not break the app</div>
+          <div class="rule-desc">If WebSocket connections drop, the client falls back to HTTP polling every 3 seconds. The user experience is slightly degraded (slower updates) but functional. The client attempts WebSocket reconnection continuously.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">13.6</div>
+        <div class="rule-body">
+          <div class="rule-title">Trip cancellation is always refunded</div>
+          <div class="rule-desc">If a trip is cancelled for any reason — operator, weather, breakdown, government order — every passenger is fully refunded. There is no scenario where a passenger pays for a trip that does not happen and does not receive a refund.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">13.7</div>
+        <div class="rule-body">
+          <div class="rule-title">Every failure is logged and reviewed</div>
+          <div class="rule-desc">Every failure — payment, lock, GPS, gateway, refund — is logged with enough context to reproduce and fix. Failures are reviewed daily. Patterns are addressed with code changes, not workarounds.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 — IMMUTABLE RULES -->
+    <section class="section-wrap" id="immutable">
+      <div class="section-header">
+        <span class="section-tag">Article 14</span>
+        <h2 class="section-title">Immutable Rules</h2>
+        <p class="section-desc">Rules that never change, regardless of pressure, growth, or opportunity. These are the constitution within the constitution.</p>
+      </div>
+
+      <div class="callout callout-danger">
+        <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <p><strong>These rules cannot be overridden by code, config, admin action, or business pressure.</strong> If any of these is ever violated, it is a critical bug that must be fixed within 24 hours.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">14.1</div>
+        <div class="rule-body">
+          <div class="rule-title">Never charge a passenger twice for the same seat</div>
+          <div class="rule-desc">Idempotency is enforced at the database level. No scenario — retry, network glitch, race condition — can result in a double charge.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">14.2</div>
+        <div class="rule-body">
+          <div class="rule-title">Never redirect a refund</div>
+          <div class="rule-desc">Refunds always go to the original payment method. No exceptions, no admin override, no passenger request.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">14.3</div>
+        <div class="rule-body">
+          <div class="rule-title">Never sell or share personal data</div>
+          <div class="rule-desc">No user data is ever sold, shared with third parties, or used for advertising without explicit consent. Data is used only to operate BusVerse.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">14.4</div>
+        <div class="rule-body">
+          <div class="rule-title">Never store raw card data or PINs</div>
+          <div class="rule-desc">Card numbers and UPI PINs never touch BusVerse servers. All card data is handled by the PCI-DSS compliant gateway.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">14.5</div>
+        <div class="rule-body">
+          <div class="rule-title">Never show a fake bus position</div>
+          <div class="rule-desc">If GPS data is unavailable, the app shows the last known position with a stale indicator. It never extrapolates, guesses, or fakes a position.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">14.6</div>
+        <div class="rule-body">
+          <div class="rule-title">Never allow a seat to be double-booked</div>
+          <div class="rule-desc">Atomic locking is enforced at the database level. There is no scenario where two passengers hold the same seat on the same trip.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">14.7</div>
+        <div class="rule-body">
+          <div class="rule-title">Never delete an audit log</div>
+          <div class="rule-desc">Audit logs are append-only. No code, admin, or database operation can remove an audit entry. If an audit entry is wrong, a corrective entry is added.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">14.8</div>
+        <div class="rule-body">
+          <div class="rule-title">Never compromise passenger safety</div>
+          <div class="rule-desc">If a safety feature must be temporarily disabled, the platform enters degraded mode and notifies users. Safety is never traded for revenue, uptime, or speed.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 — AMENDMENT -->
+    <section class="section-wrap" id="amendment">
+      <div class="section-header">
+        <span class="section-tag">Article 15</span>
+        <h2 class="section-title">Amendment Process</h2>
+        <p class="section-desc">How this document changes. Because it will.</p>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">15.1</div>
+        <div class="rule-body">
+          <div class="rule-title">Rules 1.1 through 15 can be amended</div>
+          <div class="rule-desc">Any rule in this document can be changed, added, or removed — except the immutable rules in Article 14. Amendments require a version bump and a written reason.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">15.2</div>
+        <div class="rule-body">
+          <div class="rule-title">Amendments are logged</div>
+          <div class="rule-desc">Every change to this document is recorded with the date, the rule changed, the reason, and the new version number. The log is kept in the same repository as the document itself, tracked with Git.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">15.3</div>
+        <div class="rule-body">
+          <div class="rule-title">Immutable rules can only be strengthened</div>
+          <div class="rule-desc">Rules in Article 14 can be added to or made stricter. They can never be weakened. If a rule is found to be insufficient, a stronger rule replaces it.</div>
+        </div>
+      </div>
+
+      <div class="rule">
+        <div class="rule-num">15.4</div>
+        <div class="rule-body">
+          <div class="rule-title">Every feature must comply with this document</div>
+          <div class="rule-desc">Before building any feature, ask: "Does this comply with the World Rules?" If the answer is no, either the feature is wrong or the rule needs amending first. Never build a feature that contradicts this document.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <div class="doc-footer">
+      <div class="doc-footer-title">BusVerse Real · World Rules</div>
+      <p class="doc-footer-text">v1.0 · Locked · Foundational document. All other BusVerse documents derive from this.</p>
+    </div>
+
+  </main>
+
+  <script>
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const darkBtn = document.getElementById('btn-dark');
+      const lightBtn = document.getElementById('btn-light');
+      if (theme === 'dark') {
+        darkBtn.classList.add('active');
+        lightBtn.classList.remove('active');
+      } else {
+        lightBtn.classList.add('active');
+        darkBtn.classList.remove('active');
+      }
+    }
+
+    // Active nav on scroll
+    const sections = document.querySelectorAll('.section-wrap');
+    const navLinks = document.querySelectorAll('.nav-item a');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(sec => {
+        const top = sec.offsetTop - 140;
+        if (pageYOffset >= top) current = sec.getAttribute('id');
+      });
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) link.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

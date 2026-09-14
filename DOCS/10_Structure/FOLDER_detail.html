@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BusVerse — Modular Folder Structure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-sm: 8px; --radius-md: 12px; --radius-lg: 18px; --radius-pill: 9999px;
+      --ease: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      --sidebar-w: 320px;
+    }
+    [data-theme="light"] {
+      --bg: #F4F7FB; --bg-sub: #EAEFF6; --card: #FFFFFF; --hover: #F1F5F9; --sunken: #E5ECF4;
+      --ink: #09101D; --ink2: #1E293B; --ink3: #475569; --muted: #64748B; --brand: #0052E0;
+      --line: rgba(15,23,42,0.07); --line2: rgba(15,23,42,0.12); --line3: rgba(15,23,42,0.22);
+      --bp: #0055ED; --bp-sub: rgba(0,85,237,0.08); --bp-br: rgba(0,85,237,0.25);
+      --cyan: #008DA6; --green: #059669; --green-sub: rgba(5,150,105,0.1);
+      --amber: #D97706; --amber-sub: rgba(217,119,6,0.1);
+      --red: #DC2626; --red-sub: rgba(220,38,38,0.1);
+      --purple: #7C3AED; --purple-sub: rgba(124,58,237,0.1);
+      --shadow: 0 4px 18px -2px rgba(9,16,29,0.05);
+      --shadow2: 0 16px 36px -8px rgba(9,16,29,0.1), 0 0 0 1px rgba(9,16,29,0.04);
+      --code-bg: #E7EDF5; --code-br: #D3DEEC; --code-ink: #0F172A;
+      --overlay: rgba(9,16,29,0.5);
+      --tree-folder: #0055ED;
+      --tree-file: #475569;
+      --tree-size: #64748B;
+    }
+    [data-theme="dark"] {
+      --bg: #060A12; --bg-sub: #0B111D; --card: #0D1525; --hover: #192742; --sunken: #080D17;
+      --ink: #FFFFFF; --ink2: #F1F5F9; --ink3: #94A3B8; --muted: #64748B; --brand: #3B82F6;
+      --line: rgba(255,255,255,0.07); --line2: rgba(255,255,255,0.12); --line3: rgba(255,255,255,0.24);
+      --bp: #2B75FF; --bp-sub: rgba(43,117,255,0.14); --bp-br: rgba(43,117,255,0.35);
+      --cyan: #00E5FF; --green: #10B981; --green-sub: rgba(16,185,129,0.14);
+      --amber: #F59E0B; --amber-sub: rgba(245,158,11,0.14);
+      --red: #EF4444; --red-sub: rgba(239,68,68,0.14);
+      --purple: #A78BFA; --purple-sub: rgba(167,139,250,0.14);
+      --shadow: 0 8px 24px -4px rgba(0,0,0,0.5);
+      --shadow2: 0 16px 48px -8px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.06);
+      --code-bg: #03060A; --code-br: #141E2F; --code-ink: #93C5FD;
+      --overlay: rgba(0,0,0,0.7);
+      --tree-folder: #2B75FF;
+      --tree-file: #94A3B8;
+      --tree-size: #64748B;
+    }
+    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+    body {
+      background: var(--bg); color: var(--ink2); font-family: var(--font-sans);
+      font-size: 15px; line-height: 1.7; -webkit-font-smoothing: antialiased;
+      transition: background-color var(--ease), color var(--ease);
+      display: flex; overflow-x: hidden;
+    }
+    .menu-btn {
+      display: none; position: fixed; top: 14px; left: 14px; z-index: 400;
+      background: var(--bp); color: #fff; border: none; width: 42px; height: 42px;
+      border-radius: var(--radius-md); cursor: pointer; font-size: 1.1rem;
+      align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(43,117,255,0.35);
+    }
+    .overlay { display: none; position: fixed; inset: 0; background: var(--overlay); z-index: 250; backdrop-filter: blur(4px); }
+    .overlay.active { display: block; }
+    .theme-hud {
+      position: fixed; top: 16px; right: 24px; z-index: 350;
+      display: flex; gap: 4px; background: var(--card); border: 1px solid var(--line3);
+      padding: 6px 12px; border-radius: var(--radius-pill); box-shadow: var(--shadow2);
+      backdrop-filter: blur(12px);
+    }
+    .theme-toggle-btn {
+      appearance: none; border: none; background: transparent; color: var(--ink3);
+      font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+      padding: 6px 12px; border-radius: var(--radius-pill); cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.1s;
+    }
+    .theme-toggle-btn:hover { color: var(--ink); background: var(--hover); }
+    .theme-toggle-btn.active { background: var(--bp); color: #fff; }
+    .sidebar {
+      position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
+      background: var(--bg-sub); border-right: 1px solid var(--line2);
+      overflow-y: auto; padding: 32px 0 60px; z-index: 300;
+      transition: transform var(--ease), background-color var(--ease);
+    }
+    .sidebar::-webkit-scrollbar { width: 5px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--line3); border-radius: 4px; }
+    .sidebar-header { padding: 0 28px 24px; border-bottom: 1px solid var(--line2); margin-bottom: 20px; }
+    .brand-eyebrow { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--cyan); text-transform: uppercase; margin-bottom: 6px; }
+    .brand-title { font-size: 1.35rem; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; line-height: 1.2; }
+    .brand-sub { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+    .sidebar-nav { list-style: none; padding: 0 16px; }
+    .nav-cat { display: block; font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); padding: 14px 14px 6px; }
+    .nav-item a { display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: var(--ink3); text-decoration: none; font-size: 0.85rem; font-weight: 500; border-radius: var(--radius-sm); transition: all 0.1s; line-height: 1.4; }
+    .nav-item a:hover { color: var(--ink); background: var(--hover); }
+    .nav-item a.active { color: var(--brand); background: var(--bp-sub); font-weight: 700; }
+    .nav-num { font-family: var(--font-mono); font-size: 10.5px; opacity: 0.65; min-width: 26px; flex-shrink: 0; }
+    .main { margin-left: var(--sidebar-w); flex: 1; max-width: 1200px; padding: 64px 64px 140px; min-width: 0; }
+    .doc-hero { margin-bottom: 56px; padding-bottom: 32px; border-bottom: 1px solid var(--line2); }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--brand); background: var(--bp-sub); border: 1px solid var(--bp-br); padding: 4px 12px; border-radius: var(--radius-pill); margin-bottom: 18px; letter-spacing: 0.5px; }
+    .hero-title { font-size: 2.5rem; font-weight: 800; color: var(--ink); letter-spacing: -1.1px; line-height: 1.1; margin-bottom: 16px; }
+    .hero-lead { font-size: 1.05rem; color: var(--ink3); max-width: 780px; line-height: 1.7; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 24px; font-size: 0.82rem; color: var(--muted); }
+    .hero-meta span strong { color: var(--ink); font-weight: 700; margin-right: 6px; }
+    .section-wrap { margin-bottom: 56px; scroll-margin-top: 80px; }
+    .section-header { margin-bottom: 20px; }
+    .section-tag { font-family: var(--font-mono); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.6px; color: var(--cyan); display: block; margin-bottom: 6px; }
+    .section-title { font-size: 1.65rem; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; margin-bottom: 8px; }
+    .section-desc { font-size: 0.96rem; color: var(--ink3); max-width: 800px; }
+    p { color: var(--ink3); margin-bottom: 14px; font-size: 0.95rem; }
+    strong { color: var(--ink); font-weight: 700; }
+    h3 { font-size: 1rem; font-weight: 700; color: var(--ink); margin: 22px 0 10px; letter-spacing: -0.2px; }
+    .table-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 18px 20px; margin: 14px 0; box-shadow: var(--shadow); overflow: hidden; }
+    .table-card-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; gap: 8px; }
+    .table-card-title { font-family: var(--font-mono); font-size: 0.92rem; font-weight: 700; color: var(--ink); letter-spacing: -0.3px; }
+    .col-wrap { overflow-x: auto; margin: 0 -20px; padding: 0 20px; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 480px; }
+    table thead th { background: var(--bg-sub); color: var(--muted); font-family: var(--font-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 1px; padding: 9px 11px; text-align: left; font-weight: 700; border-bottom: 1px solid var(--line2); white-space: nowrap; }
+    table td { padding: 9px 11px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 0.82rem; }
+    table tr:last-child td { border-bottom: none; }
+    table tr:hover td { background: var(--hover); }
+    .c-name { font-family: var(--font-mono); font-weight: 600; color: var(--ink); white-space: nowrap; }
+    .callout { display: flex; gap: 12px; padding: 14px 18px; border-radius: var(--radius-md); margin: 18px 0; font-size: 0.9rem; line-height: 1.6; border-left-width: 4px; border-left-style: solid; }
+    .callout-icon { flex-shrink: 0; width: 18px; height: 18px; margin-top: 2px; }
+    .callout p { margin: 0; color: inherit; font-size: 0.9rem; }
+    .callout strong { color: inherit; }
+    .co-info { background: var(--bp-sub); border-left-color: var(--bp); color: var(--ink2); }
+    .co-info .callout-icon { color: var(--bp); }
+    .co-warn { background: var(--amber-sub); border-left-color: var(--amber); color: var(--ink2); }
+    .co-warn .callout-icon { color: var(--amber); }
+    .co-danger { background: var(--red-sub); border-left-color: var(--red); color: var(--ink2); }
+    .co-danger .callout-icon { color: var(--red); }
+    .co-success { background: var(--green-sub); border-left-color: var(--green); color: var(--ink2); }
+    .co-success .callout-icon { color: var(--green); }
+    pre {
+      background: var(--code-bg); border: 1px solid var(--code-br);
+      border-radius: var(--radius-md); padding: 20px;
+      overflow-x: auto; font-family: var(--font-mono); font-size: 12px;
+      color: var(--code-ink); line-height: 1.75; margin: 12px 0;
+      -webkit-overflow-scrolling: touch;
+    }
+    code { font-family: var(--font-mono); font-size: 0.86em; background: var(--hover); padding: 2px 5px; border-radius: 4px; color: var(--brand); word-break: break-word; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+    .badge { display: inline-flex; align-items: center; font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-pill); letter-spacing: 0.4px; text-transform: uppercase; white-space: nowrap; }
+    .b-red { background: var(--red); color: #fff; }
+    .b-amber { background: var(--amber); color: #fff; }
+    .b-green { background: var(--green); color: #fff; }
+    .b-blue { background: var(--bp); color: #fff; }
+    .b-purple { background: var(--purple); color: #fff; }
+    .b-muted { background: var(--muted); color: #fff; }
+
+    /* TREE — no vertical cutoff, horizontal scroll only */
+    .tree {
+      background: var(--code-bg);
+      border: 1px solid var(--code-br);
+      border-radius: var(--radius-md);
+      padding: 22px 26px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.85;
+      color: var(--code-ink);
+      overflow-x: auto;
+      overflow-y: visible;
+      white-space: pre;
+      -webkit-overflow-scrolling: touch;
+      margin: 12px 0;
+      max-height: none;
+    }
+    .tree::-webkit-scrollbar { height: 10px; }
+    .tree::-webkit-scrollbar-track { background: var(--code-bg); border-radius: 5px; }
+    .tree::-webkit-scrollbar-thumb { background: var(--line3); border-radius: 5px; }
+    .tree::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+    .tree-hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-style: italic;
+      margin: -8px 0 12px 0;
+      text-align: right;
+    }
+    .tree .folder { color: var(--tree-folder); font-weight: 700; }
+    .tree .file { color: var(--tree-file); }
+    .tree .size { color: var(--tree-size); }
+    .tree .comment { color: var(--muted); font-style: italic; }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 20px 0; }
+    .stat-box { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 16px 18px; }
+    .stat-num { font-size: 1.7rem; font-weight: 800; color: var(--ink); letter-spacing: -1px; line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+    .doc-footer { margin-top: 72px; padding: 28px 22px; background: var(--card); border: 1px solid var(--line2); border-radius: var(--radius-lg); text-align: center; }
+    .doc-footer-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+    .doc-footer-text { font-size: 0.88rem; color: var(--muted); margin: 0; }
+    .legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 14px 0; font-size: 0.85rem; color: var(--ink3); }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+    @media (max-width: 1024px) { .main { padding: 56px 32px 100px; } }
+    @media (max-width: 900px) { :root { --sidebar-w: 300px; } }
+    @media (max-width: 768px) {
+      .menu-btn { display: flex; }
+      .sidebar { transform: translateX(-100%); width: 300px; box-shadow: 0 0 40px rgba(0,0,0,0.3); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 76px 18px 80px; max-width: 100%; }
+      .theme-hud { top: 14px; right: 14px; padding: 5px 10px; }
+      .theme-toggle-btn { padding: 5px 10px; font-size: 11px; }
+      .theme-toggle-btn svg { width: 11px; height: 11px; }
+      .hero-title { font-size: 1.85rem; }
+      .section-title { font-size: 1.35rem; }
+      .table-card { padding: 14px 12px; }
+      .col-wrap { margin: 0 -12px; padding: 0 12px; }
+      .tree { font-size: 10px; padding: 14px; }
+      .tree-hint { text-align: left; }
+      pre { font-size: 10.5px; padding: 14px; }
+    }
+</style>
+</head>
+<body>
+
+<button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+<div class="overlay" id="overlay"></div>
+
+<div class="theme-hud">
+  <button class="theme-toggle-btn active" id="btn-dark" onclick="setTheme('dark')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Dark
+  </button>
+  <button class="theme-toggle-btn" id="btn-light" onclick="setTheme('light')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Light
+  </button>
+</div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand-eyebrow">Structure Reference</div>
+    <div class="brand-title">Folder Layout</div>
+    <div class="brand-sub">BusVerse Real · v1.0</div>
+  </div>
+  <ul class="sidebar-nav">
+    <li><span class="nav-cat">Overview</span></li>
+    <li class="nav-item"><a href="#summary"><span class="nav-num">01</span><span>Summary</span></a></li>
+    <li class="nav-item"><a href="#full-tree"><span class="nav-num">02</span><span>Full Tree</span></a></li>
+
+    <li><span class="nav-cat">Layers</span></li>
+    <li class="nav-item"><a href="#apps"><span class="nav-num">03</span><span>apps/</span></a></li>
+    <li class="nav-item"><a href="#services"><span class="nav-num">04</span><span>services/</span></a></li>
+    <li class="nav-item"><a href="#engines"><span class="nav-num">05</span><span>engines/</span></a></li>
+    <li class="nav-item"><a href="#packages"><span class="nav-num">06</span><span>packages/</span></a></li>
+    <li class="nav-item"><a href="#infra"><span class="nav-num">07</span><span>infra/ &amp; scripts/</span></a></li>
+    <li class="nav-item"><a href="#tests"><span class="nav-num">08</span><span>tests/</span></a></li>
+    <li class="nav-item"><a href="#docs"><span class="nav-num">09</span><span>docs/</span></a></li>
+    <li class="nav-item"><a href="#root"><span class="nav-num">10</span><span>Root Config</span></a></li>
+
+    <li><span class="nav-cat">Rationale</span></li>
+    <li class="nav-item"><a href="#responsibility"><span class="nav-num">11</span><span>Separation of Concerns</span></a></li>
+    <li class="nav-item"><a href="#dependencies"><span class="nav-num">12</span><span>Dependency Direction</span></a></li>
+    <li class="nav-item"><a href="#git"><span class="nav-num">13</span><span>Git Workflow Fit</span></a></li>
+  </ul>
+</aside>
+
+<main class="main">
+
+<header class="doc-hero">
+  <div class="hero-badge">STRUCTURE REFERENCE // v1.0</div>
+  <h1 class="hero-title">Modular Folder Structure</h1>
+  <p class="hero-lead">The complete repository layout for BusVerse Real. A pnpm monorepo with Turbo, split into eight top-level concerns. Every folder has one job. Every package builds independently. Ready for the three-branch Git workflow.</p>
+  <div class="hero-meta">
+    <span><strong>Project:</strong> busverse-real</span>
+    <span><strong>Package Manager:</strong> pnpm 9</span>
+    <span><strong>Orchestrator:</strong> Turbo 2</span>
+    <span><strong>Runtime:</strong> Node 22</span>
+  </div>
+</header>
+
+<section class="section-wrap" id="summary">
+  <div class="section-header">
+    <span class="section-tag">Section 01</span>
+    <h2 class="section-title">Summary</h2>
+    <p class="section-desc">What this structure delivers.</p>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-box"><div class="stat-num">8</div><div class="stat-label">Top-level layers</div></div>
+    <div class="stat-box"><div class="stat-num">5</div><div class="stat-label">Apps</div></div>
+    <div class="stat-box"><div class="stat-num">4</div><div class="stat-label">Services</div></div>
+    <div class="stat-box"><div class="stat-num">4</div><div class="stat-label">Engines</div></div>
+    <div class="stat-box"><div class="stat-num">5</div><div class="stat-label">Packages</div></div>
+    <div class="stat-box"><div class="stat-num">3</div><div class="stat-label">Branches</div></div>
+  </div>
+
+  <div class="callout co-success">
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <p><strong>Design principles:</strong> one folder = one concern · one-way dependency direction · independent builds · independent deploys · feature-based organisation inside apps.</p>
+  </div>
+</section>
+
+<section class="section-wrap" id="full-tree">
+  <div class="section-header">
+    <span class="section-tag">Section 02</span>
+    <h2 class="section-title">Full Repository Tree</h2>
+    <p class="section-desc">Every folder, every config file.</p>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--bp)"></span> Folder</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--ink3)"></span> File</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--muted)"></span> Comment / description</div>
+  </div>
+  <div class="tree-hint">Scroll horizontally if the tree is wider than your screen</div>
+
+  <div class="tree"><span class="folder">busverse-real/</span>
+│
+├── <span class="folder">.github/</span>
+│   ├── <span class="folder">workflows/</span>
+│   │   ├── <span class="file">ci.yml</span>                     <span class="comment"># lint + test + build (all branches)</span>
+│   │   ├── <span class="file">deploy-staging.yml</span>         <span class="comment"># staging deploy</span>
+│   │   ├── <span class="file">deploy-production.yml</span>      <span class="comment"># production deploy</span>
+│   │   └── <span class="file">preview.yml</span>                <span class="comment"># PR previews</span>
+│   ├── <span class="file">pull_request_template.md</span>
+│   └── <span class="file">CODEOWNERS</span>
+│
+├── <span class="folder">.husky/</span>                           <span class="comment"># git hooks</span>
+│   ├── <span class="file">pre-commit</span>
+│   └── <span class="file">commit-msg</span>
+│
+├── <span class="folder">apps/</span>                             <span class="comment"># deployable user-facing apps</span>
+│   ├── <span class="folder">passenger-web/</span>                <span class="comment"># Passenger PWA (Next.js)</span>
+│   │   ├── <span class="folder">src/</span>
+│   │   │   ├── <span class="folder">app/</span>                  <span class="comment"># Next.js app router</span>
+│   │   │   ├── <span class="folder">components/</span>           <span class="comment"># app-specific components</span>
+│   │   │   ├── <span class="folder">features/</span>
+│   │   │   │   ├── <span class="folder">search/</span>
+│   │   │   │   ├── <span class="folder">booking/</span>
+│   │   │   │   ├── <span class="folder">seat-selection/</span>
+│   │   │   │   ├── <span class="folder">payment/</span>
+│   │   │   │   ├── <span class="folder">ticket/</span>
+│   │   │   │   ├── <span class="folder">tracking/</span>
+│   │   │   │   └── <span class="folder">profile/</span>
+│   │   │   ├── <span class="folder">hooks/</span>
+│   │   │   ├── <span class="folder">lib/</span>
+│   │   │   ├── <span class="folder">stores/</span>
+│   │   │   └── <span class="folder">styles/</span>
+│   │   ├── <span class="folder">public/</span>
+│   │   ├── <span class="file">package.json</span>
+│   │   ├── <span class="file">next.config.js</span>
+│   │   ├── <span class="file">tailwind.config.ts</span>
+│   │   └── <span class="file">tsconfig.json</span>
+│   │
+│   ├── <span class="folder">operator-panel/</span>               <span class="comment"># Operator dashboard (Next.js)</span>
+│   │   └── <span class="folder">src/</span>
+│   │       ├── <span class="folder">app/</span>
+│   │       └── <span class="folder">features/</span>
+│   │           ├── <span class="folder">fleet/</span>
+│   │           ├── <span class="folder">routes/</span>
+│   │           ├── <span class="folder">schedules/</span>
+│   │           ├── <span class="folder">drivers/</span>
+│   │           ├── <span class="folder">bookings/</span>
+│   │           ├── <span class="folder">revenue/</span>
+│   │           └── <span class="folder">cctv/</span>
+│   │
+│   ├── <span class="folder">admin-panel/</span>                  <span class="comment"># Admin dashboard (Next.js)</span>
+│   │   └── <span class="folder">src/</span>
+│   │       ├── <span class="folder">app/</span>
+│   │       └── <span class="folder">features/</span>
+│   │           ├── <span class="folder">operators/</span>
+│   │           ├── <span class="folder">buses/</span>
+│   │           ├── <span class="folder">routes/</span>
+│   │           ├── <span class="folder">users/</span>
+│   │           ├── <span class="folder">bookings/</span>
+│   │           ├── <span class="folder">disputes/</span>
+│   │           ├── <span class="folder">cctv/</span>
+│   │           ├── <span class="folder">analytics/</span>
+│   │           └── <span class="folder">settings/</span>
+│   │
+│   ├── <span class="folder">support-panel/</span>                <span class="comment"># Support console (Next.js)</span>
+│   │   └── <span class="folder">src/</span>
+│   │       ├── <span class="folder">app/</span>
+│   │       └── <span class="folder">features/</span>
+│   │           ├── <span class="folder">tickets/</span>
+│   │           ├── <span class="folder">chat/</span>
+│   │           ├── <span class="folder">refunds/</span>
+│   │           └── <span class="folder">user-lookup/</span>
+│   │
+│   └── <span class="folder">driver-app/</span>                   <span class="comment"># Driver mobile app (React Native)</span>
+│       ├── <span class="folder">src/</span>
+│       │   ├── <span class="folder">screens/</span>
+│       │   │   ├── <span class="folder">login/</span>
+│       │   │   ├── <span class="folder">trips/</span>
+│       │   │   ├── <span class="folder">active-trip/</span>
+│       │   │   ├── <span class="folder">scanner/</span>
+│       │   │   ├── <span class="folder">manifest/</span>
+│       │   │   └── <span class="folder">sos/</span>
+│       │   ├── <span class="folder">services/</span>
+│       │   │   ├── <span class="folder">gps/</span>
+│       │   │   ├── <span class="folder">api/</span>
+│       │   │   └── <span class="folder">storage/</span>
+│       │   ├── <span class="folder">hooks/</span>
+│       │   └── <span class="folder">navigation/</span>
+│       ├── <span class="file">package.json</span>
+│       └── <span class="file">tsconfig.json</span>
+│
+├── <span class="folder">services/</span>                         <span class="comment"># backend services</span>
+│   ├── <span class="folder">api/</span>                          <span class="comment"># REST API (NestJS)</span>
+│   │   ├── <span class="folder">src/</span>
+│   │   │   ├── <span class="file">main.ts</span>
+│   │   │   ├── <span class="file">app.module.ts</span>
+│   │   │   ├── <span class="folder">common/</span>
+│   │   │   │   ├── <span class="folder">guards/</span>
+│   │   │   │   ├── <span class="folder">interceptors/</span>
+│   │   │   │   ├── <span class="folder">filters/</span>
+│   │   │   │   ├── <span class="folder">pipes/</span>
+│   │   │   │   └── <span class="folder">decorators/</span>
+│   │   │   ├── <span class="folder">config/</span>
+│   │   │   ├── <span class="folder">modules/</span>
+│   │   │   │   ├── <span class="folder">auth/</span>
+│   │   │   │   ├── <span class="folder">users/</span>
+│   │   │   │   ├── <span class="folder">operators/</span>
+│   │   │   │   ├── <span class="folder">drivers/</span>
+│   │   │   │   ├── <span class="folder">routes/</span>
+│   │   │   │   ├── <span class="folder">stands/</span>
+│   │   │   │   ├── <span class="folder">buses/</span>
+│   │   │   │   ├── <span class="folder">schedules/</span>
+│   │   │   │   ├── <span class="folder">bookings/</span>
+│   │   │   │   ├── <span class="folder">seats/</span>
+│   │   │   │   ├── <span class="folder">payments/</span>
+│   │   │   │   ├── <span class="folder">refunds/</span>
+│   │   │   │   ├── <span class="folder">tickets/</span>
+│   │   │   │   ├── <span class="folder">tracking/</span>
+│   │   │   │   ├── <span class="folder">notifications/</span>
+│   │   │   │   ├── <span class="folder">admin/</span>
+│   │   │   │   └── <span class="folder">support/</span>
+│   │   │   ├── <span class="folder">prisma/</span>
+│   │   │   └── <span class="folder">health/</span>
+│   │   ├── <span class="folder">prisma/</span>
+│   │   │   ├── <span class="file">schema.prisma</span>
+│   │   │   ├── <span class="folder">migrations/</span>
+│   │   │   └── <span class="file">seed.ts</span>
+│   │   ├── <span class="folder">test/</span>
+│   │   ├── <span class="file">package.json</span>
+│   │   └── <span class="file">tsconfig.json</span>
+│   │
+│   ├── <span class="folder">ws/</span>                           <span class="comment"># WebSocket gateway</span>
+│   │   ├── <span class="folder">src/</span>
+│   │   │   ├── <span class="file">main.ts</span>
+│   │   │   ├── <span class="folder">gateway/</span>
+│   │   │   │   ├── <span class="file">bus.gateway.ts</span>       <span class="comment"># bus position broadcasts</span>
+│   │   │   │   ├── <span class="file">seat.gateway.ts</span>      <span class="comment"># seat lock events</span>
+│   │   │   │   ├── <span class="file">trip.gateway.ts</span>      <span class="comment"># trip lifecycle events</span>
+│   │   │   │   └── <span class="file">notification.gateway.ts</span>
+│   │   │   ├── <span class="folder">rooms/</span>
+│   │   │   ├── <span class="folder">auth/</span>
+│   │   │   └── <span class="folder">redis/</span>
+│   │   ├── <span class="file">package.json</span>
+│   │   └── <span class="file">tsconfig.json</span>
+│   │
+│   ├── <span class="folder">worker/</span>                       <span class="comment"># background jobs (BullMQ)</span>
+│   │   ├── <span class="folder">src/</span>
+│   │   │   ├── <span class="file">main.ts</span>
+│   │   │   ├── <span class="folder">jobs/</span>
+│   │   │   │   ├── <span class="folder">refund-engine/</span>
+│   │   │   │   ├── <span class="folder">lock-cleanup/</span>
+│   │   │   │   ├── <span class="folder">notification-dispatch/</span>
+│   │   │   │   ├── <span class="folder">settlement-engine/</span>
+│   │   │   │   └── <span class="folder">analytics-rollup/</span>
+│   │   │   ├── <span class="folder">queues/</span>
+│   │   │   └── <span class="folder">config/</span>
+│   │   ├── <span class="file">package.json</span>
+│   │   └── <span class="file">tsconfig.json</span>
+│   │
+│   └── <span class="folder">simulator/</span>                    <span class="comment"># simulation orchestrator</span>
+│       ├── <span class="folder">src/</span>
+│       │   ├── <span class="file">main.ts</span>
+│       │   ├── <span class="folder">tick-engine/</span>
+│       │   ├── <span class="folder">scenario-runner/</span>
+│       │   ├── <span class="folder">state-manager/</span>
+│       │   └── <span class="folder">api/</span>
+│       ├── <span class="file">package.json</span>
+│       └── <span class="file">tsconfig.json</span>
+│
+├── <span class="folder">engines/</span>                          <span class="comment"># pure logic, no I/O</span>
+│   ├── <span class="folder">traffic/</span>
+│   │   ├── <span class="folder">src/</span>
+│   │   │   ├── <span class="file">index.ts</span>
+│   │   │   ├── <span class="file">congestion.ts</span>
+│   │   │   ├── <span class="file">incidents.ts</span>
+│   │   │   └── <span class="file">types.ts</span>
+│   │   └── <span class="file">package.json</span>
+│   │
+│   ├── <span class="folder">weather/</span>
+│   │   ├── <span class="folder">src/</span>
+│   │   │   ├── <span class="file">index.ts</span>
+│   │   │   ├── <span class="file">conditions.ts</span>
+│   │   │   ├── <span class="file">forecast.ts</span>
+│   │   │   └── <span class="file">types.ts</span>
+│   │   └── <span class="file">package.json</span>
+│   │
+│   ├── <span class="folder">passengers/</span>
+│   │   ├── <span class="folder">src/</span>
+│   │   │   ├── <span class="file">index.ts</span>
+│   │   │   ├── <span class="file">behavior.ts</span>
+│   │   │   ├── <span class="file">boarding.ts</span>
+│   │   │   └── <span class="file">types.ts</span>
+│   │   └── <span class="file">package.json</span>
+│   │
+│   └── <span class="folder">clock/</span>                        <span class="comment"># BusVerse Speed clock</span>
+│       ├── <span class="folder">src/</span>
+│       │   ├── <span class="file">index.ts</span>
+│       │   ├── <span class="file">simulation-clock.ts</span>
+│       │   └── <span class="file">types.ts</span>
+│       └── <span class="file">package.json</span>
+│
+├── <span class="folder">packages/</span>                         <span class="comment"># shared libraries</span>
+│   ├── <span class="folder">ui/</span>                           <span class="comment"># design system components</span>
+│   │   ├── <span class="folder">src/</span>
+│   │   │   ├── <span class="file">index.ts</span>
+│   │   │   ├── <span class="folder">primitives/</span>           <span class="comment"># Button, Input, Card</span>
+│   │   │   ├── <span class="folder">transit/</span>              <span class="comment"># SeatMap, TicketStub, Telemetry</span>
+│   │   │   ├── <span class="folder">layout/</span>               <span class="comment"># Shell, Sidebar, Topbar</span>
+│   │   │   ├── <span class="folder">feedback/</span>             <span class="comment"># Toast, Modal, Spinner</span>
+│   │   │   └── <span class="folder">tokens/</span>               <span class="comment"># design tokens</span>
+│   │   └── <span class="file">package.json</span>
+│   │
+│   ├── <span class="folder">types/</span>                        <span class="comment"># shared TypeScript types</span>
+│   │   ├── <span class="folder">src/</span>
+│   │   │   ├── <span class="file">index.ts</span>
+│   │   │   ├── <span class="file">user.ts</span>
+│   │   │   ├── <span class="file">booking.ts</span>
+│   │   │   ├── <span class="file">bus.ts</span>
+│   │   │   ├── <span class="file">route.ts</span>
+│   │   │   ├── <span class="file">schedule.ts</span>
+│   │   │   ├── <span class="file">payment.ts</span>
+│   │   │   ├── <span class="file">ticket.ts</span>
+│   │   │   └── <span class="file">tracking.ts</span>
+│   │   └── <span class="file">package.json</span>
+│   │
+│   ├── <span class="folder">validators/</span>                   <span class="comment"># Zod schemas</span>
+│   │   ├── <span class="folder">src/</span>
+│   │   │   ├── <span class="file">index.ts</span>
+│   │   │   ├── <span class="file">auth.ts</span>
+│   │   │   ├── <span class="file">booking.ts</span>
+│   │   │   ├── <span class="file">payment.ts</span>
+│   │   │   └── <span class="file">search.ts</span>
+│   │   └── <span class="file">package.json</span>
+│   │
+│   ├── <span class="folder">sdk/</span>                          <span class="comment"># typed API client</span>
+│   │   ├── <span class="folder">src/</span>
+│   │   │   ├── <span class="file">index.ts</span>
+│   │   │   ├── <span class="file">client.ts</span>             <span class="comment"># base HTTP client</span>
+│   │   │   ├── <span class="file">auth.ts</span>
+│   │   │   ├── <span class="file">bookings.ts</span>
+│   │   │   ├── <span class="file">payments.ts</span>
+│   │   │   └── <span class="file">ws.ts</span>                 <span class="comment"># WebSocket client</span>
+│   │   └── <span class="file">package.json</span>
+│   │
+│   └── <span class="folder">config/</span>                       <span class="comment"># tooling presets</span>
+│       ├── <span class="folder">eslint/</span>
+│       ├── <span class="folder">typescript/</span>
+│       ├── <span class="folder">tailwind/</span>
+│       └── <span class="file">package.json</span>
+│
+├── <span class="folder">infra/</span>                            <span class="comment"># deployment &amp; infrastructure</span>
+│   ├── <span class="folder">docker/</span>
+│   │   ├── <span class="file">api.Dockerfile</span>
+│   │   ├── <span class="file">ws.Dockerfile</span>
+│   │   ├── <span class="file">worker.Dockerfile</span>
+│   │   ├── <span class="file">web.Dockerfile</span>
+│   │   └── <span class="file">docker-compose.yml</span>        <span class="comment"># local dev (postgres + redis)</span>
+│   ├── <span class="folder">terraform/</span>
+│   ├── <span class="folder">ci/</span>
+│   └── <span class="folder">monitoring/</span>
+│
+├── <span class="folder">scripts/</span>                          <span class="comment"># developer scripts</span>
+│   ├── <span class="folder">db/</span>
+│   │   ├── <span class="file">reset.ps1</span>
+│   │   ├── <span class="file">seed.ps1</span>
+│   │   └── <span class="file">migrate.ps1</span>
+│   ├── <span class="folder">dev/</span>
+│   │   ├── <span class="file">start-all.ps1</span>
+│   │   └── <span class="file">clean.ps1</span>
+│   └── <span class="folder">release/</span>
+│       ├── <span class="file">bump.ps1</span>
+│       └── <span class="file">tag.ps1</span>
+│
+├── <span class="folder">tests/</span>                            <span class="comment"># cross-cutting tests</span>
+│   ├── <span class="folder">e2e/</span>                          <span class="comment"># Playwright flows</span>
+│   │   ├── <span class="file">booking-flow.spec.ts</span>
+│   │   ├── <span class="file">refund-flow.spec.ts</span>
+│   │   └── <span class="file">tracking.spec.ts</span>
+│   ├── <span class="folder">load/</span>                         <span class="comment"># k6 scripts</span>
+│   │   ├── <span class="file">search.js</span>
+│   │   └── <span class="file">booking.js</span>
+│   └── <span class="folder">manual/</span>                       <span class="comment"># QA checklists</span>
+│       └── <span class="file">pre-release.md</span>
+│
+├── <span class="folder">docs/</span>                             <span class="comment"># all documentation</span>
+│   ├── <span class="folder">00-workflow/</span>
+│   ├── <span class="folder">01-world-rules/</span>
+│   ├── <span class="folder">02-ideation/</span>
+│   ├── <span class="folder">03-features/</span>
+│   ├── <span class="folder">04-assets-design/</span>
+│   ├── <span class="folder">05-walkthrough/</span>
+│   ├── <span class="folder">06-database/</span>
+│   ├── <span class="folder">07-api/</span>
+│   ├── <span class="folder">08-tech-stack/</span>
+│   ├── <span class="folder">09-git-guide/</span>
+│   ├── <span class="folder">10-structure/</span>
+│   ├── <span class="folder">11-env-setup/</span>
+│   ├── <span class="folder">12-security/</span>
+│   ├── <span class="folder">13-operations/</span>
+│   ├── <span class="folder">14-legal/</span>
+│   ├── <span class="folder">15-business/</span>
+│   ├── <span class="folder">16-college/</span>
+│   ├── <span class="folder">17-debug-reports/</span>
+│   ├── <span class="folder">assets/</span>
+│   ├── <span class="folder">decisions/</span>                    <span class="comment"># ADRs</span>
+│   └── <span class="folder">git-audit/</span>
+│
+├── <span class="file">.editorconfig</span>
+├── <span class="file">.gitattributes</span>
+├── <span class="file">.gitignore</span>
+├── <span class="file">.nvmrc</span>                            <span class="comment"># 22</span>
+├── <span class="file">.npmrc</span>
+├── <span class="file">commitlint.config.js</span>
+├── <span class="file">lefthook.yml</span>
+├── <span class="file">package.json</span>                      <span class="comment"># root manifest</span>
+├── <span class="file">pnpm-lock.yaml</span>
+├── <span class="file">pnpm-workspace.yaml</span>
+├── <span class="file">README.md</span>
+├── <span class="file">CONTRIBUTING.md</span>
+├── <span class="file">LICENSE</span>
+├── <span class="file">tsconfig.json</span>
+└── <span class="file">turbo.json</span></div>
+</section>
+
+<section class="section-wrap" id="apps">
+  <div class="section-header">
+    <span class="section-tag">Section 03</span>
+    <h2 class="section-title">apps/</h2>
+    <p class="section-desc">Deployable user-facing applications. One folder per panel.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Applications</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Folder</th><th>Purpose</th><th>Tech</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">passenger-web</td><td>Passenger PWA — search, book, pay, track</td><td>Next.js 15</td></tr>
+          <tr><td class="c-name">operator-panel</td><td>Bus operator dashboard — fleet, routes, revenue</td><td>Next.js 15</td></tr>
+          <tr><td class="c-name">admin-panel</td><td>BusVerse admin — approvals, disputes, CCTV</td><td>Next.js 15</td></tr>
+          <tr><td class="c-name">support-panel</td><td>Support console — tickets, chat, refunds</td><td>Next.js 15</td></tr>
+          <tr><td class="c-name">driver-app</td><td>Driver mobile — trips, GPS, scanner</td><td>React Native</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout co-info">
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <p><strong>Feature-first organization:</strong> inside each app, code is grouped by feature (<code>features/booking/</code>, <code>features/tracking/</code>) not by type. Each feature owns its components, hooks, API calls, state, and types.</p>
+  </div>
+</section>
+
+<section class="section-wrap" id="services">
+  <div class="section-header">
+    <span class="section-tag">Section 04</span>
+    <h2 class="section-title">services/</h2>
+    <p class="section-desc">Backend services. Each is a separate deployable process.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Services</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Folder</th><th>Purpose</th><th>Tech</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">api</td><td>REST API — all business endpoints</td><td>NestJS + Prisma</td></tr>
+          <tr><td class="c-name">ws</td><td>WebSocket gateway — real-time broadcasts</td><td>Socket.IO</td></tr>
+          <tr><td class="c-name">worker</td><td>Background jobs — refunds, cleanup, notifications</td><td>BullMQ</td></tr>
+          <tr><td class="c-name">simulator</td><td>Simulation orchestrator — tick engine, scenarios</td><td>Node + Turbo</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3>Why services are separate</h3>
+  <ul style="margin-left: 22px; color: var(--ink3); font-size: 0.94rem; line-height: 1.9;">
+    <li>Each has different scaling characteristics (API is stateless, WS is stateful, worker is CPU-bound, simulator is tick-driven)</li>
+    <li>Each can be deployed independently</li>
+    <li>Failure in one doesn't crash the others</li>
+    <li>Turbo caches builds per service — CI runs only what changed</li>
+  </ul>
+</section>
+
+<section class="section-wrap" id="engines">
+  <div class="section-header">
+    <span class="section-tag">Section 05</span>
+    <h2 class="section-title">engines/</h2>
+    <p class="section-desc">Pure logic. No HTTP. No database. No side effects. Just functions.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Engines</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Folder</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">traffic</td><td>Traffic simulation — congestion, incidents</td></tr>
+          <tr><td class="c-name">weather</td><td>Weather simulation — conditions, forecast</td></tr>
+          <tr><td class="c-name">passengers</td><td>Virtual passenger AI — behaviour, boarding</td></tr>
+          <tr><td class="c-name">clock</td><td>BusVerse Speed clock — simulation time source</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout co-success">
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <p><strong>Pure functions:</strong> engines take inputs and return outputs. They never touch the database, never call APIs, never read files. This makes them trivially testable and reusable from any service.</p>
+  </div>
+</section>
+
+<section class="section-wrap" id="packages">
+  <div class="section-header">
+    <span class="section-tag">Section 06</span>
+    <h2 class="section-title">packages/</h2>
+    <p class="section-desc">Shared internal libraries. Consumed by apps and services.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Packages</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Folder</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">ui</td><td>Design system — primitives, transit components, layout, tokens</td></tr>
+          <tr><td class="c-name">types</td><td>Shared TypeScript types for every domain entity</td></tr>
+          <tr><td class="c-name">validators</td><td>Zod schemas — shared validation between client and server</td></tr>
+          <tr><td class="c-name">sdk</td><td>Typed API client — REST + WebSocket</td></tr>
+          <tr><td class="c-name">config</td><td>ESLint / TypeScript / Tailwind presets</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap" id="infra">
+  <div class="section-header">
+    <span class="section-tag">Section 07</span>
+    <h2 class="section-title">infra/ &amp; scripts/</h2>
+    <p class="section-desc">Deployment configs and developer tooling.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Support Folders</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Folder</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">infra/docker</td><td>Dockerfiles + local docker-compose (Postgres + Redis)</td></tr>
+          <tr><td class="c-name">infra/terraform</td><td>Infrastructure as code (later)</td></tr>
+          <tr><td class="c-name">infra/ci</td><td>CI helper scripts</td></tr>
+          <tr><td class="c-name">infra/monitoring</td><td>Grafana / Prometheus configs</td></tr>
+          <tr><td class="c-name">scripts/db</td><td>Database reset, seed, migrate</td></tr>
+          <tr><td class="c-name">scripts/dev</td><td>Start-all, clean</td></tr>
+          <tr><td class="c-name">scripts/release</td><td>Version bump, tag</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap" id="tests">
+  <div class="section-header">
+    <span class="section-tag">Section 08</span>
+    <h2 class="section-title">tests/</h2>
+    <p class="section-desc">Cross-cutting tests. Unit tests live with their code; only cross-package tests live here.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Test Types</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Folder</th><th>Content</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">e2e</td><td>Playwright flows — booking, refund, tracking</td></tr>
+          <tr><td class="c-name">load</td><td>k6 scripts — search, booking load tests</td></tr>
+          <tr><td class="c-name">manual</td><td>QA checklists for pre-release verification</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap" id="docs">
+  <div class="section-header">
+    <span class="section-tag">Section 09</span>
+    <h2 class="section-title">docs/</h2>
+    <p class="section-desc">All documentation. Numbered folders, kebab-case, no duplicates.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Doc Folders</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Folder</th><th>Contains</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">00-workflow</td><td>Overall developer workflow</td></tr>
+          <tr><td class="c-name">01-world-rules</td><td>Constitution of the platform</td></tr>
+          <tr><td class="c-name">02-ideation</td><td>What BusVerse is</td></tr>
+          <tr><td class="c-name">03-features</td><td>Feature list + descriptions</td></tr>
+          <tr><td class="c-name">04-assets-design</td><td>Logo, icons, design system</td></tr>
+          <tr><td class="c-name">05-walkthrough</td><td>Architecture flow walkthrough</td></tr>
+          <tr><td class="c-name">06-database</td><td>Schema + ER diagrams</td></tr>
+          <tr><td class="c-name">07-api</td><td>API spec + Postman</td></tr>
+          <tr><td class="c-name">08-tech-stack</td><td>Tech choices</td></tr>
+          <tr><td class="c-name">09-git-guide</td><td>Git workflow guide</td></tr>
+          <tr><td class="c-name">10-structure</td><td>Folder structure (this doc)</td></tr>
+          <tr><td class="c-name">11-env-setup</td><td>Environment setup</td></tr>
+          <tr><td class="c-name">12-security</td><td>Security architecture</td></tr>
+          <tr><td class="c-name">13-operations</td><td>Runbooks + ops</td></tr>
+          <tr><td class="c-name">14-legal</td><td>Legal + compliance</td></tr>
+          <tr><td class="c-name">15-business</td><td>Business model</td></tr>
+          <tr><td class="c-name">16-college</td><td>College report</td></tr>
+          <tr><td class="c-name">17-debug-reports</td><td>Post-mortems + bug fixes</td></tr>
+          <tr><td class="c-name">assets</td><td>Shared diagrams, logo, screenshots</td></tr>
+          <tr><td class="c-name">decisions</td><td>ADRs</td></tr>
+          <tr><td class="c-name">git-audit</td><td>Commit + daily logs</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap" id="root">
+  <div class="section-header">
+    <span class="section-tag">Section 10</span>
+    <h2 class="section-title">Root Configuration</h2>
+    <p class="section-desc">Files that govern the whole monorepo.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Root Files</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>File</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">package.json</td><td>Root manifest, workspace scripts</td></tr>
+          <tr><td class="c-name">pnpm-workspace.yaml</td><td>Defines workspace packages</td></tr>
+          <tr><td class="c-name">turbo.json</td><td>Task pipeline + caching rules</td></tr>
+          <tr><td class="c-name">tsconfig.json</td><td>Root TypeScript config</td></tr>
+          <tr><td class="c-name">.nvmrc</td><td>Node version pin (22)</td></tr>
+          <tr><td class="c-name">.npmrc</td><td>npm/pnpm registry config</td></tr>
+          <tr><td class="c-name">.editorconfig</td><td>Cross-editor formatting</td></tr>
+          <tr><td class="c-name">.gitattributes</td><td>Git line-ending + binary rules</td></tr>
+          <tr><td class="c-name">.gitignore</td><td>Files never committed</td></tr>
+          <tr><td class="c-name">commitlint.config.js</td><td>Commit message rules</td></tr>
+          <tr><td class="c-name">lefthook.yml</td><td>Git hooks</td></tr>
+          <tr><td class="c-name">README.md</td><td>Project overview</td></tr>
+          <tr><td class="c-name">CONTRIBUTING.md</td><td>How to contribute</td></tr>
+          <tr><td class="c-name">LICENSE</td><td>License</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap" id="responsibility">
+  <div class="section-header">
+    <span class="section-tag">Section 11</span>
+    <h2 class="section-title">Separation of Concerns</h2>
+    <p class="section-desc">One folder = one job. Never mix.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">What Each Layer Contains</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Folder</th><th>Contains</th><th>Never Contains</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">apps/</td><td>Deployable frontends</td><td>Backend logic, shared code</td></tr>
+          <tr><td class="c-name">services/</td><td>Backend processes</td><td>UI, pure algorithms</td></tr>
+          <tr><td class="c-name">engines/</td><td>Pure logic</td><td>HTTP, DB, file I/O</td></tr>
+          <tr><td class="c-name">packages/</td><td>Reusable libraries</td><td>Deployable apps</td></tr>
+          <tr><td class="c-name">infra/</td><td>Deployment configs</td><td>Source code</td></tr>
+          <tr><td class="c-name">scripts/</td><td>Developer tooling</td><td>Application code</td></tr>
+          <tr><td class="c-name">tests/</td><td>Cross-cutting tests</td><td>Unit tests (those live in code)</td></tr>
+          <tr><td class="c-name">docs/</td><td>Knowledge</td><td>Code</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap" id="dependencies">
+  <div class="section-header">
+    <span class="section-tag">Section 12</span>
+    <h2 class="section-title">Dependency Direction</h2>
+    <p class="section-desc">One-way only. Never reverse.</p>
+  </div>
+
+<pre><code>apps/*         ──▶  packages/*
+  │                    │
+  ▼                    ▼
+services/*     ──▶  engines/*  ──▶  packages/types
+  │
+  ▼
+packages/sdk   ──▶  packages/types</code></pre>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Allowed Dependencies</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Layer</th><th>Can Depend On</th><th>Cannot Depend On</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">apps</td><td>packages, engines, sdk</td><td>services (direct), other apps</td></tr>
+          <tr><td class="c-name">services</td><td>engines, packages</td><td>apps, other services</td></tr>
+          <tr><td class="c-name">engines</td><td>packages/types only</td><td>services, apps, other engines</td></tr>
+          <tr><td class="c-name">packages</td><td>packages/types</td><td>services, apps, engines</td></tr>
+          <tr><td class="c-name">packages/types</td><td>nothing</td><td>anything</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout co-warn">
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <p><strong>Why one-way:</strong> if <code>engines</code> could import from <code>services</code>, a change in one service would force a rebuild of every engine that depends on it. One-way direction keeps builds fast and caches valid.</p>
+  </div>
+</section>
+
+<section class="section-wrap" id="git">
+  <div class="section-header">
+    <span class="section-tag">Section 13</span>
+    <h2 class="section-title">Git Workflow Fit</h2>
+    <p class="section-desc">How this structure maps to the three-branch model.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Branch → Folder Interaction</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Branch</th><th>What Changes</th><th>What CI Runs</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">feat/*</td><td>One package or one app feature</td><td>Lint, typecheck, unit, build (only changed packages)</td></tr>
+          <tr><td class="c-name">develop</td><td>Integrated state of all packages</td><td>Full test suite + build + preview deploy</td></tr>
+          <tr><td class="c-name">staging</td><td>Verified release candidate</td><td>Full test suite + build + E2E + staging deploy</td></tr>
+          <tr><td class="c-name">main</td><td>Production-tagged build</td><td>Full suite + E2E + production deploy</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout co-success">
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <p><strong>Turbo caching:</strong> if a feature branch only touches <code>apps/passenger-web</code>, Turbo rebuilds only that app. The other four apps, four services, four engines, and five packages are skipped entirely. CI runs in seconds, not minutes.</p>
+  </div>
+
+  <h3>Example feature branch workflow</h3>
+<pre><code>git checkout develop
+git pull origin develop
+git checkout -b feat/seat-locking
+
+# edit files in services/api/src/modules/seats/
+# edit files in packages/types/src/booking.ts
+# edit files in apps/passenger-web/src/features/seat-selection/
+
+git add .
+git commit -m "feat(booking): implement atomic seat lock acquisition"
+git push -u origin feat/seat-locking
+
+# Open PR into develop
+# CI runs: lint + typecheck + unit + build for changed packages only
+# Merge → develop</code></pre>
+</section>
+
+<div class="doc-footer">
+  <div class="doc-footer-title">BusVerse Real · Modular Folder Structure v1.0</div>
+  <p class="doc-footer-text">8 top-level layers · 5 apps · 4 services · 4 engines · 5 packages · Git-workflow ready</p>
+</div>
+
+</main>
+
+<script>
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const d = document.getElementById('btn-dark');
+    const l = document.getElementById('btn-light');
+    if (theme === 'dark') { d.classList.add('active'); l.classList.remove('active'); }
+    else { l.classList.add('active'); d.classList.remove('active'); }
+  }
+  const menuBtn = document.getElementById('menuBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  menuBtn.addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); });
+  overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+  document.querySelectorAll('.nav-item a').forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 768) { sidebar.classList.remove('open'); overlay.classList.remove('active'); }
+    });
+  });
+  const sections = document.querySelectorAll('.section-wrap');
+  const navLinks = document.querySelectorAll('.nav-item a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(sec => {
+      const top = sec.offsetTop - 140;
+      if (pageYOffset >= top) current = sec.getAttribute('id');
+    });
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${current}`) link.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

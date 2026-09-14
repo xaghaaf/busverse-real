@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BusVerse — Feature Specification (Real Platform)</title>
+<style>
+    :root {
+        --black: #0a0a0a;
+        --grey-900: #1a1a1a;
+        --grey-800: #2a2a2a;
+        --grey-700: #3d3d3d;
+        --grey-600: #555;
+        --grey-500: #777;
+        --grey-400: #999;
+        --grey-300: #bbb;
+        --grey-200: #d9d9d9;
+        --grey-100: #ebebeb;
+        --grey-50: #f5f5f5;
+        --white: #ffffff;
+        --sidebar-w: 320px;
+        --border: #e0e0e0;
+        --code-bg: #f0f0f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        background: var(--white);
+        color: var(--grey-900);
+        line-height: 1.7;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* ============ SIDEBAR ============ */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: var(--sidebar-w);
+        height: 100vh;
+        background: var(--black);
+        color: var(--grey-300);
+        overflow-y: auto;
+        padding: 32px 0 60px;
+        z-index: 100;
+        transition: transform 0.3s ease;
+        border-right: 1px solid var(--grey-800);
+    }
+
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: var(--grey-900); }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--grey-700); border-radius: 3px; }
+
+    .sidebar-header {
+        padding: 0 28px 24px;
+        border-bottom: 1px solid var(--grey-800);
+        margin-bottom: 20px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--white);
+        letter-spacing: -0.5px;
+        margin-bottom: 4px;
+    }
+
+    .sidebar-header .version {
+        font-size: 0.75rem;
+        color: var(--grey-500);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 500;
+    }
+
+    .nav { list-style: none; }
+
+    .nav-item { margin: 0; }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 28px;
+        color: var(--grey-400);
+        text-decoration: none;
+        font-size: 0.86rem;
+        transition: all 0.15s ease;
+        border-left: 2px solid transparent;
+        line-height: 1.45;
+    }
+
+    .nav-link:hover {
+        color: var(--white);
+        background: var(--grey-900);
+        border-left-color: var(--grey-500);
+    }
+
+    .nav-link.active {
+        color: var(--white);
+        background: var(--grey-900);
+        border-left-color: var(--white);
+        font-weight: 600;
+    }
+
+    .nav-num {
+        font-family: "SF Mono", Monaco, Consolas, monospace;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--grey-600);
+        min-width: 22px;
+        flex-shrink: 0;
+    }
+
+    .nav-link.active .nav-num { color: var(--grey-400); }
+
+    .nav-label {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .nav-parent {
+        display: block;
+        padding: 16px 28px 6px;
+        color: var(--grey-600);
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+        margin-top: 6px;
+    }
+
+    /* ============ MOBILE MENU ============ */
+    .menu-btn {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 200;
+        background: var(--black);
+        color: var(--white);
+        border: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+
+    .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 99;
+    }
+
+    .overlay.active { display: block; }
+
+    /* ============ MAIN ============ */
+    .main {
+        margin-left: var(--sidebar-w);
+        max-width: 920px;
+        padding: 60px 64px 120px;
+    }
+
+    /* ============ TYPOGRAPHY ============ */
+    h1.doc-title {
+        font-size: 2.6rem;
+        font-weight: 800;
+        letter-spacing: -1.2px;
+        line-height: 1.1;
+        margin-bottom: 12px;
+        color: var(--black);
+    }
+
+    .doc-subtitle {
+        font-size: 1.05rem;
+        color: var(--grey-600);
+        margin-bottom: 6px;
+    }
+
+    .doc-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 20px 0 28px;
+        margin-bottom: 40px;
+        border-bottom: 2px solid var(--black);
+        font-size: 0.82rem;
+        color: var(--grey-500);
+    }
+
+    .doc-meta span strong {
+        color: var(--grey-900);
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 1.85rem;
+        font-weight: 800;
+        letter-spacing: -0.6px;
+        color: var(--black);
+        margin: 72px 0 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--grey-200);
+    }
+
+    h2:first-of-type { margin-top: 0; }
+
+    h3 {
+        font-size: 1.22rem;
+        font-weight: 700;
+        color: var(--grey-900);
+        margin: 40px 0 14px;
+        letter-spacing: -0.3px;
+        padding-top: 12px;
+    }
+
+    h4 {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--grey-500);
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        margin: 24px 0 12px;
+    }
+
+    p {
+        margin-bottom: 16px;
+        color: var(--grey-700);
+    }
+
+    ul, ol {
+        margin: 0 0 20px 22px;
+        color: var(--grey-700);
+    }
+
+    li {
+        margin-bottom: 6px;
+        padding-left: 4px;
+    }
+
+    li::marker { color: var(--grey-400); }
+
+    strong { color: var(--grey-900); font-weight: 700; }
+
+    em { color: var(--grey-600); }
+
+    a { color: var(--grey-900); text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ============ MODULE HEADER ============ */
+    .module-head {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        margin: 56px 0 8px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--grey-200);
+    }
+
+    .module-num {
+        font-family: "SF Mono", Monaco, Consolas, monospace;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--grey-400);
+        letter-spacing: -1px;
+        line-height: 1;
+        min-width: 44px;
+        flex-shrink: 0;
+    }
+
+    .module-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--black);
+        letter-spacing: -0.5px;
+        line-height: 1.25;
+        flex: 1;
+    }
+
+    .module-tag {
+        display: inline-block;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 4px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .tag-core {
+        background: var(--black);
+        color: var(--white);
+    }
+
+    .tag-critical {
+        background: var(--grey-700);
+        color: var(--white);
+    }
+
+    .tag-high {
+        background: var(--grey-200);
+        color: var(--grey-800);
+    }
+
+    .module-desc {
+        font-size: 0.95rem;
+        color: var(--grey-600);
+        margin-bottom: 20px;
+        font-style: italic;
+        line-height: 1.65;
+        padding-left: 60px;
+    }
+
+    /* ============ FEATURE GRID ============ */
+    .feature-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 32px;
+        margin: 16px 0 28px 60px;
+        list-style: none;
+        padding: 0;
+    }
+
+    .feature-grid.single-col {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-grid li {
+        position: relative;
+        padding-left: 22px;
+        font-size: 0.9rem;
+        color: var(--grey-700);
+        line-height: 1.6;
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+
+    .feature-grid li::before {
+        content: "";
+        position: absolute;
+        left: 4px;
+        top: 12px;
+        width: 6px;
+        height: 6px;
+        background: var(--black);
+        border-radius: 50%;
+    }
+
+    /* ============ SUBSECTION ============ */
+    .subsection {
+        margin-left: 60px;
+        margin-bottom: 24px;
+    }
+
+    .subsection h4 {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--grey-500);
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        margin: 20px 0 10px;
+    }
+
+    /* ============ TABLE ============ */
+    .table-wrap {
+        overflow-x: auto;
+        margin: 24px 0 24px 60px;
+        border: 1px solid var(--grey-200);
+        border-radius: 8px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+        min-width: 480px;
+    }
+
+    th {
+        background: var(--black);
+        color: var(--white);
+        text-align: left;
+        padding: 12px 16px;
+        font-weight: 600;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--grey-100);
+        color: var(--grey-700);
+        vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--grey-50); }
+
+    /* ============ CALLOUT ============ */
+    .callout {
+        background: var(--grey-50);
+        border: 1px solid var(--grey-200);
+        border-left: 4px solid var(--black);
+        padding: 18px 22px;
+        border-radius: 0 8px 8px 0;
+        margin: 24px 0 24px 60px;
+    }
+
+    .callout p:last-child { margin-bottom: 0; }
+
+    .callout-dark {
+        background: var(--black);
+        color: var(--grey-200);
+        border-left-color: var(--grey-400);
+    }
+
+    .callout-dark p { color: var(--grey-200); }
+    .callout-dark strong { color: var(--white); }
+
+    /* ============ OVERVIEW STATS ============ */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin: 28px 0 48px;
+    }
+
+    .stat-card {
+        border: 1px solid var(--grey-200);
+        border-radius: 10px;
+        padding: 18px 20px;
+        background: var(--white);
+        text-align: left;
+    }
+
+    .stat-num {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--black);
+        letter-spacing: -1.2px;
+        line-height: 1;
+        margin-bottom: 6px;
+    }
+
+    .stat-label {
+        font-size: 0.72rem;
+        color: var(--grey-500);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+    }
+
+    /* ============ PHASE CARDS ============ */
+    .phase-card {
+        border: 1px solid var(--grey-200);
+        border-radius: 10px;
+        padding: 22px 24px;
+        margin: 20px 0 20px 60px;
+        background: var(--white);
+        border-left: 4px solid var(--black);
+    }
+
+    .phase-card.phase-2 { border-left-color: var(--grey-600); }
+    .phase-card.phase-3 { border-left-color: var(--grey-400); }
+
+    .phase-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 12px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .phase-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--black);
+    }
+
+    .phase-time {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--grey-500);
+    }
+
+    .phase-body {
+        font-size: 0.9rem;
+        color: var(--grey-700);
+        line-height: 1.65;
+    }
+
+    /* ============ END NOTE ============ */
+    .end-note {
+        margin-top: 80px;
+        padding: 32px;
+        background: var(--black);
+        color: var(--grey-200);
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .end-note h3 {
+        color: var(--white);
+        margin: 0 0 12px;
+        font-size: 1.4rem;
+        padding-top: 0;
+    }
+
+    .end-note p { color: var(--grey-400); margin: 0; }
+
+    /* ============ PROGRESS ============ */
+    .progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        background: var(--black);
+        z-index: 300;
+        transition: width 0.1s;
+        width: 0;
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 1024px) {
+        .main { padding: 60px 40px 100px; }
+        .feature-grid { margin-left: 40px; }
+        .module-desc { padding-left: 40px; }
+        .subsection { margin-left: 40px; }
+        .table-wrap { margin-left: 40px; }
+        .callout { margin-left: 40px; }
+        .phase-card { margin-left: 40px; }
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            width: 280px;
+        }
+        .sidebar.open { transform: translateX(0); }
+        .menu-btn { display: flex; }
+        .main {
+            margin-left: 0;
+            padding: 76px 22px 80px;
+            max-width: 100%;
+        }
+        h1.doc-title { font-size: 2rem; }
+        h2 { font-size: 1.5rem; margin-top: 48px; }
+        .module-title { font-size: 1.25rem; }
+        .module-num { font-size: 1.1rem; min-width: 34px; }
+        .module-desc { padding-left: 0; }
+        .feature-grid { grid-template-columns: 1fr; margin-left: 0; }
+        .subsection { margin-left: 0; }
+        .table-wrap { margin-left: 0; }
+        .callout { margin-left: 0; }
+        .phase-card { margin-left: 0; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .doc-meta { gap: 12px; font-size: 0.78rem; }
+        .module-tag { display: none; }
+    }
+
+    @media (max-width: 400px) {
+        .main { padding: 70px 16px 60px; }
+        h1.doc-title { font-size: 1.7rem; }
+        .stats-grid { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+<div class="overlay" id="overlay"></div>
+
+<!-- ============ SIDEBAR ============ -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h1>BusVerse</h1>
+        <div class="version">Features · Real Platform</div>
+    </div>
+
+    <ul class="nav">
+        <li class="nav-item"><span class="nav-parent">Overview</span></li>
+        <li class="nav-item"><a class="nav-link" href="#intro"><span class="nav-num">—</span><span class="nav-label">Introduction</span></a></li>
+
+        <li class="nav-item"><span class="nav-parent">Core Modules</span></li>
+        <li class="nav-item"><a class="nav-link" href="#m1"><span class="nav-num">01</span><span class="nav-label">Authentication</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m2"><span class="nav-num">02</span><span class="nav-label">Search &amp; Discovery</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m3"><span class="nav-num">03</span><span class="nav-label">Booking Flow</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m4"><span class="nav-num">04</span><span class="nav-label">Payments</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m5"><span class="nav-num">05</span><span class="nav-label">Tickets &amp; QR</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m6"><span class="nav-num">06</span><span class="nav-label">Cancellation &amp; Refund</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m7"><span class="nav-num">07</span><span class="nav-label">Live Tracking</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m8"><span class="nav-num">08</span><span class="nav-label">Driver App</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m9"><span class="nav-num">09</span><span class="nav-label">Operator Panel</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m10"><span class="nav-num">10</span><span class="nav-label">Admin Panel</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m11"><span class="nav-num">11</span><span class="nav-label">Support Panel</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m12"><span class="nav-num">12</span><span class="nav-label">Notifications</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m13"><span class="nav-num">13</span><span class="nav-label">Safety</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m14"><span class="nav-num">14</span><span class="nav-label">Real-Time Infrastructure</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m15"><span class="nav-num">15</span><span class="nav-label">Compliance &amp; Legal</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m16"><span class="nav-num">16</span><span class="nav-label">Analytics</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m17"><span class="nav-num">17</span><span class="nav-label">Multi-City Support</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m18"><span class="nav-num">18</span><span class="nav-label">Government Buses</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m19"><span class="nav-num">19</span><span class="nav-label">Test / Demo</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m20"><span class="nav-num">20</span><span class="nav-label">Operations &amp; DevOps</span></a></li>
+
+        <li class="nav-item"><span class="nav-parent">Critical Modules</span></li>
+        <li class="nav-item"><a class="nav-link" href="#m21"><span class="nav-num">21</span><span class="nav-label">Waitlist System</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m22"><span class="nav-num">22</span><span class="nav-label">Promo Code Engine</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m23"><span class="nav-num">23</span><span class="nav-label">Fraud Detection</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m24"><span class="nav-num">24</span><span class="nav-label">Corporate / B2B</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m25"><span class="nav-num">25</span><span class="nav-label">Travel Agent Portal</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m26"><span class="nav-num">26</span><span class="nav-label">Dispute Resolution</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m27"><span class="nav-num">27</span><span class="nav-label">Operator Rating</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m28"><span class="nav-num">28</span><span class="nav-label">Charter / Bus Hire</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m29"><span class="nav-num">29</span><span class="nav-label">Boarding &amp; Occupancy</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m30"><span class="nav-num">30</span><span class="nav-label">Infrastructure</span></a></li>
+
+        <li class="nav-item"><span class="nav-parent">High Priority</span></li>
+        <li class="nav-item"><a class="nav-link" href="#m31"><span class="nav-num">31</span><span class="nav-label">Loyalty &amp; Rewards</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m32"><span class="nav-num">32</span><span class="nav-label">Referral System</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m33"><span class="nav-num">33</span><span class="nav-label">Reviews &amp; Ratings</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m34"><span class="nav-num">34</span><span class="nav-label">Price &amp; Seat Alerts</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m35"><span class="nav-num">35</span><span class="nav-label">Dynamic Pricing</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m36"><span class="nav-num">36</span><span class="nav-label">Operator Cancel → Rebook</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m37"><span class="nav-num">37</span><span class="nav-label">Bus Substitution</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m38"><span class="nav-num">38</span><span class="nav-label">Overbooking</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#m39"><span class="nav-num">39</span><span class="nav-label">External Navigation</span></a></li>
+
+        <li class="nav-item"><span class="nav-parent">Roadmap</span></li>
+        <li class="nav-item"><a class="nav-link" href="#phases"><span class="nav-num">—</span><span class="nav-label">Build Phases</span></a></li>
+    </ul>
+</nav>
+
+<!-- ============ MAIN ============ -->
+<main class="main">
+
+    <h1 class="doc-title">BusVerse</h1>
+    <p class="doc-subtitle">Feature Specification — Real Platform. Every module, every feature, across 6 apps and 39 modules.</p>
+
+    <div class="doc-meta">
+        <span><strong>Version:</strong> 1.0</span>
+        <span><strong>Type:</strong> Real Platform · Production</span>
+        <span><strong>Modules:</strong> 39</span>
+        <span><strong>Status:</strong> Specification</span>
+    </div>
+
+    <!-- ============ INTRO ============ -->
+    <h2 id="intro">Introduction</h2>
+    <p>This document lists every feature of BusVerse Real, organized across <strong>6 apps</strong> and <strong>39 modules</strong>. Each module is tagged:</p>
+    <ul>
+        <li><span class="module-tag tag-core" style="margin-left:0;">CORE</span> — Required for the platform to function.</li>
+        <li><span class="module-tag tag-critical" style="margin-left:0;">CRITICAL</span> — Required for launch viability.</li>
+        <li><span class="module-tag tag-high" style="margin-left:0;">HIGH</span> — Needed within 6 months of launch.</li>
+    </ul>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-num">6</div>
+            <div class="stat-label">Apps</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">39</div>
+            <div class="stat-label">Modules</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">404</div>
+            <div class="stat-label">Features</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">3</div>
+            <div class="stat-label">Phases</div>
+        </div>
+    </div>
+
+    <!-- ============ MODULE 1 ============ -->
+    <div class="module-head" id="m1">
+        <div class="module-num">01</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Authentication &amp; Identity</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Every actor — passenger, driver, operator, admin, support — has a distinct authentication flow with role-based access.</p>
+
+    <h4>Passenger</h4>
+    <ul class="feature-grid">
+        <li>Phone OTP login (primary)</li>
+        <li>Email + password login</li>
+        <li>Google / social login</li>
+        <li>Guest checkout</li>
+        <li>Profile management</li>
+        <li>Saved passengers (family/friends)</li>
+        <li>Saved payment methods (tokenized)</li>
+        <li>Multi-device sessions</li>
+        <li>Logout all devices</li>
+    </ul>
+
+    <h4>Driver</h4>
+    <ul class="feature-grid">
+        <li>Phone OTP + password login</li>
+        <li>Profile (license, photo, experience)</li>
+        <li>Document upload (license, ID)</li>
+        <li>KYC verification status</li>
+        <li>Shift availability toggle</li>
+    </ul>
+
+    <h4>Operator</h4>
+    <ul class="feature-grid">
+        <li>Company signup (GST, PAN, bank)</li>
+        <li>KYC document upload</li>
+        <li>Admin approval workflow</li>
+        <li>Multiple sub-users per operator</li>
+        <li>Company profile management</li>
+    </ul>
+
+    <h4>Admin / Support</h4>
+    <ul class="feature-grid">
+        <li>Email + password + 2FA</li>
+        <li>Role-based access control (RBAC)</li>
+        <li>IP whitelist (optional)</li>
+        <li>Session management</li>
+    </ul>
+
+    <!-- ============ MODULE 2 ============ -->
+    <div class="module-head" id="m2">
+        <div class="module-num">02</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Search &amp; Discovery</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Passengers start their journey here — searching, filtering, and previewing routes on a real map.</p>
+
+    <ul class="feature-grid">
+        <li>Source + destination + date search</li>
+        <li>Autocomplete stands</li>
+        <li>One-way / Round-trip</li>
+        <li>Filters (bus type, time, price, amenities, rating)</li>
+        <li>Sort (cheapest, fastest, earliest, rated)</li>
+        <li>Route preview on map</li>
+        <li>Popular routes</li>
+        <li>Recent searches</li>
+        <li>Saved / favorite routes</li>
+        <li>Multi-leg / connecting routes</li>
+        <li>Nearby stands (location-based)</li>
+        <li>Return journey booking</li>
+    </ul>
+
+    <!-- ============ MODULE 3 ============ -->
+    <div class="module-head" id="m3">
+        <div class="module-num">03</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Booking Flow</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">A guided flow from seat selection to booking confirmation, with atomic seat locking to prevent conflicts.</p>
+
+    <ul class="feature-grid">
+        <li>Interactive seat map</li>
+        <li>Seat types (Seater, Sleeper, Semi-Sleeper, AC/Non-AC)</li>
+        <li>Female-only seat option</li>
+        <li>Boarding + dropping point selection</li>
+        <li>Passenger details (name, age, gender, ID)</li>
+        <li>Contact details</li>
+        <li>Fare breakdown</li>
+        <li>Coupon / promo code</li>
+        <li>Atomic seat locking (5-min TTL)</li>
+        <li>Group booking (multi-seat)</li>
+        <li>Round-trip combination</li>
+        <li>Booking confirmation screen</li>
+    </ul>
+
+    <!-- ============ MODULE 4 ============ -->
+    <div class="module-head" id="m4">
+        <div class="module-num">04</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Payments</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Multi-gateway support with a payment adapter that switches between simulated, sandbox, and live modes.</p>
+
+    <ul class="feature-grid">
+        <li>Multi-gateway (Razorpay, PhonePe, Paytm, GPay, Cashfree)</li>
+        <li>UPI / Cards / Netbanking / Wallets / EMI</li>
+        <li>Payment adapter (simulated / sandbox / live)</li>
+        <li>Idempotent payment creation</li>
+        <li>Payment webhooks</li>
+        <li>Retry failed payments</li>
+        <li>Tokenized saved cards</li>
+        <li>Refund engine (auto + manual)</li>
+        <li>GST invoice generation</li>
+        <li>Duplicate payment detection</li>
+        <li>Payment receipts</li>
+        <li>Test route (₹0/₹1) with auto-refund</li>
+    </ul>
+
+    <!-- ============ MODULE 5 ============ -->
+    <div class="module-head" id="m5">
+        <div class="module-num">05</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Tickets &amp; QR</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Signed QR tickets that can be scanned by the driver, viewed offline, and tracked through their full lifecycle.</p>
+
+    <ul class="feature-grid">
+        <li>Virtual ticket with booking ID</li>
+        <li>Signed QR code</li>
+        <li>Ticket states (Issued → Active → Scanned → Used → Expired)</li>
+        <li>PDF download</li>
+        <li>SMS + Email delivery</li>
+        <li>Offline viewing (PWA cache)</li>
+        <li>Re-send ticket</li>
+        <li>Add to calendar</li>
+        <li>Ticket scan log</li>
+    </ul>
+
+    <!-- ============ MODULE 6 ============ -->
+    <div class="module-head" id="m6">
+        <div class="module-num">06</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Cancellation &amp; Refund</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Time-based refund policy with automated gateway refunds and full audit trail.</p>
+
+    <ul class="feature-grid">
+        <li>User-initiated cancellation</li>
+        <li>Operator-initiated cancellation</li>
+        <li>Platform-initiated cancellation</li>
+        <li>Partial cancellation (group)</li>
+        <li>No-show handling</li>
+        <li>Time-based refund policy</li>
+        <li>Auto refund via gateway</li>
+        <li>Refund webhook tracking</li>
+        <li>Refund history</li>
+        <li>Refund to original method (UPI→UPI, card→card)</li>
+    </ul>
+
+    <h4>Refund Policy</h4>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Time Before Departure</th><th>Refund</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>More than 24 hours</td><td>100% (minus gateway fee)</td></tr>
+                <tr><td>12–24 hours</td><td>90%</td></tr>
+                <tr><td>6–12 hours</td><td>75%</td></tr>
+                <tr><td>2–6 hours</td><td>50%</td></tr>
+                <tr><td>Less than 2 hours</td><td>0%</td></tr>
+                <tr><td>Operator cancels trip</td><td>100%</td></tr>
+                <tr><td>Platform cancels trip</td><td>100% + compensation credit</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============ MODULE 7 ============ -->
+    <div class="module-head" id="m7">
+        <div class="module-num">07</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Live Tracking</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Real GPS from driver phones, live bus position on a real map, ETA per stand, and share-trip links.</p>
+
+    <ul class="feature-grid">
+        <li>Real GPS from driver phone</li>
+        <li>Live map position (10s updates)</li>
+        <li>ETA per stand</li>
+        <li>Traffic-adjusted ETA</li>
+        <li>Route overlay</li>
+        <li>Bus status (on time, delayed, stopped)</li>
+        <li>Share trip live link</li>
+        <li>Trip timeline (past + upcoming stands)</li>
+        <li>Driver info on map</li>
+        <li>Live bus occupancy</li>
+    </ul>
+
+    <!-- ============ MODULE 8 ============ -->
+    <div class="module-head" id="m8">
+        <div class="module-num">08</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Driver App</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">The driver's daily tool — trip management, background GPS, QR scanning, and passenger manifest.</p>
+
+    <ul class="feature-grid">
+        <li>Phone OTP login</li>
+        <li>Assigned trips view</li>
+        <li>Start / End trip</li>
+        <li>Background GPS</li>
+        <li>QR scanner (camera)</li>
+        <li>Manual booking ID entry</li>
+        <li>Passenger manifest</li>
+        <li>Boarding / alighting counts</li>
+        <li>Stop requests handling</li>
+        <li>Delay reporting (with reason)</li>
+        <li>SOS button</li>
+        <li>Break / rest management</li>
+        <li>Trip summary at end</li>
+        <li>Document expiry reminders</li>
+        <li>Announcements to passengers</li>
+    </ul>
+
+    <!-- ============ MODULE 9 ============ -->
+    <div class="module-head" id="m9">
+        <div class="module-num">09</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Operator Panel</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">The bus operator's business dashboard — fleet, routes, schedules, drivers, bookings, and revenue.</p>
+
+    <ul class="feature-grid">
+        <li>Dashboard (trips, bookings, revenue)</li>
+        <li>Fleet management</li>
+        <li>Bus registration (reg number, permit, insurance, fitness)</li>
+        <li>Seat layout configurator</li>
+        <li>Amenities configuration</li>
+        <li>Bus photos</li>
+        <li>Maintenance log</li>
+        <li>Route management (draw on map)</li>
+        <li>Stand creation</li>
+        <li>Schedule management (recurring + one-time)</li>
+        <li>Driver management</li>
+        <li>Booking management</li>
+        <li>Revenue &amp; settlement</li>
+        <li>CCTV access</li>
+        <li>Reports (CSV/PDF)</li>
+    </ul>
+
+    <!-- ============ MODULE 10 ============ -->
+    <div class="module-head" id="m10">
+        <div class="module-num">10</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Admin Panel</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">The BusVerse team's control center — approvals, oversight, disputes, and platform-wide settings.</p>
+
+    <ul class="feature-grid">
+        <li>Dashboard (platform-wide)</li>
+        <li>User management</li>
+        <li>Operator management</li>
+        <li>Bus registration approval</li>
+        <li>Route approval</li>
+        <li>Schedule approval</li>
+        <li>Booking oversight</li>
+        <li>Refund approval queue</li>
+        <li>Finance &amp; settlement</li>
+        <li>CCTV monitoring (all operators)</li>
+        <li>Notifications broadcast</li>
+        <li>Support ticket management</li>
+        <li>Content management (ToS, Privacy, FAQ)</li>
+        <li>Feature flags</li>
+        <li>Audit logs</li>
+    </ul>
+
+    <!-- ============ MODULE 11 ============ -->
+    <div class="module-head" id="m11">
+        <div class="module-num">11</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Support Panel</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">A lightweight version of the Admin Panel for support agents.</p>
+
+    <ul class="feature-grid">
+        <li>Ticket queue</li>
+        <li>Live chat</li>
+        <li>Canned responses</li>
+        <li>User lookup</li>
+        <li>Refund processing (within limits)</li>
+        <li>Escalation to admin</li>
+        <li>Chat history</li>
+    </ul>
+
+    <!-- ============ MODULE 12 ============ -->
+    <div class="module-head" id="m12">
+        <div class="module-num">12</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Notifications</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Multi-channel notifications for every important event in the booking and trip lifecycle.</p>
+
+    <h4>Channels</h4>
+    <ul class="feature-grid">
+        <li>SMS</li>
+        <li>Email</li>
+        <li>Push (FCM)</li>
+        <li>In-app</li>
+    </ul>
+
+    <h4>Trigger Events</h4>
+    <ul class="feature-grid">
+        <li>Booking confirmed</li>
+        <li>Ticket generated</li>
+        <li>Trip started</li>
+        <li>Bus delayed</li>
+        <li>Bus arriving</li>
+        <li>Trip completed</li>
+        <li>Cancellation confirmed</li>
+        <li>Refund initiated</li>
+        <li>Refund completed</li>
+        <li>Payment failed</li>
+        <li>Operator cancelled trip</li>
+        <li>Driver assigned</li>
+        <li>Waitlist seat available</li>
+        <li>Price drop alert</li>
+        <li>Promo code alert</li>
+    </ul>
+
+    <!-- ============ MODULE 13 ============ -->
+    <div class="module-head" id="m13">
+        <div class="module-num">13</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Safety Features</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Passenger safety tools — SOS, share trip, verified drivers, and women's safety options.</p>
+
+    <ul class="feature-grid">
+        <li>SOS button (passenger)</li>
+        <li>Share trip live link</li>
+        <li>Emergency contacts</li>
+        <li>Verified drivers (KYC + license)</li>
+        <li>Verified operators (GST + docs)</li>
+        <li>Women's safety (female seats, filter)</li>
+        <li>24/7 support line</li>
+        <li>Incident reporting</li>
+        <li>Panic alert to admin + emergency contact</li>
+        <li>Boarding verification</li>
+    </ul>
+
+    <!-- ============ MODULE 14 ============ -->
+    <div class="module-head" id="m14">
+        <div class="module-num">14</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Real-Time Infrastructure</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">The backend backbone — WebSocket, GPS ingestion, ETA engine, maps, routing, and geocoding.</p>
+
+    <ul class="feature-grid">
+        <li>WebSocket server (Socket.IO)</li>
+        <li>GPS ingestion pipeline</li>
+        <li>Position broadcasting (rooms)</li>
+        <li>ETA calculation engine</li>
+        <li>Traffic integration</li>
+        <li>Map rendering (Leaflet/Mapbox/Google)</li>
+        <li>Routing engine (OSRM/GraphHopper/Google)</li>
+        <li>Geocoding (stand autocomplete)</li>
+        <li>Fallback to polling</li>
+        <li>Reconnection handling</li>
+    </ul>
+
+    <!-- ============ MODULE 15 ============ -->
+    <div class="module-head" id="m15">
+        <div class="module-num">15</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Compliance &amp; Legal</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">All regulatory and legal requirements for operating a real bus aggregator in India.</p>
+
+    <div class="callout">
+        <p><strong>Note:</strong> These are documented as production requirements and would be implemented before any commercial launch.</p>
+    </div>
+
+    <h4>Business Entity</h4>
+    <ul class="feature-grid">
+        <li>Pvt Ltd incorporation</li>
+        <li>PAN, TAN</li>
+        <li>Shop &amp; Establishment</li>
+        <li>Professional Tax</li>
+    </ul>
+
+    <h4>Taxation</h4>
+    <ul class="feature-grid">
+        <li>GST registration (5% ECO)</li>
+        <li>TDS compliance</li>
+        <li>Income Tax filing</li>
+        <li>GST returns</li>
+    </ul>
+
+    <h4>Payments &amp; RBI</h4>
+    <ul class="feature-grid">
+        <li>Licensed Payment Aggregator</li>
+        <li>PCI-DSS compliance</li>
+        <li>Operator KYC</li>
+        <li>Nodal / settlement accounts</li>
+    </ul>
+
+    <h4>Data Protection</h4>
+    <ul class="feature-grid">
+        <li>DPDP Act 2023 compliance</li>
+        <li>Consent management</li>
+        <li>Data Principal rights</li>
+        <li>Breach notification</li>
+        <li>Grievance Officer</li>
+    </ul>
+
+    <h4>Aggregator Licensing</h4>
+    <ul class="feature-grid">
+        <li>Motor Vehicle Aggregator Guidelines 2025</li>
+        <li>State-wise aggregator licence</li>
+        <li>Security deposit</li>
+        <li>VLTD on buses</li>
+        <li>Driver verification</li>
+        <li>CERT-In certified app</li>
+    </ul>
+
+    <h4>Consumer Protection</h4>
+    <ul class="feature-grid">
+        <li>E-Commerce Rules 2020</li>
+        <li>Transparent refund policy</li>
+        <li>Joint liability with operators</li>
+        <li>Grievance mechanism</li>
+    </ul>
+
+    <h4>Insurance</h4>
+    <ul class="feature-grid">
+        <li>Passenger travel insurance (₹5L min)</li>
+        <li>Driver insurance</li>
+        <li>Cyber liability insurance</li>
+    </ul>
+
+    <h4>Contracts</h4>
+    <ul class="feature-grid">
+        <li>Operator Agreement</li>
+        <li>Terms of Service</li>
+        <li>Privacy Policy</li>
+        <li>Refund &amp; Cancellation Policy</li>
+        <li>Driver Agreement</li>
+        <li>Trademark registration</li>
+    </ul>
+
+    <!-- ============ MODULE 16 ============ -->
+    <div class="module-head" id="m16">
+        <div class="module-num">16</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Analytics &amp; Reporting</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Business, operational, and financial reports across the platform.</p>
+
+    <h4>Business</h4>
+    <ul class="feature-grid">
+        <li>Daily / weekly / monthly bookings</li>
+        <li>Revenue per route / operator / city</li>
+        <li>Cancellation rate</li>
+        <li>Refund rate</li>
+        <li>User acquisition</li>
+        <li>Retention</li>
+        <li>Conversion funnel</li>
+    </ul>
+
+    <h4>Operational</h4>
+    <ul class="feature-grid">
+        <li>On-time performance</li>
+        <li>Route profitability</li>
+        <li>Fleet utilization</li>
+        <li>Peak hours</li>
+        <li>Popular routes</li>
+    </ul>
+
+    <h4>Financial</h4>
+    <ul class="feature-grid">
+        <li>Settlement reports</li>
+        <li>GST reports</li>
+        <li>Gateway reconciliation</li>
+        <li>Refund reconciliation</li>
+    </ul>
+
+    <!-- ============ MODULE 17 ============ -->
+    <div class="module-head" id="m17">
+        <div class="module-num">17</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Multi-City / Multi-Region</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Pan-India operation with city-partitioned data, state-specific rules, and regional onboarding.</p>
+
+    <ul class="feature-grid">
+        <li>Multi-city support</li>
+        <li>City-based stand registry</li>
+        <li>State-specific tax rules</li>
+        <li>Time zone handling</li>
+        <li>Regional operator onboarding</li>
+        <li>Government bus integration</li>
+    </ul>
+
+    <!-- ============ MODULE 18 ============ -->
+    <div class="module-head" id="m18">
+        <div class="module-num">18</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Government Bus Integration</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Integration with state transport corporations — API-driven or manually entered.</p>
+
+    <ul class="feature-grid">
+        <li>Partner with state transport corporations</li>
+        <li>API sync (if available)</li>
+        <li>Manual route entry (fallback)</li>
+        <li>Separate branding for gov buses</li>
+        <li>Subsidized fares</li>
+    </ul>
+
+    <!-- ============ MODULE 19 ============ -->
+    <div class="module-head" id="m19">
+        <div class="module-num">19</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Test / Demo Features</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">A hidden test route for internal testing — fully isolated from real bookings and analytics.</p>
+
+    <ul class="feature-grid">
+        <li>Test route (<code>is_test = true</code>)</li>
+        <li>₹1 virtual bus</li>
+        <li>Auto-refund on test booking</li>
+        <li>Hidden from public search</li>
+        <li>Excluded from analytics</li>
+        <li>Rate-limited (1 per user per day)</li>
+        <li>Sandbox gateway mode</li>
+    </ul>
+
+    <!-- ============ MODULE 20 ============ -->
+    <div class="module-head" id="m20">
+        <div class="module-num">20</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Operations &amp; DevOps</h2>
+        <span class="module-tag tag-core">Core</span>
+    </div>
+    <p class="module-desc">Everything needed to build, test, deploy, and operate the platform reliably.</p>
+
+    <ul class="feature-grid">
+        <li>CI/CD pipeline</li>
+        <li>Staging environment</li>
+        <li>Production environment</li>
+        <li>Feature flags</li>
+        <li>Database migrations</li>
+        <li>Incident response</li>
+        <li>Backup &amp; restore</li>
+    </ul>
+
+    <!-- ============ MODULE 21 ============ -->
+    <div class="module-head" id="m21">
+        <div class="module-num">21</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Waitlist System</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">Passengers can join a waitlist when a bus is full and get notified when a seat frees up.</p>
+
+    <ul class="feature-grid">
+        <li>Join waitlist when bus full</li>
+        <li>Queue position visible to user</li>
+        <li>Notification when seat frees up</li>
+        <li>Time window to book (e.g., 15 min)</li>
+        <li>Auto-booking option</li>
+        <li>Cancel waitlist anytime</li>
+        <li>Waitlist priority rules (FIFO, tier-based)</li>
+        <li>Waitlist → booking conversion tracking</li>
+        <li>Waitlist analytics</li>
+    </ul>
+
+    <!-- ============ MODULE 22 ============ -->
+    <div class="module-head" id="m22">
+        <div class="module-num">22</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Promo Code Engine</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">A flexible promo system with rules, limits, and analytics.</p>
+
+    <ul class="feature-grid">
+        <li>Admin creates promo codes</li>
+        <li>% or flat discount</li>
+        <li>Min fare requirement</li>
+        <li>Max discount cap</li>
+        <li>Applicable routes / operators</li>
+        <li>Valid date range</li>
+        <li>Usage limit per user</li>
+        <li>Total usage limit</li>
+        <li>First-time-user-only flag</li>
+        <li>Stacking rules</li>
+        <li>Referral code integration</li>
+        <li>Promo code analytics</li>
+    </ul>
+
+    <!-- ============ MODULE 23 ============ -->
+    <div class="module-head" id="m23">
+        <div class="module-num">23</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Fraud Detection</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">Rule-based and ML-assisted detection of fraud across bookings, payments, and refunds.</p>
+
+    <ul class="feature-grid">
+        <li>Velocity limits (bookings per user per day)</li>
+        <li>Duplicate account detection</li>
+        <li>Card testing prevention</li>
+        <li>Refund abuse detection</li>
+        <li>Promo code abuse detection</li>
+        <li>IP-based risk scoring</li>
+        <li>Device fingerprinting</li>
+        <li>Blacklist management</li>
+        <li>Manual review queue</li>
+        <li>Auto-block suspicious users</li>
+        <li>Fraud analytics dashboard</li>
+    </ul>
+
+    <!-- ============ MODULE 24 ============ -->
+    <div class="module-head" id="m24">
+        <div class="module-num">24</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Corporate / B2B Booking</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">Companies book bulk seats for employees with dedicated billing, invoicing, and reporting.</p>
+
+    <ul class="feature-grid">
+        <li>Company signup with GST details</li>
+        <li>Corporate login (multiple sub-users)</li>
+        <li>Bulk booking interface</li>
+        <li>Employee management (add/remove)</li>
+        <li>Monthly invoicing</li>
+        <li>Credit limit / pay-later option</li>
+        <li>Corporate dashboard (bookings, spend, reports)</li>
+        <li>GST invoice with company details</li>
+        <li>Dedicated account manager</li>
+        <li>Corporate analytics</li>
+    </ul>
+
+    <!-- ============ MODULE 25 ============ -->
+    <div class="module-head" id="m25">
+        <div class="module-num">25</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Travel Agent Portal</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">A dedicated portal for travel agents who book on behalf of customers.</p>
+
+    <ul class="feature-grid">
+        <li>Agent signup + KYC</li>
+        <li>Own login + dashboard</li>
+        <li>Bulk booking for customers</li>
+        <li>Agent wallet (pre-funded)</li>
+        <li>Commission tracking</li>
+        <li>Booking history for customers</li>
+        <li>Customer management</li>
+        <li>Agent-specific pricing</li>
+        <li>Settlement with agent</li>
+        <li>Agent support priority</li>
+        <li>Agent leaderboard</li>
+    </ul>
+
+    <!-- ============ MODULE 26 ============ -->
+    <div class="module-head" id="m26">
+        <div class="module-num">26</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Dispute Resolution</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">A structured workflow for passenger complaints with operator response and admin arbitration.</p>
+
+    <ul class="feature-grid">
+        <li>Passenger raises dispute</li>
+        <li>Categories (refund, driver, bus condition, delay, no-show)</li>
+        <li>Evidence upload (photos, screenshots)</li>
+        <li>Auto-routing to operator first</li>
+        <li>Operator response window (24–48 hrs)</li>
+        <li>Escalation to admin if unresolved</li>
+        <li>Admin arbitration interface</li>
+        <li>Resolution log</li>
+        <li>Chargeback handling</li>
+        <li>Compensation workflow</li>
+        <li>Dispute analytics</li>
+    </ul>
+
+    <!-- ============ MODULE 27 ============ -->
+    <div class="module-head" id="m27">
+        <div class="module-num">27</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Operator Rating &amp; Quality Score</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">A composite score per operator that affects search ranking and platform trust.</p>
+
+    <ul class="feature-grid">
+        <li>Passenger rates operator (post-trip)</li>
+        <li>Metrics: on-time %, cancellation, cleanliness, complaints, rating</li>
+        <li>Composite quality score</li>
+        <li>Score visible to passengers</li>
+        <li>Score affects search ranking</li>
+        <li>Low-score operators flagged</li>
+        <li>Operator improvement dashboard</li>
+        <li>Admin can suspend low-score operators</li>
+        <li>Score history</li>
+    </ul>
+
+    <!-- ============ MODULE 28 ============ -->
+    <div class="module-head" id="m28">
+        <div class="module-num">28</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Charter / Full Bus Hire</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">Book an entire bus for weddings, corporate trips, pilgrimages, and events.</p>
+
+    <ul class="feature-grid">
+        <li>Separate booking mode</li>
+        <li>Choose bus type, date, route, duration</li>
+        <li>Instant quote or request quote</li>
+        <li>Custom stops allowed</li>
+        <li>Per-day or per-trip pricing</li>
+        <li>Advance booking support</li>
+        <li>Cancellation policy for charter</li>
+        <li>Invoice generation</li>
+        <li>Dedicated support</li>
+    </ul>
+
+    <!-- ============ MODULE 29 ============ -->
+    <div class="module-head" id="m29">
+        <div class="module-num">29</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Boarding Pass &amp; Live Occupancy</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">Digital boarding pass plus real-time occupancy for passengers.</p>
+
+    <ul class="feature-grid">
+        <li>Digital boarding pass</li>
+        <li>Live occupancy (X/Y seats)</li>
+        <li>"Bus N stops away" indicator</li>
+        <li>Boarding status per stand</li>
+        <li>Boarding verification (QR scan)</li>
+        <li>Live occupancy on search results</li>
+        <li>Occupancy history (analytics)</li>
+    </ul>
+
+    <!-- ============ MODULE 30 ============ -->
+    <div class="module-head" id="m30">
+        <div class="module-num">30</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Infrastructure &amp; Reliability</h2>
+        <span class="module-tag tag-critical">Critical</span>
+    </div>
+    <p class="module-desc">The operational foundation — rate limiting, backups, monitoring, and incident response.</p>
+
+    <ul class="feature-grid">
+        <li>Rate limiting (per-user, per-IP, per-endpoint)</li>
+        <li>DDoS protection (Cloudflare / AWS Shield)</li>
+        <li>CDN (static assets, images, PDFs)</li>
+        <li>Daily DB backups + tested restore</li>
+        <li>Point-in-time recovery</li>
+        <li>Metrics dashboard + alerts</li>
+        <li>Centralized logging (ELK/Loki)</li>
+        <li>Health checks (liveness, readiness)</li>
+        <li>Uptime monitoring</li>
+        <li>Load balancing + auto-scaling</li>
+        <li>SSL/TLS everywhere</li>
+        <li>Secrets management</li>
+    </ul>
+
+    <!-- ============ MODULE 31 ============ -->
+    <div class="module-head" id="m31">
+        <div class="module-num">31</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Loyalty &amp; Rewards</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Points, tiers, and benefits that reward repeat passengers.</p>
+
+    <ul class="feature-grid">
+        <li>Points on every booking</li>
+        <li>Points = % of fare</li>
+        <li>Redeem points for discounts</li>
+        <li>Tiers: Silver / Gold / Platinum</li>
+        <li>Tier benefits</li>
+        <li>Birthday bonus</li>
+        <li>Anniversary bonus</li>
+        <li>Points expiry policy</li>
+        <li>Loyalty dashboard for user</li>
+        <li>Loyalty analytics</li>
+    </ul>
+
+    <!-- ============ MODULE 32 ============ -->
+    <div class="module-head" id="m32">
+        <div class="module-num">32</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Referral System</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Unique referral codes that reward both the referrer and the referred.</p>
+
+    <ul class="feature-grid">
+        <li>Unique referral code per user</li>
+        <li>Share via WhatsApp / SMS / social</li>
+        <li>Referrer gets credit when friend books</li>
+        <li>Friend gets discount on first booking</li>
+        <li>Referral tracking</li>
+        <li>Referral leaderboard</li>
+        <li>Anti-abuse (self-referral blocked)</li>
+        <li>Referral analytics</li>
+    </ul>
+
+    <!-- ============ MODULE 33 ============ -->
+    <div class="module-head" id="m33">
+        <div class="module-num">33</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Reviews &amp; Ratings (Full)</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Full review system with photos, replies, and moderation.</p>
+
+    <ul class="feature-grid">
+        <li>Trip-level review</li>
+        <li>Operator-level review</li>
+        <li>Driver-level review</li>
+        <li>Star rating (1–5)</li>
+        <li>Written review</li>
+        <li>Photo upload</li>
+        <li>Verified reviews (post-trip only)</li>
+        <li>Filter by rating</li>
+        <li>Sort by recent / helpful</li>
+        <li>Reply to reviews (operator/admin)</li>
+        <li>Report abuse</li>
+        <li>Review moderation</li>
+        <li>Review analytics</li>
+    </ul>
+
+    <!-- ============ MODULE 34 ============ -->
+    <div class="module-head" id="m34">
+        <div class="module-num">34</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Price &amp; Seat Alerts</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Passengers set alerts for price drops or seat availability.</p>
+
+    <ul class="feature-grid">
+        <li>Set price threshold for a route</li>
+        <li>Get notified when price drops</li>
+        <li>Set seat availability alert</li>
+        <li>Get notified when seats open</li>
+        <li>Alert via push + email + SMS</li>
+        <li>Manage alerts dashboard</li>
+        <li>Alert expiry policy</li>
+    </ul>
+
+    <!-- ============ MODULE 35 ============ -->
+    <div class="module-head" id="m35">
+        <div class="module-num">35</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Dynamic Pricing Engine</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Fare calculation that responds to demand, time, and season — capped by regulation.</p>
+
+    <ul class="feature-grid">
+        <li>Base fare + demand multiplier</li>
+        <li>Time-of-day pricing</li>
+        <li>Festival / holiday surcharge</li>
+        <li>Last-minute premium</li>
+        <li>Advance booking discount</li>
+        <li>Route popularity factor</li>
+        <li>Regulatory cap</li>
+        <li>Admin controls per route</li>
+        <li>Pricing transparency (breakdown shown)</li>
+    </ul>
+
+    <!-- ============ MODULE 36 ============ -->
+    <div class="module-head" id="m36">
+        <div class="module-num">36</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Operator Cancellation → Rebooking</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">When an operator cancels, suggest alternatives and enable one-tap rebooking.</p>
+
+    <ul class="feature-grid">
+        <li>Auto-detect operator cancellation</li>
+        <li>Refund initiated automatically</li>
+        <li>Suggest 3 alternative buses</li>
+        <li>One-tap rebook</li>
+        <li>Price difference handling</li>
+        <li>Priority rebooking (higher tier first)</li>
+        <li>Notification with alternatives</li>
+        <li>Rebooking analytics</li>
+    </ul>
+
+    <!-- ============ MODULE 37 ============ -->
+    <div class="module-head" id="m37">
+        <div class="module-num">37</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Bus Substitution Handling</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Graceful handling when an operator swaps the bus at the last minute.</p>
+
+    <ul class="feature-grid">
+        <li>Detect bus substitution</li>
+        <li>Auto re-seat passengers</li>
+        <li>Notify if seat change is required</li>
+        <li>Offer refund if major change</li>
+        <li>Amenity difference → partial refund</li>
+        <li>Passenger confirmation for major changes</li>
+        <li>Substitution log</li>
+    </ul>
+
+    <!-- ============ MODULE 38 ============ -->
+    <div class="module-head" id="m38">
+        <div class="module-num">38</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">Overbooking Resolution</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">A defined policy when the operator overbooks or double-books.</p>
+
+    <ul class="feature-grid">
+        <li>Detect overbooking</li>
+        <li>Bump policy (FCFS or tier-based)</li>
+        <li>Compensation for bumped passengers</li>
+        <li>Auto-refund + credit</li>
+        <li>Rebooking to next available bus</li>
+        <li>Notification to affected passengers</li>
+        <li>Overbooking log</li>
+        <li>Operator penalty for repeated overbooking</li>
+    </ul>
+
+    <!-- ============ MODULE 39 ============ -->
+    <div class="module-head" id="m39">
+        <div class="module-num">39</div>
+        <h2 class="module-title" style="margin:0; border:none; padding:0; font-size:1.6rem;">External Navigation</h2>
+        <span class="module-tag tag-high">High</span>
+    </div>
+    <p class="module-desc">Deep integration with Google Maps and Apple Maps for stand navigation.</p>
+
+    <ul class="feature-grid">
+        <li>Open in Google Maps for boarding point</li>
+        <li>Open in Apple Maps for iOS</li>
+        <li>Directions to stand (walking / driving)</li>
+        <li>Turn-by-turn for passengers</li>
+        <li>Copy coordinates button</li>
+        <li>Share location with family</li>
+        <li>Last-mile connectivity (Phase 2)</li>
+    </ul>
+
+    <!-- ============ PHASES ============ -->
+    <h2 id="phases">Build Phases</h2>
+    <p>A three-phase rollout plan for BusVerse Real.</p>
+
+    <div class="phase-card">
+        <div class="phase-head">
+            <div class="phase-title">Phase 1 — Launch MVP</div>
+            <div class="phase-time">Months 1–6</div>
+        </div>
+        <div class="phase-body">
+            <strong>Modules:</strong> 01–20 (all Core) + 21, 22, 23, 27, 29, 30<br>
+            <strong>Focus:</strong> Auth, Search, Booking, Payments, Tickets, Cancellation, Tracking, Driver App, Operator Panel, Admin Panel, Support, Notifications, Safety, Real-Time, Compliance, Analytics, Multi-City, Test, DevOps, Waitlist, Promo, Fraud Detection, Operator Rating, Boarding Pass, Infrastructure
+        </div>
+    </div>
+
+    <div class="phase-card phase-2">
+        <div class="phase-head">
+            <div class="phase-title">Phase 2 — Growth</div>
+            <div class="phase-time">Months 7–12</div>
+        </div>
+        <div class="phase-body">
+            <strong>Modules:</strong> 24, 25, 26, 28, 31, 32, 33, 34, 35, 36, 39<br>
+            <strong>Focus:</strong> Corporate B2B, Travel Agent, Dispute Resolution, Charter, Loyalty, Referral, Reviews, Price/Seat Alerts, Dynamic Pricing, Rebooking, External Navigation
+        </div>
+    </div>
+
+    <div class="phase-card phase-3">
+        <div class="phase-head">
+            <div class="phase-title">Phase 3 — Scale</div>
+            <div class="phase-time">Months 13–18</div>
+        </div>
+        <div class="phase-body">
+            <strong>Modules:</strong> 37, 38 + Government Bus Integration<br>
+            <strong>Focus:</strong> Bus Substitution, Overbooking Resolution, Government Bus Integration
+        </div>
+    </div>
+
+    <div class="end-note">
+        <h3>End of Feature Specification</h3>
+        <p>BusVerse Real · 6 Apps · 39 Modules · ~404 Features · 3 Phases</p>
+    </div>
+
+</main>
+
+<script>
+    // Mobile menu
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    menuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+    });
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+        });
+    });
+
+    // Scroll progress
+    const progress = document.getElementById('progress');
+    window.addEventListener('scroll', () => {
+        const h = document.documentElement;
+        const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+        progress.style.width = scrolled + '%';
+    });
+
+    // Active nav highlighting
+    const sections = document.querySelectorAll('.module-head[id], h2[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(l => l.classList.remove('active'));
+                const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+                if (active) active.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-15% 0px -75% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

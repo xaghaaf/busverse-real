@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BusVerse · SVG Pack — Preview &amp; Replay</title>
+<style>
+  :root{
+    --bg:#060A12; --panel:#0D1524; --panel-2:#111C2F;
+    --line:rgba(126,154,194,.16); --line-2:rgba(126,154,194,.28);
+    --text:#E9F0FB; --muted:#7E9AC2; --cyan:#00E5FF;
+    --radius:16px; --gap:22px;
+  }
+  *{box-sizing:border-box}
+  html,body{min-height:100%}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 700px at 12% -12%, rgba(0,85,237,.20), transparent 60%),
+      radial-gradient(900px 600px at 100% 0%, rgba(0,229,255,.10), transparent 55%),
+      var(--bg);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    padding-bottom:70px;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:30;
+    display:flex; flex-wrap:wrap; gap:14px;
+    align-items:center; justify-content:space-between;
+    padding:14px 26px;
+    background:rgba(6,10,18,.82);
+    -webkit-backdrop-filter:blur(14px);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:13px; min-width:0}
+  .brand .mark{
+    width:36px;height:36px;border-radius:11px;flex:none;
+    background:linear-gradient(135deg,#0055ED 0%,#00E5FF 100%);
+    box-shadow:0 0 24px rgba(0,229,255,.35), inset 0 0 0 1px rgba(255,255,255,.18);
+  }
+  .brand h1{margin:0; font-size:15px; letter-spacing:.4px; font-weight:700}
+  .brand p{margin:3px 0 0; font-size:11.5px; color:var(--muted); letter-spacing:.35px}
+
+  .toolbar{display:flex; flex-wrap:wrap; align-items:center; gap:10px}
+
+  .btn{
+    appearance:none; cursor:pointer;
+    font:inherit; font-size:12.5px; font-weight:600; letter-spacing:.3px;
+    color:var(--text); background:var(--panel-2);
+    border:1px solid var(--line-2); border-radius:10px;
+    padding:8px 14px; min-height:38px;
+    transition:background .18s, border-color .18s, transform .12s, color .18s;
+    display:inline-flex; align-items:center; justify-content:center; gap:7px;
+    white-space:nowrap; touch-action:manipulation;
+  }
+  .btn:hover{background:#182641; border-color:rgba(0,229,255,.45)}
+  .btn:active{transform:translateY(1px)}
+  .btn:focus-visible{outline:2px solid var(--cyan); outline-offset:2px}
+  .btn.primary{
+    background:linear-gradient(135deg,#0055ED,#1E70FF);
+    border-color:transparent;
+    box-shadow:0 6px 18px -8px rgba(0,85,237,.9);
+  }
+  .btn.primary:hover{background:linear-gradient(135deg,#1263f5,#3a86ff)}
+  .btn.is-on{background:rgba(0,229,255,.14); border-color:rgba(0,229,255,.55); color:#B9F4FF}
+
+  .seg{
+    display:inline-flex; background:var(--panel-2);
+    border:1px solid var(--line-2); border-radius:10px; padding:3px; gap:3px;
+  }
+  .seg button{
+    appearance:none; border:0; cursor:pointer; font:inherit;
+    font-size:12px; font-weight:600; color:var(--muted);
+    background:transparent; border-radius:7px;
+    padding:6px 12px; min-height:32px;
+    transition:background .18s,color .18s;
+    touch-action:manipulation;
+  }
+  .seg button:hover{color:var(--text)}
+  .seg button.active{background:rgba(0,85,237,.35); color:#fff}
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:1560px; margin:0 auto; padding:26px}
+  .grid{display:grid; gap:var(--gap); grid-template-columns:1fr}
+  @media (min-width:680px){ .grid{grid-template-columns:repeat(2, minmax(0,1fr))} }
+  @media (min-width:1120px){ .grid{grid-template-columns:repeat(3, minmax(0,1fr))} }
+
+  /* ---------- Card ---------- */
+  .card{
+    background:linear-gradient(180deg, rgba(17,28,47,.85), rgba(9,15,26,.9));
+    border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px; display:flex; flex-direction:column; gap:14px;
+    box-shadow:0 24px 50px -30px rgba(0,0,0,.95);
+    transition:border-color .25s, box-shadow .25s;
+    min-width:0;
+  }
+  .card:hover{
+    border-color:rgba(0,229,255,.28);
+    box-shadow:0 30px 60px -30px rgba(0,85,237,.55);
+  }
+
+  .card-head{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .head-left{min-width:0; flex:1 1 auto}
+
+  .tag{
+    display:inline-block; font-size:10px; font-weight:700;
+    letter-spacing:1.1px; text-transform:uppercase;
+    padding:4px 9px; border-radius:999px;
+    background:rgba(0,85,237,.18); border:1px solid rgba(0,85,237,.5);
+    color:#8FB8FF; white-space:nowrap;
+  }
+  .tag.t-static{background:rgba(126,154,194,.14); border-color:rgba(126,154,194,.4); color:#A9BEDC}
+  .card-head h2{margin:8px 0 0; font-size:15.5px; font-weight:700}
+  .dims{
+    font-size:10.5px; letter-spacing:.9px; color:var(--muted);
+    border:1px solid var(--line); border-radius:8px; padding:5px 8px;
+    white-space:nowrap; font-variant-numeric:tabular-nums; flex:none;
+  }
+
+  /* ---------- Stage ---------- */
+  .stage{
+    position:relative; width:100%; border-radius:12px;
+    overflow:hidden; border:1px solid var(--line);
+    background:#0A1424; transition:background .3s;
+    isolation:isolate;
+  }
+  .stage.bg-dark{
+    background:radial-gradient(80% 60% at 50% 45%, #14243D 0%, #0A1424 55%, #060B15 100%);
+  }
+  .stage.bg-light{ background:linear-gradient(180deg,#F7FAFF 0%, #E8EFF9 100%); }
+  .stage.bg-checker{
+    background-color:#0A101C;
+    background-image:
+      linear-gradient(45deg, rgba(255,255,255,.06) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.06) 75%),
+      linear-gradient(45deg, rgba(255,255,255,.06) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.06) 75%);
+    background-size:24px 24px;
+    background-position:0 0, 12px 12px;
+  }
+  .stage iframe{ display:block; width:100%; height:100%; border:0; background:transparent; }
+
+  .desc{margin:0; font-size:12.5px; line-height:1.6; color:var(--muted)}
+  .actions{display:flex; flex-wrap:wrap; gap:8px}
+  .actions .btn{flex:1 1 auto; min-width:0}
+
+  /* ---------- Code viewer ---------- */
+  .code-wrap{border-top:1px solid var(--line); padding-top:10px}
+  .code-wrap summary{
+    cursor:pointer; font-size:11.5px; font-weight:700; letter-spacing:.9px;
+    text-transform:uppercase; color:var(--muted); list-style:none;
+    user-select:none; display:flex; align-items:center; gap:8px; padding:4px 0;
+  }
+  .code-wrap summary::-webkit-details-marker{display:none}
+  .code-wrap summary::before{content:"›"; font-size:16px; transition:transform .2s; display:inline-block}
+  .code-wrap[open] summary::before{transform:rotate(90deg)}
+  .code-wrap summary:hover{color:var(--cyan)}
+  .code-wrap pre{
+    margin:12px 0 0; max-height:320px; overflow:auto;
+    background:#05090F; border:1px solid var(--line); border-radius:10px;
+    padding:14px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11px; line-height:1.55; color:#9FD8E8;
+    white-space:pre; tab-size:2;
+  }
+  .code-wrap pre::-webkit-scrollbar{width:10px;height:10px}
+  .code-wrap pre::-webkit-scrollbar-thumb{background:#1C2E4A; border-radius:6px}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed; left:50%; bottom:26px; transform:translate(-50%, 24px);
+    background:rgba(13,21,36,.97); border:1px solid rgba(0,229,255,.45);
+    color:#CFF6FF; padding:11px 20px; border-radius:11px;
+    font-size:12.5px; font-weight:600;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    box-shadow:0 18px 40px -18px rgba(0,229,255,.6);
+    z-index:100; max-width:calc(100vw - 32px); text-align:center;
+  }
+  .toast.show{opacity:1; transform:translate(-50%,0)}
+
+  footer.note{
+    max-width:1560px; margin:0 auto; padding:26px;
+    font-size:11.5px; line-height:1.7; color:#5F7699;
+    border-top:1px solid var(--line); margin-top:34px;
+  }
+  footer.note code{color:#8FB8FF; font-size:11px}
+
+  @media (max-width:860px){
+    .topbar{flex-direction:column; align-items:stretch; gap:10px}
+    .toolbar{justify-content:space-between; width:100%}
+    .seg{flex:1 1 auto; justify-content:center}
+    .seg button{flex:1 1 0; text-align:center}
+    .wrap{padding:16px}
+  }
+  @media (max-width:560px){
+    :root{--gap:14px; --radius:14px}
+    .toolbar{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+    .seg{grid-column:1 / -1}
+    .toolbar > .btn{width:100%}
+    .btn{min-height:42px}
+    .actions{display:grid; grid-template-columns:1fr 1fr}
+    .actions .btn{width:100%}
+    .actions .btn:last-child:nth-child(odd){grid-column:1 / -1}
+    .stage{max-height:54vh}
+    .brand p{display:none}
+    .code-wrap pre{max-height:38vh; font-size:10.5px}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark" aria-hidden="true"></div>
+    <div>
+      <h1>BusVerse · SVG Pack</h1>
+      <p>3 vector assets — live preview &amp; replay</p>
+    </div>
+  </div>
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="Preview background">
+      <button type="button" data-bg="dark" class="active">Dark</button>
+      <button type="button" data-bg="light">Light</button>
+      <button type="button" data-bg="checker">Grid</button>
+    </div>
+    <button class="btn" id="pauseAll" type="button">⏸ Pause all</button>
+    <button class="btn primary" id="replayAll" type="button">⟲ Replay all</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer class="note">
+  <strong>Notes —</strong> Each preview runs inside an isolated iframe so the CSS keyframes,
+  <code>&lt;style&gt;</code> blocks, gradient IDs and clip-paths of the three files never collide.
+  "Replay" rebuilds the frame from source, restarting every animation from frame 0.
+  The Dark / Light / Grid switcher hides each SVG's own backdrop so the stage background shows through.
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     SVG SOURCES  —  stored as JS template literals so the browser
+     never tries to parse them as HTML on page load.
+     ============================================================ */
+
+  var SVG_1 = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254" width="1254" height="1254">
+  <title>BusVerse logo</title>
+  <g id="busverse-navy" fill="#0B1830" fill-rule="evenodd">
+    <path d="M 282,882 L 272,952 L 273,969 L 278,980 L 286,987 L 297,991 L 343,992 L 362,987 L 375,978 L 385,962 L 388,951 L 397,882 L 360,882 L 350,951 L 343,961 L 333,964 L 317,963 L 310,956 L 319,883 Z M 514,881 L 437,881 L 425,884 L 416,889 L 406,902 L 403,912 L 403,927 L 407,936 L 415,943 L 426,947 L 468,948 L 472,951 L 472,957 L 469,961 L 464,963 L 398,963 L 394,990 L 470,990 L 489,986 L 504,977 L 509,971 L 514,957 L 513,942 L 509,934 L 500,927 L 489,923 L 447,922 L 442,918 L 442,914 L 448,908 L 510,908 Z M 128,833 L 107,990 L 216,990 L 229,987 L 246,978 L 256,967 L 263,947 L 263,930 L 257,916 L 244,906 L 256,896 L 264,879 L 264,859 L 257,845 L 248,838 L 230,833 Z M 152,959 L 157,925 L 210,925 L 216,928 L 220,934 L 219,947 L 213,955 L 206,959 Z M 159,895 L 162,871 L 165,864 L 213,864 L 220,867 L 223,872 L 223,883 L 220,889 L 212,895 L 164,897 Z M 857,563 L 830,573 L 825,578 L 819,595 L 822,597 L 850,594 L 856,586 Z M 845,576 L 846,582 L 843,587 L 832,590 L 830,588 L 835,579 Z M 683,560 L 686,580 L 689,588 L 694,593 L 717,596 L 740,596 L 742,594 L 737,581 L 729,571 L 705,563 L 687,559 Z M 707,576 L 709,574 L 714,574 L 722,577 L 725,580 L 727,587 L 714,587 L 708,581 Z M 444,467 L 426,472 L 418,478 L 412,498 L 410,517 L 440,512 Z M 491,453 L 450,465 L 446,511 L 487,506 Z M 972,626 L 971,590 L 966,571 L 958,554 L 945,536 L 935,526 L 909,508 L 888,498 L 889,485 L 886,464 L 879,455 L 870,452 L 853,452 L 855,463 L 866,463 L 871,467 L 873,472 L 874,494 L 861,492 L 868,552 L 868,594 L 863,610 L 851,619 L 624,620 L 621,588 L 616,570 L 606,556 L 595,551 L 581,553 L 570,564 L 564,579 L 561,609 L 511,605 L 535,617 L 568,630 L 593,638 L 625,645 L 778,645 L 797,639 L 809,632 L 842,632 L 842,637 L 836,649 L 828,659 L 818,668 L 802,677 L 776,684 L 727,685 L 898,728 L 919,716 L 932,706 L 947,690 L 963,662 Z M 587,571 L 593,571 L 600,576 L 607,592 L 608,606 L 606,618 L 601,628 L 593,634 L 586,634 L 579,628 L 573,613 L 574,589 L 580,576 Z M 651,412 L 647,408 L 638,407 L 499,450 L 497,455 L 493,505 L 592,493 L 595,453 L 597,448 L 602,498 L 606,506 L 613,512 L 664,542 L 658,448 L 655,424 Z M 662,401 L 668,414 L 672,436 L 683,436 L 694,440 L 700,446 L 704,458 L 705,491 L 700,496 L 692,496 L 687,491 L 684,453 L 679,450 L 673,451 L 680,526 L 686,533 L 716,542 L 753,546 L 824,546 L 841,544 L 855,539 L 851,501 L 844,462 L 835,432 L 827,420 L 800,411 L 752,403 L 698,398 L 673,398 Z M 883,280 L 863,257 L 847,246 L 821,235 L 784,227 L 745,225 L 361,226 L 406,298 L 379,557 L 392,551 L 403,485 L 410,467 L 419,458 L 642,384 L 679,381 L 722,383 L 768,389 L 809,398 L 824,403 L 838,415 L 843,423 L 850,444 L 865,429 L 876,413 L 885,395 L 893,370 L 896,352 L 896,319 L 893,304 Z M 499,414 L 508,317 L 511,309 L 752,309 L 772,314 L 780,319 L 787,326 L 792,337 L 793,361 L 789,374 L 784,381 L 749,374 L 712,370 L 678,369 L 644,371 L 601,381 L 502,415 Z"/>
+  </g>
+  <g id="busverse-blue" fill="#0055ED" fill-rule="evenodd">
+    <path d="M 882,876 L 855,877 L 845,882 L 838,890 L 838,877 L 799,877 L 785,989 L 824,989 L 831,936 L 836,921 L 842,915 L 850,911 L 877,910 Z M 674,887 L 662,900 L 657,910 L 651,933 L 650,956 L 654,970 L 660,979 L 668,985 L 682,990 L 761,991 L 765,963 L 701,963 L 694,961 L 690,957 L 688,946 L 776,945 L 780,940 L 782,914 L 779,899 L 772,888 L 758,879 L 743,876 L 697,877 Z M 742,915 L 741,924 L 691,923 L 694,913 L 701,906 L 706,904 L 732,904 L 740,910 Z M 1029,890 L 1017,908 L 1010,936 L 1010,958 L 1012,966 L 1019,978 L 1027,984 L 1041,989 L 1120,989 L 1124,962 L 1060,962 L 1049,956 L 1047,946 L 1049,944 L 1136,944 L 1140,935 L 1141,909 L 1139,899 L 1131,886 L 1126,882 L 1111,876 L 1065,875 L 1047,879 Z M 1050,921 L 1054,911 L 1059,906 L 1066,903 L 1094,904 L 1099,908 L 1102,916 L 1102,922 L 1100,924 L 1051,923 Z M 1004,875 L 920,876 L 899,885 L 891,895 L 886,910 L 886,923 L 890,932 L 897,939 L 909,944 L 955,946 L 958,949 L 958,955 L 954,960 L 949,962 L 882,962 L 877,989 L 960,989 L 976,985 L 991,975 L 998,965 L 1001,954 L 1001,943 L 997,932 L 989,924 L 977,919 L 933,918 L 927,913 L 928,908 L 935,903 L 1001,903 Z M 688,829 L 642,830 L 585,943 L 581,934 L 555,831 L 512,831 L 556,991 L 600,991 Z M 332,609 L 332,627 L 340,645 L 360,667 L 392,690 L 433,712 L 471,728 L 504,739 L 554,752 L 595,759 L 634,763 L 721,764 L 765,760 L 818,752 L 865,741 L 888,733 L 702,690 L 570,652 L 493,623 L 460,605 L 444,590 L 440,580 L 441,572 L 445,565 L 455,556 L 474,546 L 496,538 L 555,523 L 517,526 L 474,533 L 435,543 L 404,554 L 372,569 L 353,581 L 338,596 Z M 576,718 L 596,707 L 698,735 L 685,743 L 674,747 L 603,728 Z M 458,673 L 471,666 L 479,664 L 548,693 L 527,704 L 485,687 Z M 392,624 L 409,619 L 421,631 L 448,648 L 427,656 L 410,644 Z M 402,580 L 404,582 L 399,595 L 401,606 L 387,610 L 385,605 L 387,594 L 397,580 Z M 987,375 L 966,377 L 941,389 L 924,408 L 916,430 L 916,451 L 924,474 L 980,547 L 1037,476 L 1043,464 L 1048,444 L 1045,419 L 1035,400 L 1023,388 L 1003,378 Z M 972,409 L 984,408 L 999,413 L 1009,423 L 1013,432 L 1014,444 L 1011,455 L 1002,466 L 988,473 L 973,473 L 964,469 L 954,460 L 949,450 L 948,438 L 953,423 L 965,412 Z"/>
+  </g>
+</svg>`;
+
+  var SVG_2 = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <title>BusVerse Infinite Loading Loop</title>
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#0E1726" />
+      <stop offset="60%" stop-color="#080E18" />
+      <stop offset="100%" stop-color="#04070D" />
+    </radialGradient>
+    <linearGradient id="busBodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#003BB5" />
+      <stop offset="50%" stop-color="#0055ED" />
+      <stop offset="100%" stop-color="#1E70FF" />
+    </linearGradient>
+    <linearGradient id="roofGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0B1830" />
+      <stop offset="100%" stop-color="#050C1A" />
+    </linearGradient>
+    <linearGradient id="glassGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#1E3050" />
+      <stop offset="50%" stop-color="#0E192D" />
+      <stop offset="100%" stop-color="#08101E" />
+    </linearGradient>
+    <linearGradient id="glassSheen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0" />
+      <stop offset="50%" stop-color="#00F0FF" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="headlightBeam" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.8" />
+      <stop offset="25%" stop-color="#00E5FF" stop-opacity="0.3" />
+      <stop offset="70%" stop-color="#38BDF8" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="underglowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.6" />
+      <stop offset="50%" stop-color="#0055ED" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#0055ED" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="taillightGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF2A55" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#FF2A55" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#182538" />
+      <stop offset="50%" stop-color="#0B121E" />
+      <stop offset="100%" stop-color="#24344D" />
+    </linearGradient>
+    <style>
+      .anim-box { transform-box: fill-box; transform-origin: center center; }
+      #bus-assembly { animation: busPhysics 0.75s ease-in-out infinite; }
+      @keyframes busPhysics {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        25% { transform: translateY(-2.5px) rotate(-0.35deg); }
+        50% { transform: translateY(1.2px) rotate(0.2deg); }
+        75% { transform: translateY(-1px) rotate(-0.15deg); }
+      }
+      .wheel-spinner { transform-box: fill-box; transform-origin: center center; animation: spinWheel 0.45s linear infinite; }
+      @keyframes spinWheel { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      .road-stripe { stroke-dasharray: 60 70; animation: roadFlow 0.45s linear infinite; }
+      @keyframes roadFlow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -130; } }
+      .road-edge { stroke-dasharray: 20 40; animation: roadEdgeFlow 0.45s linear infinite; }
+      @keyframes roadEdgeFlow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -60; } }
+      #beam-light { animation: beamPulse 1.5s ease-in-out infinite alternate; }
+      @keyframes beamPulse {
+        0%   { opacity: 0.75; transform: scaleY(0.97); }
+        100% { opacity: 0.95; transform: scaleY(1.03); }
+      }
+      .wind-stream { animation: windFly 0.9s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+      .ws-1 { animation-delay: 0.0s; } .ws-2 { animation-delay: 0.28s; }
+      .ws-3 { animation-delay: 0.55s; } .ws-4 { animation-delay: 0.15s; }
+      @keyframes windFly {
+        0%   { transform: translateX(260px); opacity: 0; stroke-dashoffset: 80; }
+        25%  { opacity: 0.75; }
+        80%  { opacity: 0.6; }
+        100% { transform: translateX(-420px); opacity: 0; stroke-dashoffset: -80; }
+      }
+      .dot-1 { animation: dotBounce 1.2s infinite ease-in-out 0.0s; }
+      .dot-2 { animation: dotBounce 1.2s infinite ease-in-out 0.2s; }
+      .dot-3 { animation: dotBounce 1.2s infinite ease-in-out 0.4s; }
+      @keyframes dotBounce {
+        0%, 80%, 100% { opacity: 0.2; transform: translateY(0); }
+        40%           { opacity: 1.0; transform: translateY(-4px); }
+      }
+    </style>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#bgGrad)" />
+
+  <g stroke="#00E5FF" stroke-width="2" stroke-linecap="round" opacity="0.3" fill="none">
+    <line class="wind-stream ws-1" x1="560" y1="135" x2="680" y2="135" stroke-dasharray="70 50" />
+    <line class="wind-stream ws-2" x1="500" y1="168" x2="660" y2="168" stroke-dasharray="90 60" />
+    <line class="wind-stream ws-3" x1="540" y1="305" x2="700" y2="305" stroke-dasharray="60 40" />
+    <line class="wind-stream ws-4" x1="480" y1="110" x2="590" y2="110" stroke-dasharray="50 30" stroke-width="1.5" />
+  </g>
+
+  <g id="ground-plane">
+    <rect x="0" y="340" width="800" height="4" fill="#152238" />
+    <line class="road-stripe" x1="-100" y1="358" x2="900" y2="358" stroke="#0055ED" stroke-width="4" stroke-linecap="round" opacity="0.85" />
+    <line class="road-edge" x1="-100" y1="372" x2="900" y2="372" stroke="#00E5FF" stroke-width="1.5" stroke-linecap="round" opacity="0.35" />
+  </g>
+
+  <ellipse cx="400" cy="336" rx="210" ry="14" fill="url(#underglowGrad)" />
+  <ellipse cx="205" cy="275" rx="40" ry="18" fill="url(#taillightGrad)" opacity="0.7" />
+  <polygon id="beam-light" points="596,275 800,225 800,352 602,305" fill="url(#headlightBeam)" class="anim-box" />
+
+  <g id="bus-assembly">
+    <path d="M 290,165 Q 310,154 360,154 L 465,154 Q 505,154 520,165 Z" fill="url(#roofGrad)" />
+    <rect x="340" y="159" width="30" height="3" rx="1.5" fill="#1C2E4A" />
+    <rect x="385" y="159" width="30" height="3" rx="1.5" fill="#1C2E4A" />
+    <rect x="430" y="159" width="30" height="3" rx="1.5" fill="#1C2E4A" />
+    <path d="M 215,178 Q 210,178 208,186 L 204,295 Q 204,310 218,310 L 255,310 A 38,38 0 0 1 331,310 L 477,310 A 38,38 0 0 1 553,310 L 588,310 Q 605,310 605,296 L 603,260 Q 601,230 582,198 L 568,184 Q 556,178 538,178 Z" fill="url(#busBodyGrad)" />
+    <path d="M 204,290 L 204,298 Q 204,310 218,310 L 255,310 A 38,38 0 0 1 331,310 L 477,310 A 38,38 0 0 1 553,310 L 588,310 Q 605,310 605,296 L 604,290 Z" fill="#0B1830" />
+    <path d="M 204,286 L 254,286 A 38,38 0 0 1 332,286 L 476,286 A 38,38 0 0 1 554,286 L 602,286" fill="none" stroke="#00F0FF" stroke-width="2" opacity="0.85" />
+    <path d="M 220,188 L 535,188 Q 552,188 563,200 L 579,222 Q 586,232 588,246 L 589,252 L 220,252 Z" fill="url(#glassGrad)" stroke="#0B1830" stroke-width="2" />
+    <path d="M 280,252 L 325,188 L 350,188 L 305,252 Z" fill="url(#glassSheen)" />
+    <path d="M 440,252 L 485,188 L 500,188 L 455,252 Z" fill="url(#glassSheen)" opacity="0.5" />
+    <line x1="275" y1="188" x2="275" y2="252" stroke="#0B1830" stroke-width="3" />
+    <line x1="340" y1="188" x2="340" y2="252" stroke="#0B1830" stroke-width="3" />
+    <line x1="410" y1="188" x2="410" y2="252" stroke="#0B1830" stroke-width="3" />
+    <line x1="480" y1="188" x2="480" y2="252" stroke="#0B1830" stroke-width="3" />
+    <line x1="535" y1="188" x2="535" y2="252" stroke="#0B1830" stroke-width="3" />
+    <circle cx="375" cy="224" r="6" fill="#1C335A" opacity="0.6" />
+    <path d="M 364,244 C 364,233 386,233 386,244 Z" fill="#1C335A" opacity="0.6" />
+    <circle cx="445" cy="224" r="6" fill="#1C335A" opacity="0.6" />
+    <path d="M 434,244 C 434,233 456,233 456,244 Z" fill="#1C335A" opacity="0.6" />
+    <path d="M 593,268 L 602,274 L 596,284 L 588,282 Z" fill="#FFFFFF" />
+    <ellipse cx="600" cy="276" rx="4" ry="5" fill="#00E5FF" />
+    <path d="M 204,260 L 208,260 L 208,284 L 204,284 Z" fill="#FF1E46" />
+    <rect x="202" y="262" width="3" height="20" rx="1.5" fill="#FFA3B2" />
+    <g id="rear-wheel">
+      <path d="M 258,310 A 35,35 0 0 1 328,310 Z" fill="#050912" />
+      <circle cx="293" cy="310" r="28" fill="#111824" stroke="#070C14" stroke-width="2" />
+      <circle cx="293" cy="310" r="24" fill="none" stroke="#1A2536" stroke-width="1.5" />
+      <g class="wheel-spinner anim-box">
+        <circle cx="293" cy="310" r="19" fill="url(#rimGrad)" />
+        <circle cx="293" cy="310" r="13" fill="none" stroke="#00E5FF" stroke-width="2" stroke-dasharray="6 7" />
+        <circle cx="293" cy="310" r="5" fill="#0055ED" />
+        <circle cx="293" cy="310" r="2" fill="#FFFFFF" />
+      </g>
+    </g>
+    <g id="front-wheel">
+      <path d="M 480,310 A 35,35 0 0 1 550,310 Z" fill="#050912" />
+      <circle cx="515" cy="310" r="28" fill="#111824" stroke="#070C14" stroke-width="2" />
+      <circle cx="515" cy="310" r="24" fill="none" stroke="#1A2536" stroke-width="1.5" />
+      <g class="wheel-spinner anim-box">
+        <circle cx="515" cy="310" r="19" fill="url(#rimGrad)" />
+        <circle cx="515" cy="310" r="13" fill="none" stroke="#00E5FF" stroke-width="2" stroke-dasharray="6 7" />
+        <circle cx="515" cy="310" r="5" fill="#0055ED" />
+        <circle cx="515" cy="310" r="2" fill="#FFFFFF" />
+      </g>
+    </g>
+  </g>
+
+  <g stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.4" fill="none">
+    <line class="wind-stream ws-1" x1="620" y1="230" x2="740" y2="230" stroke-dasharray="40 30" />
+    <line class="wind-stream ws-3" x1="590" y1="325" x2="690" y2="325" stroke-dasharray="30 20" stroke-width="2" stroke="#00F0FF" />
+  </g>
+
+  <g transform="translate(400, 435)">
+    <text text-anchor="middle" fill="#7E9AC2" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" letter-spacing="6">
+      CONNECTING TRANSIT<tspan class="dot-1 anim-box">.</tspan><tspan class="dot-2 anim-box">.</tspan><tspan class="dot-3 anim-box">.</tspan>
+    </text>
+  </g>
+</svg>`;
+
+  var SVG_3 = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254" width="1254" height="1254">
+  <title>BusVerse Animated Logo Reveal</title>
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="48%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="60%" stop-color="#F5F8FC" />
+      <stop offset="100%" stop-color="#E5ECF6" />
+    </radialGradient>
+    <linearGradient id="sheenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0" />
+      <stop offset="35%" stop-color="#FFFFFF" stop-opacity="0.1" />
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.75" />
+      <stop offset="65%" stop-color="#FFFFFF" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </linearGradient>
+    <clipPath id="roadRevealClip">
+      <rect id="roadClipRect" x="310" y="510" width="0" height="280" rx="8" />
+    </clipPath>
+    <filter id="logoShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0B1830" flood-opacity="0.08" />
+    </filter>
+    <mask id="logoSheenMask">
+      <g fill="#FFFFFF" fill-rule="evenodd">
+        <path d="M 857,563 L 830,573 L 825,578 L 819,595 L 822,597 L 850,594 L 856,586 Z M 845,576 L 846,582 L 843,587 L 832,590 L 830,588 L 835,579 Z M 683,560 L 686,580 L 689,588 L 694,593 L 717,596 L 740,596 L 742,594 L 737,581 L 729,571 L 705,563 L 687,559 Z M 707,576 L 709,574 L 714,574 L 722,577 L 725,580 L 727,587 L 714,587 L 708,581 Z M 444,467 L 426,472 L 418,478 L 412,498 L 410,517 L 440,512 Z M 491,453 L 450,465 L 446,511 L 487,506 Z M 972,626 L 971,590 L 966,571 L 958,554 L 945,536 L 935,526 L 909,508 L 888,498 L 889,485 L 886,464 L 879,455 L 870,452 L 853,452 L 855,463 L 866,463 L 871,467 L 873,472 L 874,494 L 861,492 L 868,552 L 868,594 L 863,610 L 851,619 L 624,620 L 621,588 L 616,570 L 606,556 L 595,551 L 581,553 L 570,564 L 564,579 L 561,609 L 511,605 L 535,617 L 568,630 L 593,638 L 625,645 L 778,645 L 797,639 L 809,632 L 842,632 L 842,637 L 836,649 L 828,659 L 818,668 L 802,677 L 776,684 L 727,685 L 898,728 L 919,716 L 932,706 L 947,690 L 963,662 Z M 587,571 L 593,571 L 600,576 L 607,592 L 608,606 L 606,618 L 601,628 L 593,634 L 586,634 L 579,628 L 573,613 L 574,589 L 580,576 Z M 651,412 L 647,408 L 638,407 L 499,450 L 497,455 L 493,505 L 592,493 L 595,453 L 597,448 L 602,498 L 606,506 L 613,512 L 664,542 L 658,448 L 655,424 Z M 662,401 L 668,414 L 672,436 L 683,436 L 694,440 L 700,446 L 704,458 L 705,491 L 700,496 L 692,496 L 687,491 L 684,453 L 679,450 L 673,451 L 680,526 L 686,533 L 716,542 L 753,546 L 824,546 L 841,544 L 855,539 L 851,501 L 844,462 L 835,432 L 827,420 L 800,411 L 752,403 L 698,398 L 673,398 Z M 883,280 L 863,257 L 847,246 L 821,235 L 784,227 L 745,225 L 361,226 L 406,298 L 379,557 L 392,551 L 403,485 L 410,467 L 419,458 L 642,384 L 679,381 L 722,383 L 768,389 L 809,398 L 824,403 L 838,415 L 843,423 L 850,444 L 865,429 L 876,413 L 885,395 L 893,370 L 896,352 L 896,319 L 893,304 Z M 499,414 L 508,317 L 511,309 L 752,309 L 772,314 L 780,319 L 787,326 L 792,337 L 793,361 L 789,374 L 784,381 L 749,374 L 712,370 L 678,369 L 644,371 L 601,381 L 502,415 Z"/>
+        <path d="M 332,609 L 332,627 L 340,645 L 360,667 L 392,690 L 433,712 L 471,728 L 504,739 L 554,752 L 595,759 L 634,763 L 721,764 L 765,760 L 818,752 L 865,741 L 888,733 L 702,690 L 570,652 L 493,623 L 460,605 L 444,590 L 440,580 L 441,572 L 445,565 L 455,556 L 474,546 L 496,538 L 555,523 L 517,526 L 474,533 L 435,543 L 404,554 L 372,569 L 353,581 L 338,596 Z"/>
+        <path d="M 987,375 L 966,377 L 941,389 L 924,408 L 916,430 L 916,451 L 924,474 L 980,547 L 1037,476 L 1043,464 L 1048,444 L 1045,419 L 1035,400 L 1023,388 L 1003,378 Z M 972,409 L 984,408 L 999,413 L 1009,423 L 1013,432 L 1014,444 L 1011,455 L 1002,466 L 988,473 L 973,473 L 964,469 L 954,460 L 949,450 L 948,438 L 953,423 L 965,412 Z"/>
+        <path d="M 128,833 L 107,990 L 216,990 L 229,987 L 246,978 L 256,967 L 263,947 L 263,930 L 257,916 L 244,906 L 256,896 L 264,879 L 264,859 L 257,845 L 248,838 L 230,833 Z M 152,959 L 157,925 L 210,925 L 216,928 L 220,934 L 219,947 L 213,955 L 206,959 Z M 159,895 L 162,871 L 165,864 L 213,864 L 220,867 L 223,872 L 223,883 L 220,889 L 212,895 L 164,897 Z M 282,882 L 272,952 L 273,969 L 278,980 L 286,987 L 297,991 L 343,992 L 362,987 L 375,978 L 385,962 L 388,951 L 397,882 L 360,882 L 350,951 L 343,961 L 333,964 L 317,963 L 310,956 L 319,883 Z M 514,881 L 437,881 L 425,884 L 416,889 L 406,902 L 403,912 L 403,927 L 407,936 L 415,943 L 426,947 L 468,948 L 472,951 L 472,957 L 469,961 L 464,963 L 398,963 L 394,990 L 470,990 L 489,986 L 504,977 L 509,971 L 514,957 L 513,942 L 509,934 L 500,927 L 489,923 L 447,922 L 442,918 L 442,914 L 448,908 L 510,908 Z"/>
+        <path d="M 688,829 L 642,830 L 585,943 L 581,934 L 555,831 L 512,831 L 556,991 L 600,991 Z M 674,887 L 662,900 L 657,910 L 651,933 L 650,956 L 654,970 L 660,979 L 668,985 L 682,990 L 761,991 L 765,963 L 701,963 L 694,961 L 690,957 L 688,946 L 776,945 L 780,940 L 782,914 L 779,899 L 772,888 L 758,879 L 743,876 L 697,877 Z M 742,915 L 741,924 L 691,923 L 694,913 L 701,906 L 706,904 L 732,904 L 740,910 Z M 882,876 L 855,877 L 845,882 L 838,890 L 838,877 L 799,877 L 785,989 L 824,989 L 831,936 L 836,921 L 842,915 L 850,911 L 877,910 Z M 1004,875 L 920,876 L 899,885 L 891,895 L 886,910 L 886,923 L 890,932 L 897,939 L 909,944 L 955,946 L 958,949 L 958,955 L 954,960 L 949,962 L 882,962 L 877,989 L 960,989 L 976,985 L 991,975 L 998,965 L 1001,954 L 1001,943 L 997,932 L 989,924 L 977,919 L 933,918 L 927,913 L 928,908 L 935,903 L 1001,903 Z M 1029,890 L 1017,908 L 1010,936 L 1010,958 L 1012,966 L 1019,978 L 1027,984 L 1041,989 L 1120,989 L 1124,962 L 1060,962 L 1049,956 L 1047,946 L 1049,944 L 1136,944 L 1140,935 L 1141,909 L 1139,899 L 1131,886 L 1126,882 L 1111,876 L 1065,875 L 1047,879 Z M 1050,921 L 1054,911 L 1059,906 L 1066,903 L 1094,904 L 1099,908 L 1102,916 L 1102,922 L 1100,924 L 1051,923 Z"/>
+      </g>
+    </mask>
+    <style>
+      .anim-elem { transform-box: fill-box; transform-origin: center center; }
+      #logo-stage { animation: stageFloat 6s ease-in-out infinite; }
+      @keyframes stageFloat {
+        0%, 48% { transform: translateY(0); }
+        66% { transform: translateY(-5px); }
+        84% { transform: translateY(0); }
+        100% { transform: translateY(0); }
+      }
+      #roadClipRect { animation: roadWipe 6s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+      @keyframes roadWipe {
+        0%, 3% { width: 0px; }
+        22%, 86% { width: 600px; }
+        94%, 100% { width: 0px; }
+      }
+      .road-flow { animation: roadFade 6s ease-in-out infinite; }
+      @keyframes roadFade {
+        0%, 2% { opacity: 0; }
+        8%, 86% { opacity: 1; }
+        93%, 100% { opacity: 0; }
+      }
+      .dash-flow { transform-box: fill-box; transform-origin: center; animation: dashMotion 6s cubic-bezier(0.2, 0.8, 0.2, 1) infinite; }
+      @keyframes dashMotion {
+        0%, 7% { opacity: 0; transform: translateX(-40px) scaleX(0.4); }
+        16% { opacity: 1; transform: translateX(0) scaleX(1); }
+        24%, 86% { opacity: 0.95; transform: translateX(0); }
+        92%, 100% { opacity: 0; transform: translateX(40px) scaleX(0.4); }
+      }
+      #bus-graphic { transform-box: fill-box; transform-origin: center bottom; animation: busArrival 6s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+      @keyframes busArrival {
+        0%, 5% { opacity: 0; transform: translate(-100px, -30px) rotate(-1.5deg); }
+        9% { opacity: 1; }
+        22% { transform: translate(6px, 3px) rotate(1deg); }
+        27% { transform: translate(-2px, -1px) rotate(-0.4deg); }
+        32%, 86% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+        92%, 100% { opacity: 0; transform: translate(50px, -15px); }
+      }
+      #pin-graphic { transform-box: fill-box; transform-origin: 50% 100%; animation: pinDrop 6s cubic-bezier(0.2, 0.85, 0.4, 1.25) infinite; }
+      @keyframes pinDrop {
+        0%, 13% { opacity: 0; transform: translateY(-160px) scale(0.3); }
+        17% { opacity: 1; }
+        23% { transform: translateY(4px) scale(1.12, 0.88); }
+        27% { transform: translateY(-8px) scale(0.95, 1.06); }
+        31% { transform: translateY(1px) scale(1.02, 0.98); }
+        35%, 86% { opacity: 1; transform: translateY(0) scale(1, 1); }
+        92%, 100% { opacity: 0; transform: translateY(-30px) scale(0.6); }
+      }
+      #pin-shockwave { transform-box: fill-box; transform-origin: center; animation: shockwavePulse 6s ease-out infinite; }
+      @keyframes shockwavePulse {
+        0%, 21% { transform: scale(0.05); opacity: 0; stroke-width: 6; }
+        23% { opacity: 0.8; }
+        36% { transform: scale(1); opacity: 0; stroke-width: 1; }
+        100% { transform: scale(1); opacity: 0; }
+      }
+      .char-elem { transform-box: fill-box; transform-origin: center bottom; }
+      .char-b  { animation: charB  6s cubic-bezier(0.18, 1, 0.32, 1.15) infinite; }
+      .char-u  { animation: charU  6s cubic-bezier(0.18, 1, 0.32, 1.15) infinite; }
+      .char-s1 { animation: charS1 6s cubic-bezier(0.18, 1, 0.32, 1.15) infinite; }
+      .char-v  { animation: charV  6s cubic-bezier(0.18, 1, 0.32, 1.15) infinite; }
+      .char-e1 { animation: charE1 6s cubic-bezier(0.18, 1, 0.32, 1.15) infinite; }
+      .char-r  { animation: charR  6s cubic-bezier(0.18, 1, 0.32, 1.15) infinite; }
+      .char-s2 { animation: charS2 6s cubic-bezier(0.18, 1, 0.32, 1.15) infinite; }
+      .char-e2 { animation: charE2 6s cubic-bezier(0.18, 1, 0.32, 1.15) infinite; }
+      @keyframes charB {
+        0%, 23% { opacity: 0; transform: translateY(45px) scale(0.9); }
+        28% { transform: translateY(-4px) scale(1.04); }
+        32%, 86% { opacity: 1; transform: translateY(0) scale(1); }
+        92%, 100% { opacity: 0; transform: translateY(15px); }
+      }
+      @keyframes charU {
+        0%, 25% { opacity: 0; transform: translateY(45px) scale(0.9); }
+        30% { transform: translateY(-4px) scale(1.04); }
+        34%, 86% { opacity: 1; transform: translateY(0) scale(1); }
+        92%, 100% { opacity: 0; transform: translateY(15px); }
+      }
+      @keyframes charS1 {
+        0%, 27% { opacity: 0; transform: translateY(45px) scale(0.9); }
+        32% { transform: translateY(-4px) scale(1.04); }
+        36%, 86% { opacity: 1; transform: translateY(0) scale(1); }
+        92%, 100% { opacity: 0; transform: translateY(15px); }
+      }
+      @keyframes charV {
+        0%, 30% { opacity: 0; transform: translateY(45px) scale(0.9); }
+        35% { transform: translateY(-4px) scale(1.04); }
+        39%, 86% { opacity: 1; transform: translateY(0) scale(1); }
+        92%, 100% { opacity: 0; transform: translateY(15px); }
+      }
+      @keyframes charE1 {
+        0%, 32% { opacity: 0; transform: translateY(45px) scale(0.9); }
+        37% { transform: translateY(-4px) scale(1.04); }
+        41%, 86% { opacity: 1; transform: translateY(0) scale(1); }
+        92%, 100% { opacity: 0; transform: translateY(15px); }
+      }
+      @keyframes charR {
+        0%, 34% { opacity: 0; transform: translateY(45px) scale(0.9); }
+        39% { transform: translateY(-4px) scale(1.04); }
+        43%, 86% { opacity: 1; transform: translateY(0) scale(1); }
+        92%, 100% { opacity: 0; transform: translateY(15px); }
+      }
+      @keyframes charS2 {
+        0%, 36% { opacity: 0; transform: translateY(45px) scale(0.9); }
+        41% { transform: translateY(-4px) scale(1.04); }
+        45%, 86% { opacity: 1; transform: translateY(0) scale(1); }
+        92%, 100% { opacity: 0; transform: translateY(15px); }
+      }
+      @keyframes charE2 {
+        0%, 38% { opacity: 0; transform: translateY(45px) scale(0.9); }
+        43% { transform: translateY(-4px) scale(1.04); }
+        47%, 86% { opacity: 1; transform: translateY(0) scale(1); }
+        92%, 100% { opacity: 0; transform: translateY(15px); }
+      }
+      #sheenBar { animation: sheenSweep 6s ease-in-out infinite; }
+      @keyframes sheenSweep {
+        0%, 48% { transform: translate(-1000px, 0) rotate(25deg); opacity: 0; }
+        50% { opacity: 1; }
+        63% { transform: translate(1150px, 0) rotate(25deg); opacity: 1; }
+        64%, 100% { transform: translate(1150px, 0) rotate(25deg); opacity: 0; }
+      }
+    </style>
+  </defs>
+
+  <rect width="100%" height="100%" fill="url(#bgGrad)" />
+
+  <g id="logo-stage" filter="url(#logoShadow)">
+    <g id="road-layer" clip-path="url(#roadRevealClip)">
+      <path class="road-flow" fill="#0055ED" fill-rule="evenodd"
+        d="M 332,609 L 332,627 L 340,645 L 360,667 L 392,690 L 433,712 L 471,728 L 504,739 L 554,752 L 595,759 L 634,763 L 721,764 L 765,760 L 818,752 L 865,741 L 888,733 L 702,690 L 570,652 L 493,623 L 460,605 L 444,590 L 440,580 L 441,572 L 445,565 L 455,556 L 474,546 L 496,538 L 555,523 L 517,526 L 474,533 L 435,543 L 404,554 L 372,569 L 353,581 L 338,596 Z" />
+    </g>
+
+    <g id="speed-dashes" fill="#0055ED" fill-rule="evenodd">
+      <path class="dash-flow" d="M 576,718 L 596,707 L 698,735 L 685,743 L 674,747 L 603,728 Z" />
+      <path class="dash-flow" d="M 458,673 L 471,666 L 479,664 L 548,693 L 527,704 L 485,687 Z" />
+      <path class="dash-flow" d="M 392,624 L 409,619 L 421,631 L 448,648 L 427,656 L 410,644 Z" />
+      <path class="dash-flow" d="M 402,580 L 404,582 L 399,595 L 401,606 L 387,610 L 385,605 L 387,594 L 397,580 Z" />
+    </g>
+
+    <g id="bus-graphic" fill="#0B1830" fill-rule="evenodd">
+      <path d="M 857,563 L 830,573 L 825,578 L 819,595 L 822,597 L 850,594 L 856,586 Z M 845,576 L 846,582 L 843,587 L 832,590 L 830,588 L 835,579 Z M 683,560 L 686,580 L 689,588 L 694,593 L 717,596 L 740,596 L 742,594 L 737,581 L 729,571 L 705,563 L 687,559 Z M 707,576 L 709,574 L 714,574 L 722,577 L 725,580 L 727,587 L 714,587 L 708,581 Z M 444,467 L 426,472 L 418,478 L 412,498 L 410,517 L 440,512 Z M 491,453 L 450,465 L 446,511 L 487,506 Z M 972,626 L 971,590 L 966,571 L 958,554 L 945,536 L 935,526 L 909,508 L 888,498 L 889,485 L 886,464 L 879,455 L 870,452 L 853,452 L 855,463 L 866,463 L 871,467 L 873,472 L 874,494 L 861,492 L 868,552 L 868,594 L 863,610 L 851,619 L 624,620 L 621,588 L 616,570 L 606,556 L 595,551 L 581,553 L 570,564 L 564,579 L 561,609 L 511,605 L 535,617 L 568,630 L 593,638 L 625,645 L 778,645 L 797,639 L 809,632 L 842,632 L 842,637 L 836,649 L 828,659 L 818,668 L 802,677 L 776,684 L 727,685 L 898,728 L 919,716 L 932,706 L 947,690 L 963,662 Z M 587,571 L 593,571 L 600,576 L 607,592 L 608,606 L 606,618 L 601,628 L 593,634 L 586,634 L 579,628 L 573,613 L 574,589 L 580,576 Z M 651,412 L 647,408 L 638,407 L 499,450 L 497,455 L 493,505 L 592,493 L 595,453 L 597,448 L 602,498 L 606,506 L 613,512 L 664,542 L 658,448 L 655,424 Z M 662,401 L 668,414 L 672,436 L 683,436 L 694,440 L 700,446 L 704,458 L 705,491 L 700,496 L 692,496 L 687,491 L 684,453 L 679,450 L 673,451 L 680,526 L 686,533 L 716,542 L 753,546 L 824,546 L 841,544 L 855,539 L 851,501 L 844,462 L 835,432 L 827,420 L 800,411 L 752,403 L 698,398 L 673,398 Z M 883,280 L 863,257 L 847,246 L 821,235 L 784,227 L 745,225 L 361,226 L 406,298 L 379,557 L 392,551 L 403,485 L 410,467 L 419,458 L 642,384 L 679,381 L 722,383 L 768,389 L 809,398 L 824,403 L 838,415 L 843,423 L 850,444 L 865,429 L 876,413 L 885,395 L 893,370 L 896,352 L 896,319 L 893,304 Z M 499,414 L 508,317 L 511,309 L 752,309 L 772,314 L 780,319 L 787,326 L 792,337 L 793,361 L 789,374 L 784,381 L 749,374 L 712,370 L 678,369 L 644,371 L 601,381 L 502,415 Z"/>
+    </g>
+
+    <ellipse id="pin-shockwave" cx="980" cy="547" rx="65" ry="24" fill="none" stroke="#0055ED" stroke-width="4" opacity="0" />
+
+    <g id="pin-graphic" fill="#0055ED" fill-rule="evenodd">
+      <path d="M 987,375 L 966,377 L 941,389 L 924,408 L 916,430 L 916,451 L 924,474 L 980,547 L 1037,476 L 1043,464 L 1048,444 L 1045,419 L 1035,400 L 1023,388 L 1003,378 Z M 972,409 L 984,408 L 999,413 L 1009,423 L 1013,432 L 1014,444 L 1011,455 L 1002,466 L 988,473 L 973,473 L 964,469 L 954,460 L 949,450 L 948,438 L 953,423 L 965,412 Z"/>
+    </g>
+
+    <g id="text-bus" fill="#0B1830" fill-rule="evenodd">
+      <path class="char-elem char-b" d="M 128,833 L 107,990 L 216,990 L 229,987 L 246,978 L 256,967 L 263,947 L 263,930 L 257,916 L 244,906 L 256,896 L 264,879 L 264,859 L 257,845 L 248,838 L 230,833 Z M 152,959 L 157,925 L 210,925 L 216,928 L 220,934 L 219,947 L 213,955 L 206,959 Z M 159,895 L 162,871 L 165,864 L 213,864 L 220,867 L 223,872 L 223,883 L 220,889 L 212,895 L 164,897 Z"/>
+      <path class="char-elem char-u" d="M 282,882 L 272,952 L 273,969 L 278,980 L 286,987 L 297,991 L 343,992 L 362,987 L 375,978 L 385,962 L 388,951 L 397,882 L 360,882 L 350,951 L 343,961 L 333,964 L 317,963 L 310,956 L 319,883 Z"/>
+      <path class="char-elem char-s1" d="M 514,881 L 437,881 L 425,884 L 416,889 L 406,902 L 403,912 L 403,927 L 407,936 L 415,943 L 426,947 L 468,948 L 472,951 L 472,957 L 469,961 L 464,963 L 398,963 L 394,990 L 470,990 L 489,986 L 504,977 L 509,971 L 514,957 L 513,942 L 509,934 L 500,927 L 489,923 L 447,922 L 442,918 L 442,914 L 448,908 L 510,908 Z"/>
+    </g>
+
+    <g id="text-verse" fill="#0055ED" fill-rule="evenodd">
+      <path class="char-elem char-v" d="M 688,829 L 642,830 L 585,943 L 581,934 L 555,831 L 512,831 L 556,991 L 600,991 Z"/>
+      <path class="char-elem char-e1" d="M 674,887 L 662,900 L 657,910 L 651,933 L 650,956 L 654,970 L 660,979 L 668,985 L 682,990 L 761,991 L 765,963 L 701,963 L 694,961 L 690,957 L 688,946 L 776,945 L 780,940 L 782,914 L 779,899 L 772,888 L 758,879 L 743,876 L 697,877 Z M 742,915 L 741,924 L 691,923 L 694,913 L 701,906 L 706,904 L 732,904 L 740,910 Z"/>
+      <path class="char-elem char-r" d="M 882,876 L 855,877 L 845,882 L 838,890 L 838,877 L 799,877 L 785,989 L 824,989 L 831,936 L 836,921 L 842,915 L 850,911 L 877,910 Z"/>
+      <path class="char-elem char-s2" d="M 1004,875 L 920,876 L 899,885 L 891,895 L 886,910 L 886,923 L 890,932 L 897,939 L 909,944 L 955,946 L 958,949 L 958,955 L 954,960 L 949,962 L 882,962 L 877,989 L 960,989 L 976,985 L 991,975 L 998,965 L 1001,954 L 1001,943 L 997,932 L 989,924 L 977,919 L 933,918 L 927,913 L 928,908 L 935,903 L 1001,903 Z"/>
+      <path class="char-elem char-e2" d="M 1029,890 L 1017,908 L 1010,936 L 1010,958 L 1012,966 L 1019,978 L 1027,984 L 1041,989 L 1120,989 L 1124,962 L 1060,962 L 1049,956 L 1047,946 L 1049,944 L 1136,944 L 1140,935 L 1141,909 L 1139,899 L 1131,886 L 1126,882 L 1111,876 L 1065,875 L 1047,879 Z M 1050,921 L 1054,911 L 1059,906 L 1066,903 L 1094,904 L 1099,908 L 1102,916 L 1102,922 L 1100,924 L 1051,923 Z"/>
+    </g>
+
+    <g mask="url(#logoSheenMask)">
+      <rect id="sheenBar" x="200" y="100" width="320" height="1100" fill="url(#sheenGrad)" />
+    </g>
+  </g>
+</svg>`;
+
+  /* ============================================================
+     CARD METADATA
+     ============================================================ */
+  var META = [
+    { id:'1', src:SVG_1, title:'BusVerse Logo', tag:'Static', tagClass:'t-static',
+      ratio:'1 / 1', size:'1254 × 1254', file:'busverse-logo.svg',
+      desc:'The primary BusVerse mark — navy wordmark paired with the blue road swoosh and location pin. Pure vector, no animation, scales cleanly at any size.' },
+    { id:'2', src:SVG_2, title:'Infinite Loading Loop', tag:'Animated · CSS', tagClass:'',
+      ratio:'8 / 5', size:'800 × 500', file:'busverse-loading-loop.svg',
+      desc:'A looping transit loader: suspension bounce, spinning aero rims, scrolling road dashes, headlight flicker, passing wind streams and a bouncing ellipsis.' },
+    { id:'3', src:SVG_3, title:'Animated Logo Reveal', tag:'Animated · CSS', tagClass:'',
+      ratio:'1 / 1', size:'1254 × 1254', file:'busverse-logo-reveal.svg',
+      desc:'A six-second choreographed reveal: road wipe, bus arrival with settle-bounce, pin drop with shockwave, staggered letterforms, then a diagonal sheen sweep.' }
+  ];
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  var frames = {};
+  var globalPaused = false;
+  var currentBg = 'dark';
+
+  function makeDoc(svg) {
+    // Same-origin srcdoc: the parent can reach into the iframe to pause animations
+    // and toggle the stage background class.
+    return '<!doctype html><html><head><meta charset="utf-8">' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+      '<style>' +
+      'html,body{margin:0;height:100%;background:transparent;overflow:hidden;}' +
+      'body{display:grid;place-items:center;}' +
+      'svg{width:100%;height:100%;display:block;}' +
+      // In light/grid mode, hide the SVG's own backdrop rect so the stage bg shows through.
+      'body.bg-light > svg > rect:first-of-type,' +
+      'body.bg-checker > svg > rect:first-of-type{display:none !important;}' +
+      '</style></head><body class="bg-' + currentBg + '">' + svg + '</body></html>';
+  }
+
+  function applyPause(frame, on) {
+    var doc;
+    try { doc = frame.contentDocument; } catch (e) { return; }
+    if (!doc) return;
+    var style = doc.getElementById('__pause__');
+    if (on) {
+      if (!style) {
+        style = doc.createElement('style');
+        style.id = '__pause__';
+        style.textContent = '*,*::before,*::after{animation-play-state:paused !important;-webkit-animation-play-state:paused !important;}';
+        (doc.head || doc.documentElement).appendChild(style);
+      }
+    } else if (style) {
+      style.remove();
+    }
+  }
+
+  function isFramePaused(frame) {
+    try {
+      return !!(frame.contentDocument && frame.contentDocument.getElementById('__pause__'));
+    } catch (e) { return false; }
+  }
+
+  function applyBgToFrame(frame, mode) {
+    try {
+      var doc = frame.contentDocument;
+      if (!doc || !doc.body) return;
+      doc.body.classList.remove('bg-dark', 'bg-light', 'bg-checker');
+      doc.body.classList.add('bg-' + mode);
+    } catch (e) { /* iframe may not be ready yet */ }
+  }
+
+  function newFrame(meta) {
+    var f = document.createElement('iframe');
+    f.className = 'preview';
+    f.setAttribute('title', meta.title + ' preview');
+    f.srcdoc = makeDoc(meta.src);
+    f.addEventListener('load', function () {
+      applyPause(f, globalPaused);
+      applyBgToFrame(f, currentBg);
+    });
+    return f;
+  }
+
+  function replay(id) {
+    var old = frames[id];
+    if (!old) return;
+    var card = old.closest('.card');
+    var fresh = document.createElement('iframe');
+    fresh.className = 'preview';
+    fresh.setAttribute('title', old.getAttribute('title') || 'preview');
+    fresh.srcdoc = old.srcdoc;
+    fresh.addEventListener('load', function () {
+      applyPause(fresh, globalPaused);
+      applyBgToFrame(fresh, currentBg);
+    });
+    old.replaceWith(fresh);
+    frames[id] = fresh;
+    if (card) syncPauseButton(card, false);
+  }
+
+  function syncPauseButton(card, paused) {
+    var btn = card.querySelector('button[data-act="pause"]');
+    if (btn) {
+      btn.textContent = paused ? '▶ Resume' : '⏸ Pause';
+      btn.classList.toggle('is-on', paused);
+    }
+  }
+
+  function toast(msg) {
+    var t = document.getElementById('__toast__');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = '__toast__';
+      t.className = 'toast';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t.__timer);
+    t.__timer = setTimeout(function () { t.classList.remove('show'); }, 1700);
+  }
+
+  /* ============================================================
+     BUILD CARDS
+     ============================================================ */
+  var grid = document.getElementById('grid');
+
+  META.forEach(function (meta) {
+    var card = document.createElement('article');
+    card.className = 'card';
+    card.dataset.id = meta.id;
+
+    card.innerHTML =
+      '<div class="card-head">' +
+        '<div class="head-left">' +
+          '<span class="tag ' + (meta.tagClass || '') + '">' + meta.tag + '</span>' +
+          '<h2>' + meta.title + '</h2>' +
+        '</div>' +
+        '<span class="dims">' + meta.size + '</span>' +
+      '</div>' +
+      '<div class="stage bg-' + currentBg + '" style="aspect-ratio:' + meta.ratio + '"></div>' +
+      '<p class="desc">' + meta.desc + '</p>' +
+      '<div class="actions">' +
+        '<button class="btn primary" type="button" data-act="replay">⟲ Replay</button>' +
+        '<button class="btn" type="button" data-act="pause">⏸ Pause</button>' +
+        '<button class="btn" type="button" data-act="open">↗ Open</button>' +
+        '<button class="btn" type="button" data-act="download">⤓ Download</button>' +
+        '<button class="btn" type="button" data-act="copy">⧉ Copy SVG</button>' +
+      '</div>' +
+      '<details class="code-wrap"><summary>View source</summary><pre><code></code></pre></details>';
+
+    var stage = card.querySelector('.stage');
+    var frame = newFrame(meta

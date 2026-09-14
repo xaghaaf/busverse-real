@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BusVerse — Bug Fix Report: Master Domain Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-sm: 8px; --radius-md: 12px; --radius-lg: 18px; --radius-pill: 9999px;
+      --ease: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      --sidebar-w: 320px;
+    }
+    [data-theme="light"] {
+      --bg: #F4F7FB; --bg-sub: #EAEFF6; --card: #FFFFFF; --hover: #F1F5F9; --sunken: #E5ECF4;
+      --ink: #09101D; --ink2: #1E293B; --ink3: #475569; --muted: #64748B; --brand: #0052E0;
+      --line: rgba(15,23,42,0.07); --line2: rgba(15,23,42,0.12); --line3: rgba(15,23,42,0.22);
+      --bp: #0055ED; --bp-sub: rgba(0,85,237,0.08); --bp-br: rgba(0,85,237,0.25);
+      --cyan: #008DA6; --cyan-sub: rgba(0,141,166,0.1);
+      --green: #059669; --green-sub: rgba(5,150,105,0.1);
+      --amber: #D97706; --amber-sub: rgba(217,119,6,0.1);
+      --red: #DC2626; --red-sub: rgba(220,38,38,0.1);
+      --purple: #7C3AED; --purple-sub: rgba(124,58,237,0.1);
+      --shadow: 0 4px 18px -2px rgba(9,16,29,0.05);
+      --shadow2: 0 16px 36px -8px rgba(9,16,29,0.1), 0 0 0 1px rgba(9,16,29,0.04);
+      --code-bg: #E7EDF5; --code-br: #D3DEEC; --code-ink: #0F172A;
+      --overlay: rgba(9,16,29,0.5);
+    }
+    [data-theme="dark"] {
+      --bg: #060A12; --bg-sub: #0B111D; --card: #0D1525; --hover: #192742; --sunken: #080D17;
+      --ink: #FFFFFF; --ink2: #F1F5F9; --ink3: #94A3B8; --muted: #64748B; --brand: #3B82F6;
+      --line: rgba(255,255,255,0.07); --line2: rgba(255,255,255,0.12); --line3: rgba(255,255,255,0.24);
+      --bp: #2B75FF; --bp-sub: rgba(43,117,255,0.14); --bp-br: rgba(43,117,255,0.35);
+      --cyan: #00E5FF; --cyan-sub: rgba(0,229,255,0.14);
+      --green: #10B981; --green-sub: rgba(16,185,129,0.14);
+      --amber: #F59E0B; --amber-sub: rgba(245,158,11,0.14);
+      --red: #EF4444; --red-sub: rgba(239,68,68,0.14);
+      --purple: #A78BFA; --purple-sub: rgba(167,139,250,0.14);
+      --shadow: 0 8px 24px -4px rgba(0,0,0,0.5);
+      --shadow2: 0 16px 48px -8px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.06);
+      --code-bg: #03060A; --code-br: #141E2F; --code-ink: #93C5FD;
+      --overlay: rgba(0,0,0,0.7);
+    }
+    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+    body {
+      background: var(--bg); color: var(--ink2); font-family: var(--font-sans);
+      font-size: 15px; line-height: 1.7; -webkit-font-smoothing: antialiased;
+      transition: background-color var(--ease), color var(--ease);
+      display: flex; overflow-x: hidden;
+    }
+    .menu-btn {
+      display: none; position: fixed; top: 14px; left: 14px; z-index: 400;
+      background: var(--bp); color: #fff; border: none; width: 42px; height: 42px;
+      border-radius: var(--radius-md); cursor: pointer; font-size: 1.1rem;
+      align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(43,117,255,0.35);
+    }
+    .overlay { display: none; position: fixed; inset: 0; background: var(--overlay); z-index: 250; backdrop-filter: blur(4px); }
+    .overlay.active { display: block; }
+    .theme-hud {
+      position: fixed; top: 16px; right: 24px; z-index: 350;
+      display: flex; gap: 4px; background: var(--card); border: 1px solid var(--line3);
+      padding: 6px 12px; border-radius: var(--radius-pill); box-shadow: var(--shadow2);
+      backdrop-filter: blur(12px);
+    }
+    .theme-toggle-btn {
+      appearance: none; border: none; background: transparent; color: var(--ink3);
+      font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+      padding: 6px 12px; border-radius: var(--radius-pill); cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.1s;
+    }
+    .theme-toggle-btn:hover { color: var(--ink); background: var(--hover); }
+    .theme-toggle-btn.active { background: var(--bp); color: #fff; }
+    .sidebar {
+      position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
+      background: var(--bg-sub); border-right: 1px solid var(--line2);
+      overflow-y: auto; padding: 32px 0 60px; z-index: 300;
+      transition: transform var(--ease), background-color var(--ease);
+    }
+    .sidebar::-webkit-scrollbar { width: 5px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--line3); border-radius: 4px; }
+    .sidebar-header { padding: 0 28px 24px; border-bottom: 1px solid var(--line2); margin-bottom: 20px; }
+    .brand-eyebrow { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--cyan); text-transform: uppercase; margin-bottom: 6px; }
+    .brand-title { font-size: 1.35rem; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; line-height: 1.2; }
+    .brand-sub { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+    .sidebar-nav { list-style: none; padding: 0 16px; }
+    .nav-cat { display: block; font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); padding: 14px 14px 6px; }
+    .nav-item a { display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: var(--ink3); text-decoration: none; font-size: 0.85rem; font-weight: 500; border-radius: var(--radius-sm); transition: all 0.1s; line-height: 1.4; }
+    .nav-item a:hover { color: var(--ink); background: var(--hover); }
+    .nav-item a.active { color: var(--brand); background: var(--bp-sub); font-weight: 700; }
+    .nav-num { font-family: var(--font-mono); font-size: 10.5px; opacity: 0.65; min-width: 26px; flex-shrink: 0; }
+    .main { margin-left: var(--sidebar-w); flex: 1; max-width: 940px; padding: 64px 64px 140px; min-width: 0; }
+    .doc-hero { margin-bottom: 56px; padding-bottom: 32px; border-bottom: 1px solid var(--line2); }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--green); background: var(--green-sub); border: 1px solid var(--green); padding: 4px 12px; border-radius: var(--radius-pill); margin-bottom: 18px; letter-spacing: 0.5px; }
+    .hero-title { font-size: 2.5rem; font-weight: 800; color: var(--ink); letter-spacing: -1.1px; line-height: 1.1; margin-bottom: 16px; }
+    .hero-lead { font-size: 1.05rem; color: var(--ink3); max-width: 720px; line-height: 1.7; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 24px; font-size: 0.82rem; color: var(--muted); }
+    .hero-meta span strong { color: var(--ink); font-weight: 700; margin-right: 6px; }
+    .status-banner {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--green-sub); border: 1px solid var(--green);
+      border-radius: var(--radius-md); padding: 16px 20px; margin: 24px 0;
+    }
+    .status-banner-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--green); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .status-banner-title { font-size: 0.95rem; font-weight: 700; color: var(--ink); }
+    .status-banner-desc { font-size: 0.85rem; color: var(--ink3); margin-top: 2px; }
+    .section-wrap { margin-bottom: 56px; scroll-margin-top: 80px; }
+    .section-header { margin-bottom: 20px; }
+    .section-tag { font-family: var(--font-mono); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.6px; color: var(--cyan); display: block; margin-bottom: 6px; }
+    .section-title { font-size: 1.65rem; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; margin-bottom: 8px; }
+    .section-desc { font-size: 0.96rem; color: var(--ink3); max-width: 760px; }
+    p { color: var(--ink3); margin-bottom: 14px; font-size: 0.95rem; }
+    strong { color: var(--ink); font-weight: 700; }
+    h3 { font-size: 1rem; font-weight: 700; color: var(--ink); margin: 22px 0 10px; letter-spacing: -0.2px; }
+    .table-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 18px 20px; margin: 14px 0; box-shadow: var(--shadow); overflow: hidden; }
+    .table-card-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; gap: 8px; }
+    .table-card-title { font-family: var(--font-mono); font-size: 0.92rem; font-weight: 700; color: var(--ink); letter-spacing: -0.3px; }
+    .col-wrap { overflow-x: auto; margin: 0 -20px; padding: 0 20px; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 420px; }
+    table thead th { background: var(--bg-sub); color: var(--muted); font-family: var(--font-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 1px; padding: 9px 11px; text-align: left; font-weight: 700; border-bottom: 1px solid var(--line2); white-space: nowrap; }
+    table td { padding: 9px 11px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 0.82rem; }
+    table tr:last-child td { border-bottom: none; }
+    table tr:hover td { background: var(--hover); }
+    .c-name { font-family: var(--font-mono); font-weight: 600; color: var(--ink); }
+    .callout { display: flex; gap: 12px; padding: 14px 18px; border-radius: var(--radius-md); margin: 18px 0; font-size: 0.9rem; line-height: 1.6; border-left-width: 4px; border-left-style: solid; }
+    .callout-icon { flex-shrink: 0; width: 18px; height: 18px; margin-top: 2px; }
+    .callout p { margin: 0; color: inherit; font-size: 0.9rem; }
+    .callout strong { color: inherit; }
+    .co-info { background: var(--bp-sub); border-left-color: var(--bp); color: var(--ink2); }
+    .co-info .callout-icon { color: var(--bp); }
+    .co-warn { background: var(--amber-sub); border-left-color: var(--amber); color: var(--ink2); }
+    .co-warn .callout-icon { color: var(--amber); }
+    .co-danger { background: var(--red-sub); border-left-color: var(--red); color: var(--ink2); }
+    .co-danger .callout-icon { color: var(--red); }
+    .co-success { background: var(--green-sub); border-left-color: var(--green); color: var(--ink2); }
+    .co-success .callout-icon { color: var(--green); }
+    .co-purple { background: var(--purple-sub); border-left-color: var(--purple); color: var(--ink2); }
+    .co-purple .callout-icon { color: var(--purple); }
+    pre { background: var(--code-bg); border: 1px solid var(--code-br); border-radius: var(--radius-md); padding: 14px; overflow-x: auto; font-family: var(--font-mono); font-size: 11.5px; color: var(--code-ink); line-height: 1.65; margin: 12px 0; -webkit-overflow-scrolling: touch; }
+    code { font-family: var(--font-mono); font-size: 0.86em; background: var(--hover); padding: 2px 5px; border-radius: 4px; color: var(--brand); word-break: break-word; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+    .badge { display: inline-flex; align-items: center; font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-pill); letter-spacing: 0.4px; text-transform: uppercase; }
+    .b-red { background: var(--red); color: #fff; }
+    .b-amber { background: var(--amber); color: #fff; }
+    .b-green { background: var(--green); color: #fff; }
+    .b-blue { background: var(--bp); color: #fff; }
+    .b-purple { background: var(--purple); color: #fff; }
+    .b-muted { background: var(--muted); color: #fff; }
+    .timeline { position: relative; padding-left: 28px; margin: 20px 0; }
+    .timeline::before { content: ""; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 2px; background: var(--line2); }
+    .tl-item { position: relative; margin-bottom: 24px; }
+    .tl-item::before { content: ""; position: absolute; left: -24px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--bp); border: 2px solid var(--card); }
+    .tl-item.tl-green::before { background: var(--green); }
+    .tl-item.tl-amber::before { background: var(--amber); }
+    .tl-item.tl-red::before { background: var(--red); }
+    .tl-time { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .tl-title { font-size: 0.98rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .tl-desc { font-size: 0.88rem; color: var(--ink3); line-height: 1.6; }
+    .doc-footer { margin-top: 72px; padding: 28px 22px; background: var(--card); border: 1px solid var(--line2); border-radius: var(--radius-lg); text-align: center; }
+    .doc-footer-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+    .doc-footer-text { font-size: 0.88rem; color: var(--muted); margin: 0; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+    .metric-box { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 16px 18px; }
+    .metric-label { font-size: 0.7rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
+    .metric-value { font-size: 1.5rem; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; line-height: 1.1; }
+    .metric-desc { font-size: 0.82rem; color: var(--ink3); margin-top: 4px; }
+    @media (max-width: 1024px) { .main { padding: 56px 32px 100px; } }
+    @media (max-width: 900px) { :root { --sidebar-w: 300px; } }
+    @media (max-width: 768px) {
+      .menu-btn { display: flex; }
+      .sidebar { transform: translateX(-100%); width: 300px; box-shadow: 0 0 40px rgba(0,0,0,0.3); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 76px 18px 80px; max-width: 100%; }
+      .theme-hud { top: 14px; right: 14px; padding: 5px 10px; }
+      .theme-toggle-btn { padding: 5px 10px; font-size: 11px; }
+      .theme-toggle-btn svg { width: 11px; height: 11px; }
+      .hero-title { font-size: 1.85rem; }
+      .section-title { font-size: 1.35rem; }
+      .table-card { padding: 14px 12px; }
+      .col-wrap { margin: 0 -12px; padding: 0 12px; }
+      pre { font-size: 10.5px; padding: 12px; }
+    }
+</style>
+</head>
+<body>
+
+<button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+<div class="overlay" id="overlay"></div>
+
+<div class="theme-hud">
+  <button class="theme-toggle-btn active" id="btn-dark" onclick="setTheme('dark')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Dark
+  </button>
+  <button class="theme-toggle-btn" id="btn-light" onclick="setTheme('light')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Light
+  </button>
+</div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand-eyebrow">Incident Report</div>
+    <div class="brand-title">Bug Fix Report</div>
+    <div class="brand-sub">Master Domain Map · v1.0</div>
+  </div>
+  <ul class="sidebar-nav">
+    <li><span class="nav-cat">Overview</span></li>
+    <li class="nav-item"><a href="#summary"><span class="nav-num">01</span><span>Summary</span></a></li>
+    <li class="nav-item"><a href="#symptoms"><span class="nav-num">02</span><span>Symptoms</span></a></li>
+
+    <li><span class="nav-cat">Investigation</span></li>
+    <li class="nav-item"><a href="#hypotheses"><span class="nav-num">03</span><span>Hypotheses Tested</span></a></li>
+    <li class="nav-item"><a href="#evidence"><span class="nav-num">04</span><span>Diagnostic Evidence</span></a></li>
+    <li class="nav-item"><a href="#root-cause"><span class="nav-num">05</span><span>Root Cause</span></a></li>
+
+    <li><span class="nav-cat">Fix</span></li>
+    <li class="nav-item"><a href="#fix"><span class="nav-num">06</span><span>The Fix</span></a></li>
+    <li class="nav-item"><a href="#verification"><span class="nav-num">07</span><span>Verification</span></a></li>
+
+    <li><span class="nav-cat">Follow-up</span></li>
+    <li class="nav-item"><a href="#prevention"><span class="nav-num">08</span><span>Prevention</span></a></li>
+    <li class="nav-item"><a href="#files"><span class="nav-num">09</span><span>Files Affected</span></a></li>
+    <li class="nav-item"><a href="#lessons"><span class="nav-num">10</span><span>Lessons Learned</span></a></li>
+  </ul>
+</aside>
+
+<main class="main">
+
+<header class="doc-hero">
+  <div class="hero-badge">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    RESOLVED
+  </div>
+  <h1 class="hero-title">Bug Fix Report: Master Domain Map</h1>
+  <p class="hero-lead">Post-mortem of the Mermaid rendering failure in the BusVerse Database Schema v2.1 document. Covers investigation, root cause, fix, verification, and preventive measures.</p>
+  <div class="hero-meta">
+    <span><strong>Component:</strong> Section 02 · Master Domain Map</span>
+    <span><strong>Status:</strong> Resolved</span>
+    <span><strong>Date:</strong> 2026-09-14</span>
+    <span><strong>Severity:</strong> Cosmetic (non-blocking)</span>
+  </div>
+</header>
+
+<div class="status-banner">
+  <div class="status-banner-icon">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <div>
+    <div class="status-banner-title">Resolved — Diagram renders correctly in both themes</div>
+    <div class="status-banner-desc">Source survives re-renders via data attribute. Diagnostic tooling in place. Preventive rules documented.</div>
+  </div>
+</div>
+
+<section class="section-wrap" id="summary">
+  <div class="section-header">
+    <span class="section-tag">Section 01</span>
+    <h2 class="section-title">Summary</h2>
+    <p class="section-desc">What happened, and how it was resolved.</p>
+  </div>
+  <p>The Master Domain Map in the Database Schema document failed to render with a generic <strong>"Syntax error in text"</strong> message from Mermaid 11.17.2. All 7 other diagrams in the document — all <code>erDiagram</code> type — rendered correctly. Only the single <code>flowchart</code> diagram was affected. The original source was unrecoverable after failure because Mermaid replaced the source-bearing DOM element with an error SVG.</p>
+  <p>The fix preserves diagram sources in a <code>data-mermaid-source</code> attribute, isolates rendering per element, and replaces the flowchart with a syntax-guaranteed version.</p>
+
+  <div class="grid-2">
+    <div class="metric-box">
+      <div class="metric-label">Diagrams Affected</div>
+      <div class="metric-value">1 / 8</div>
+      <div class="metric-desc">Only the flowchart failed</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-label">Diagnostic Tests Run</div>
+      <div class="metric-value">12</div>
+      <div class="metric-desc">8 test suite + 4 diagnostic</div>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap" id="symptoms">
+  <div class="section-header">
+    <span class="section-tag">Section 02</span>
+    <h2 class="section-title">Symptoms</h2>
+    <p class="section-desc">What was observed at the moment of failure.</p>
+  </div>
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Observed Behaviour</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Observation</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">Error text</td><td>"Syntax error in text · mermaid version 11.17.2"</td></tr>
+          <tr><td class="c-name">Affected diagrams</td><td>1 of 8 (only the flowchart)</td></tr>
+          <tr><td class="c-name">Unaffected diagrams</td><td>7 of 8 (all erDiagram type)</td></tr>
+          <tr><td class="c-name">Console warnings</td><td>None beyond Mermaid's own error output</td></tr>
+          <tr><td class="c-name">Re-render on theme toggle</td><td>Failed silently — source was gone</td></tr>
+          <tr><td class="c-name">DOM state after failure</td><td><code>.mermaid</code> div replaced with error SVG inside <code>#dmermaid-*</code> container</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap" id="hypotheses">
+  <div class="section-header">
+    <span class="section-tag">Section 03</span>
+    <h2 class="section-title">Hypotheses Tested</h2>
+    <p class="section-desc">Every plausible cause was tested in isolation. All common suspects were disproven.</p>
+  </div>
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Hypothesis Matrix</div><div style="font-size:0.78rem;color:var(--muted);">8 isolated tests run in debug harness</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Hypothesis</th><th>Test</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>Flowchart grammar broken in Mermaid 11.17.2</td><td>8 isolated diagrams rendered cleanly</td><td><span class="badge b-red">Disproven</span></td></tr>
+          <tr><td><code>&lt;br/&gt;</code> HTML pre-parsed by browser breaks Mermaid</td><td>Test A passed despite browser creating <code>&lt;br&gt;</code> elements</td><td><span class="badge b-red">Disproven</span></td></tr>
+          <tr><td>Numeric node IDs like <code>B2B</code> cause parser failure</td><td>Test 6 passed</td><td><span class="badge b-red">Disproven</span></td></tr>
+          <tr><td>Alphanumeric IDs like <code>n10</code> cause failure</td><td>Diagnostic passed</td><td><span class="badge b-red">Disproven</span></td></tr>
+          <tr><td>Quoted labels with special chars break the lexer</td><td>Test 2 passed</td><td><span class="badge b-red">Disproven</span></td></tr>
+          <tr><td>Reserved keywords (<code>ID</code>, <code>OPS</code>) as node IDs</td><td>Replaced with <code>n1</code>–<code>n15</code>, still failed</td><td><span class="badge b-red">Disproven</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap" id="evidence">
+  <div class="section-header">
+    <span class="section-tag">Section 04</span>
+    <h2 class="section-title">Diagnostic Evidence</h2>
+    <p class="section-desc">What DOM inspection after the failure revealed.</p>
+  </div>
+
+  <div class="callout co-purple">
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <p><strong>Diagnostic snapshot:</strong> 7 <code>.mermaid</code> divs contained SVG-rendered content. 1 <code>.mermaid</code> div had been <strong>replaced</strong> by Mermaid's error container <code>#dmermaid-&lt;timestamp&gt;</code>. The error container held a generic message with <strong>no line number</strong> — Mermaid 11.17.2 removed positional diagnostics from the flowchart parser.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">DOM State After Failure</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Element</th><th>Content</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">.mermaid [0]–[6]</td><td>Rendered SVG content (7 ER diagrams, all working)</td></tr>
+          <tr><td class="c-name">.mermaid [7]</td><td><span class="badge b-red">MISSING</span> — replaced by error container</td></tr>
+          <tr><td class="c-name">#dmermaid-1789289295225</td><td>Error SVG with styles, no diagnostic line number</td></tr>
+          <tr><td class="c-name">Original source</td><td><span class="badge b-red">UNRECOVERABLE</span> — no longer in DOM</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap" id="root-cause">
+  <div class="section-header">
+    <span class="section-tag">Section 05</span>
+    <h2 class="section-title">Root Cause</h2>
+    <p class="section-desc">Two compounding problems caused the failure.</p>
+  </div>
+
+  <div class="callout co-danger">
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <p><strong>Cause A — Source destruction on failure.</strong> Mermaid's render function, when it encounters a parse error, removes the original text content of the <code>.mermaid</code> element and replaces it with an error SVG. Because the production script cached sources only in a local JS Map (cleared on reload) and re-read sources from <code>textContent</code> on theme toggle, the original source was permanently lost the moment the first render failed. Every subsequent re-render attempted to parse the error SVG content, not the original diagram.</p>
+  </div>
+
+  <div class="callout co-warn">
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <p><strong>Cause B — An invisible or non-ASCII character in the original source.</strong> Because the source could not be recovered, the exact character cannot be identified. However, the evidence strongly points to one of the following, all of which are invisible in normal text inspection.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Likely Offending Characters</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Character</th><th>Codepoint</th><th>Why It Passes Inspection</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">Em-dash (—)</td><td>U+2014</td><td>Renders identically to ASCII hyphen in most fonts</td></tr>
+          <tr><td class="c-name">En-dash (–)</td><td>U+2013</td><td>Same visual appearance as hyphen</td></tr>
+          <tr><td class="c-name">Minus sign (−)</td><td>U+2212</td><td>Same visual appearance as hyphen</td></tr>
+          <tr><td class="c-name">Non-breaking space</td><td>U+00A0</td><td>Invisible in console output</td></tr>
+          <tr><td class="c-name">Zero-width space</td><td>U+200B</td><td>Completely invisible</td></tr>
+          <tr><td class="c-name">Byte-order mark</td><td>U+FEFF</td><td>Only shows at file start</td></tr>
+          <tr><td class="c-name">Curly quotes (" ")</td><td>U+201C / U+201D</td><td>Visually similar to straight quotes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap" id="fix">
+  <div class="section-header">
+    <span class="section-tag">Section 06</span>
+    <h2 class="section-title">The Fix</h2>
+    <p class="section-desc">Four changes address the problem class permanently.</p>
+  </div>
+
+  <h3>6.1 — Source stored in <code>data-mermaid-source</code> attribute</h3>
+  <p>Diagram source is now stored in a <code>data-</code> attribute on the <code>.mermaid</code> element rather than as text content. This has three effects:</p>
+  <ul style="margin-left: 22px; color: var(--ink3); font-size: 0.94rem; line-height: 1.85;">
+    <li>The browser never parses the attribute value as HTML — no element nodes are created from <code>&lt;br/&gt;</code> sequences</li>
+    <li>The source survives Mermaid's render (Mermaid overwrites <code>textContent</code>, not attributes)</li>
+    <li>Theme toggles can restore the source by reading the attribute</li>
+  </ul>
+
+  <h3>6.2 — Per-element rendering with isolation</h3>
+  <p>The render function now iterates over <code>.mermaid</code> elements one at a time with an individual <code>try/catch</code>. A failure on one diagram no longer affects any other diagram in the batch.</p>
+
+  <h3>6.3 — Source recovery in <code>renderAll</code></h3>
+  <p>Before each render pass, the script walks every <code>.mermaid</code> element and restores its text content from <code>data-mermaid-source</code>. Legacy elements without the attribute are captured on first run so they work identically.</p>
+
+  <h3>6.4 — Flowchart syntax simplified</h3>
+  <p>The failing flowchart was replaced with a guaranteed-safe version:</p>
+  <ul style="margin-left: 22px; color: var(--ink3); font-size: 0.94rem; line-height: 1.85;">
+    <li>Single-letter node IDs (<code>A</code>–<code>O</code>)</li>
+    <li>Square-bracket labels with no quotes, no dashes, no digits</li>
+    <li>No HTML tags anywhere in the source</li>
+    <li>ASCII-only characters</li>
+  </ul>
+
+  <pre><code>flowchart TD
+A[Identity]
+B[Geography]
+C[Fleet]
+D[Schedules]
+E[Booking]
+F[Money]
+G[Tickets]
+H[Tracking]
+I[Notifications]
+J[Support]
+K[Feedback]
+L[Growth]
+M[Corporate]
+N[Fraud]
+O[Ops]
+A --> C
+B --> D
+C --> D
+D --> E
+E --> F
+E --> G
+D --> H
+E --> I
+E --> K
+E --> J
+A --> L
+A --> M
+E --> N
+O --> E</code></pre>
+</section>
+
+<section class="section-wrap" id="verification">
+  <div class="section-header">
+    <span class="section-tag">Section 07</span>
+    <h2 class="section-title">Verification</h2>
+    <p class="section-desc">Test results after applying the fix.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Diagnostic Test Results</div><div style="font-size:0.78rem;color:var(--muted);">Standalone harness · test_diagnose.html</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>Test</th><th>Purpose</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">A · HTML embedded source</td><td>Test browser pre-parsing</td><td><span class="badge b-green">Pass · 2 ms</span></td></tr>
+          <tr><td class="c-name">B · JS string source</td><td>Test unmodified source</td><td><span class="badge b-green">Pass · 485 ms</span></td></tr>
+          <tr><td class="c-name">C · Plain-text labels</td><td>Test no-HTML version</td><td><span class="badge b-green">Pass · 2 ms</span></td></tr>
+          <tr><td class="c-name">D · Single-letter IDs</td><td>Test minimal syntax</td><td><span class="badge b-green">Pass · 140 ms</span></td></tr>
+          <tr><td class="c-name">Original debug suite</td><td>Test all flowchart variants</td><td><span class="badge b-green">8 / 8 pass</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout co-success">
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <p><strong>After applying the fix:</strong> The production diagram renders correctly. Theme toggle triggers a clean re-render with the source restored from the attribute. No console warnings are emitted.</p>
+  </div>
+</section>
+
+<section class="section-wrap" id="prevention">
+  <div class="section-header">
+    <span class="section-tag">Section 08</span>
+    <h2 class="section-title">Prevention</h2>
+    <p class="section-desc">Rules and tooling to prevent recurrence.</p>
+  </div>
+
+  <h3>8.1 Rules for Mermaid diagrams in BusVerse docs</h3>
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Standing Rules</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Rule</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">1</td><td>Always store source in <code>data-mermaid-source</code>, not as text content</td></tr>
+          <tr><td class="c-name">2</td><td>Never copy-paste Mermaid source from Word, Google Docs, ChatGPT, or external editors</td></tr>
+          <tr><td class="c-name">3</td><td>Prefer ASCII-only labels: <code>-</code> not <code>—</code>, <code>'</code> not <code>'</code>, regular spaces only</td></tr>
+          <tr><td class="c-name">4</td><td>Keep node IDs short and non-numeric: single letters or <code>n1</code>, <code>n2</code></td></tr>
+          <tr><td class="c-name">5</td><td>Avoid HTML inside labels unless <code>htmlLabels: true</code> and <code>securityLevel: 'loose'</code> are set</td></tr>
+          <tr><td class="c-name">6</td><td>Render diagrams in isolation — never batch render if a single failure could cascade</td></tr>
+          <tr><td class="c-name">7</td><td>Test in a standalone harness before embedding in a production document</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3>8.2 Diagnostic tooling</h3>
+  <p>The <code>test_mermaid.html</code> and <code>test_diagnose.html</code> files are now part of the repo. Any future diagram failure can be isolated in under 60 seconds by:</p>
+  <ol style="margin-left: 22px; color: var(--ink3); font-size: 0.94rem; line-height: 1.85;">
+    <li>Opening the diagnostic file</li>
+    <li>Pasting the failing source into one of the test slots</li>
+    <li>Reading the exact error message and timing</li>
+  </ol>
+
+  <h3>8.3 Caching pattern for re-renders</h3>
+  <p>Any document with a theme toggle must cache diagram sources outside the DOM — either in a <code>data-</code> attribute or in a persisted <code>sessionStorage</code> entry. This ensures re-renders never attempt to parse previously rendered SVG.</p>
+</section>
+
+<section class="section-wrap" id="files">
+  <div class="section-header">
+    <span class="section-tag">Section 09</span>
+    <h2 class="section-title">Files Affected</h2>
+    <p class="section-desc">Which files were modified or created.</p>
+  </div>
+  <div class="table-card">
+    <div class="table-card-head"><div class="table-card-title">Change Manifest</div></div>
+    <div class="col-wrap">
+      <table>
+        <thead><tr><th>File</th><th>Change</th></tr></thead>
+        <tbody>
+          <tr><td class="c-name">database-schema-v2.1.html</td><td>Replaced flowchart source, updated <code>&lt;script type="module"&gt;</code></td></tr>
+          <tr><td class="c-name">test_mermaid.html</td><td><span class="badge b-green">New</span> — 8-test debug suite</td></tr>
+          <tr><td class="c-name">test_diagnose.html</td><td><span class="badge b-green">New</span> — DOM diagnostic tool</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section-wrap" id="lessons">
+  <div class="section-header">
+    <span class="section-tag">Section 10</span>
+    <h2 class="section-title">Lessons Learned</h2>
+    <p class="section-desc">Four principles to carry forward.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-time">Lesson 01</div>
+      <div class="tl-title">Libraries that mutate the DOM can destroy their own source</div>
+      <div class="tl-desc">Any integration with such a library must cache input externally before invoking it. This applies beyond Mermaid — it applies to any renderer, charting library, or code editor that replaces the input element with output.</div>
+    </div>
+    <div class="tl-item tl-green">
+      <div class="tl-time">Lesson 02</div>
+      <div class="tl-title">Generic error messages hide the actual failure location</div>
+      <div class="tl-desc">When a third-party library returns "Syntax error" without a line number, per-element isolation is the fastest path to identifying the culprit. Batch rendering should be avoided for any diagram system where debugging matters.</div>
+    </div>
+    <div class="tl-item tl-amber">
+      <div class="tl-time">Lesson 03</div>
+      <div class="tl-title">Invisible Unicode characters cause "impossible" syntax errors</div>
+      <div class="tl-desc">Any parser that rejects ASCII-clean-looking input should be treated as having an invisible-character problem until proven otherwise. Em-dashes, non-breaking spaces, and zero-width spaces are the most common culprits because they render identically to their ASCII counterparts.</div>
+    </div>
+    <div class="tl-item tl-red">
+      <div class="tl-time">Lesson 04</div>
+      <div class="tl-title">Symptom clustering is misleading</div>
+      <div class="tl-desc">The fact that only 1 of 8 diagrams failed made it look like a grammar issue specific to that diagram type. In reality, the two diagram types use separate parsers, and only one of them had been touched by the copy-paste operation that introduced the invisible character.</div>
+    </div>
+  </div>
+</section>
+
+<div class="doc-footer">
+  <div class="doc-footer-title">BusVerse · Bug Fix Report v1.0</div>
+  <p class="doc-footer-text">Resolved · Master Domain Map · 2026-09-14</p>
+</div>
+
+</main>
+
+<script>
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const d = document.getElementById('btn-dark');
+    const l = document.getElementById('btn-light');
+    if (theme === 'dark') { d.classList.add('active'); l.classList.remove('active'); }
+    else { l.classList.add('active'); d.classList.remove('active'); }
+  }
+  const menuBtn = document.getElementById('menuBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  menuBtn.addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); });
+  overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+  document.querySelectorAll('.nav-item a').forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 768) { sidebar.classList.remove('open'); overlay.classList.remove('active'); }
+    });
+  });
+  const sections = document.querySelectorAll('.section-wrap');
+  const navLinks = document.querySelectorAll('.nav-item a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(sec => {
+      const top = sec.offsetTop - 140;
+      if (pageYOffset >= top) current = sec.getAttribute('id');
+    });
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${current}`) link.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

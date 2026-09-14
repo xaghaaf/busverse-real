@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BusVerse — Solo Developer Workflow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --space-2xs: 8px;
+      --space-xs: 12px;
+      --space-sm: 16px;
+      --space-md: 20px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+
+      --radius-xs: 4px;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+      --radius-pill: 9999px;
+
+      --ease-instant: 0.1s cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-smooth: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      --sidebar-width: 340px;
+    }
+
+    [data-theme="light"] {
+      --canvas-bg: #F4F7FB;
+      --canvas-subtle: #EAEFF6;
+      --surface-card: #FFFFFF;
+      --surface-hover: #F1F5F9;
+      --surface-sunken: #E5ECF4;
+      --text-bright: #09101D;
+      --text-primary: #1E293B;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --text-brand: #0052E0;
+      --border-hairline: rgba(15, 23, 42, 0.07);
+      --border-subtle: rgba(15, 23, 42, 0.12);
+      --border-strong: rgba(15, 23, 42, 0.22);
+      --brand-primary: #0055ED;
+      --brand-primary-hover: #0044C0;
+      --brand-primary-subtle: rgba(0, 85, 237, 0.08);
+      --brand-primary-border: rgba(0, 85, 237, 0.25);
+      --telemetry-cyan: #008DA6;
+      --telemetry-cyan-subtle: rgba(0, 141, 166, 0.1);
+      --signal-emerald: #059669;
+      --signal-emerald-subtle: rgba(5, 150, 105, 0.1);
+      --warning-amber: #D97706;
+      --warning-amber-subtle: rgba(217, 119, 6, 0.1);
+      --danger-crimson: #DC2626;
+      --danger-crimson-subtle: rgba(220, 38, 38, 0.1);
+      --shadow-ambient: 0 4px 18px -2px rgba(9, 16, 29, 0.05);
+      --shadow-floating: 0 16px 36px -8px rgba(9, 16, 29, 0.1), 0 0 0 1px rgba(9, 16, 29, 0.04);
+      --code-bg: #E7EDF5;
+      --code-border: #D3DEEC;
+      --code-text: #0F172A;
+    }
+
+    [data-theme="dark"] {
+      --canvas-bg: #060A12;
+      --canvas-subtle: #0B111D;
+      --surface-card: #0D1525;
+      --surface-hover: #192742;
+      --surface-sunken: #080D17;
+      --text-bright: #FFFFFF;
+      --text-primary: #F1F5F9;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --text-brand: #3B82F6;
+      --border-hairline: rgba(255, 255, 255, 0.07);
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --border-strong: rgba(255, 255, 255, 0.24);
+      --brand-primary: #2B75FF;
+      --brand-primary-hover: #4586FF;
+      --brand-primary-subtle: rgba(43, 117, 255, 0.14);
+      --brand-primary-border: rgba(43, 117, 255, 0.35);
+      --telemetry-cyan: #00E5FF;
+      --telemetry-cyan-subtle: rgba(0, 229, 255, 0.14);
+      --signal-emerald: #10B981;
+      --signal-emerald-subtle: rgba(16, 185, 129, 0.14);
+      --warning-amber: #F59E0B;
+      --warning-amber-subtle: rgba(245, 158, 11, 0.14);
+      --danger-crimson: #EF4444;
+      --danger-crimson-subtle: rgba(239, 68, 68, 0.14);
+      --shadow-ambient: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+      --shadow-floating: 0 16px 48px -8px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.06);
+      --code-bg: #03060A;
+      --code-border: #141E2F;
+      --code-text: #93C5FD;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 40px; }
+
+    body {
+      background-color: var(--canvas-bg);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color var(--ease-smooth), color var(--ease-smooth);
+      display: flex;
+    }
+
+    /* ============ THEME HUD ============ */
+    .theme-hud {
+      position: fixed;
+      top: 16px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-strong);
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      box-shadow: var(--shadow-floating);
+      backdrop-filter: blur(12px);
+    }
+
+    .theme-btn-group { display: flex; gap: 4px; }
+
+    .theme-toggle-btn {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--ease-instant);
+    }
+
+    .theme-toggle-btn:hover { color: var(--text-bright); background: var(--surface-hover); }
+    .theme-toggle-btn.active {
+      background: var(--brand-primary);
+      color: #FFFFFF;
+      box-shadow: 0 0 12px var(--brand-primary-border);
+    }
+
+    /* ============ SIDEBAR ============ */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: var(--canvas-subtle);
+      border-right: 1px solid var(--border-subtle);
+      overflow-y: auto;
+      padding: 32px 0 60px;
+      z-index: 200;
+      transition: background-color var(--ease-smooth), border-color var(--ease-smooth);
+    }
+
+    .sidebar::-webkit-scrollbar { width: 5px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+    .sidebar-header {
+      padding: 0 28px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 20px;
+    }
+
+    .brand-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--telemetry-cyan);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .brand-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-bright);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .sidebar-nav { list-style: none; padding: 0 16px; }
+
+    .nav-category {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      padding: 16px 14px 6px;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.87rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      transition: all var(--ease-instant);
+      line-height: 1.45;
+    }
+
+    .nav-item a:hover { color: var(--text-bright); background: var(--surface-hover); }
+    .nav-item a.active {
+      color: var(--text-brand);
+      background: var(--brand-primary-subtle);
+      font-weight: 700;
+    }
+
+    .nav-num {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      opacity: 0.65;
+      min-width: 26px;
+      flex-shrink: 0;
+    }
+
+    /* ============ MAIN ============ */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      max-width: 960px;
+      padding: 64px 64px 140px;
+    }
+
+    .doc-hero {
+      margin-bottom: 60px;
+      padding-bottom: 36px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-brand);
+      background: var(--brand-primary-subtle);
+      border: 1px solid var(--brand-primary-border);
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      margin-bottom: 18px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-title {
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: var(--text-bright);
+      letter-spacing: -1.2px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero-lead {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 720px;
+      line-height: 1.75;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-top: 28px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .hero-meta span strong {
+      color: var(--text-bright);
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    /* ============ SECTIONS ============ */
+    .section-wrap {
+      margin-bottom: 72px;
+      scroll-margin-top: 40px;
+    }
+
+    .section-header { margin-bottom: 28px; }
+
+    .section-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.6px;
+      color: var(--telemetry-cyan);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text-bright);
+      letter-spacing: -0.6px;
+      margin-bottom: 12px;
+    }
+
+    .section-desc {
+      font-size: 1.02rem;
+      color: var(--text-secondary);
+      max-width: 800px;
+    }
+
+    p { color: var(--text-secondary); margin-bottom: 16px; font-size: 0.98rem; }
+    strong { color: var(--text-bright); font-weight: 700; }
+
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      letter-spacing: -0.2px;
+      margin: 32px 0 14px;
+    }
+
+    /* ============ TIER CARD ============ */
+    .tier-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px 26px;
+      margin: 20px 0;
+      box-shadow: var(--shadow-ambient);
+    }
+
+    .tier-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-hairline);
+      flex-wrap: wrap;
+    }
+
+    .tier-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+    }
+
+    .tier-badge.tier-critical { background: var(--danger-crimson); color: #FFFFFF; }
+    .tier-badge.tier-high { background: var(--warning-amber); color: #FFFFFF; }
+    .tier-badge.tier-medium { background: var(--brand-primary); color: #FFFFFF; }
+    .tier-badge.tier-low { background: var(--telemetry-cyan); color: #FFFFFF; }
+    .tier-badge.tier-college { background: var(--signal-emerald); color: #FFFFFF; }
+    .tier-badge.tier-growth { background: var(--text-muted); color: #FFFFFF; }
+
+    .tier-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      flex: 1;
+    }
+
+    .tier-count {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* ============ DOC LIST ============ */
+    .doc-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .doc-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 9px 0;
+      font-size: 0.94rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      border-bottom: 1px dashed var(--border-hairline);
+    }
+
+    .doc-list li:last-child { border-bottom: none; }
+
+    .doc-list .doc-num {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-brand);
+      background: var(--brand-primary-subtle);
+      border: 1px solid var(--brand-primary-border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      min-width: 34px;
+      text-align: center;
+      flex-shrink: 0;
+      transform: translateY(2px);
+    }
+
+    .doc-list .doc-name {
+      color: var(--text-bright);
+      font-weight: 600;
+    }
+
+    .doc-list .doc-reason {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* ============ CALLOUT ============ */
+    .callout {
+      display: flex;
+      gap: 14px;
+      padding: 18px 22px;
+      border-radius: var(--radius-md);
+      margin: 24px 0;
+      font-size: 0.94rem;
+      line-height: 1.65;
+      border-left-width: 4px;
+      border-left-style: solid;
+    }
+
+    .callout-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+    }
+
+    .callout p { margin: 0; color: inherit; font-size: 0.94rem; }
+    .callout strong { color: inherit; }
+
+    .callout-info {
+      background: var(--brand-primary-subtle);
+      border-left-color: var(--brand-primary);
+      color: var(--text-primary);
+    }
+    .callout-info .callout-icon { color: var(--brand-primary); }
+
+    .callout-warn {
+      background: var(--warning-amber-subtle);
+      border-left-color: var(--warning-amber);
+      color: var(--text-primary);
+    }
+    .callout-warn .callout-icon { color: var(--warning-amber); }
+
+    .callout-danger {
+      background: var(--danger-crimson-subtle);
+      border-left-color: var(--danger-crimson);
+      color: var(--text-primary);
+    }
+    .callout-danger .callout-icon { color: var(--danger-crimson); }
+
+    .callout-success {
+      background: var(--signal-emerald-subtle);
+      border-left-color: var(--signal-emerald);
+      color: var(--text-primary);
+    }
+    .callout-success .callout-icon { color: var(--signal-emerald); }
+
+    /* ============ TABLE ============ */
+    .table-frame {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      background: var(--surface-card);
+      margin: 24px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      text-align: left;
+    }
+
+    th {
+      background: var(--canvas-subtle);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-weight: 700;
+    }
+
+    td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-hairline);
+      color: var(--text-secondary);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-hover); }
+    td strong { color: var(--text-bright); }
+
+    /* ============ RULE LIST (Discipline) ============ */
+    .rule-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .rule-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      transition: all var(--ease-instant);
+    }
+
+    .rule-item:hover { border-color: var(--border-subtle); background: var(--surface-hover); }
+
+    .rule-item::before {
+      content: "✓";
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--signal-emerald);
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .rule-item strong { color: var(--text-bright); }
+
+    /* ============ FLOW STEP ============ */
+    .flow-step {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 20px;
+      padding: 22px 0;
+      border-bottom: 1px solid var(--border-hairline);
+    }
+
+    .flow-step:last-child { border-bottom: none; }
+
+    .flow-num {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--brand-primary);
+      letter-spacing: -0.5px;
+      padding-top: 2px;
+    }
+
+    .flow-body { padding-top: 0; }
+
+    .flow-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      letter-spacing: -0.2px;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .flow-desc {
+      font-size: 0.94rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 8px;
+    }
+
+    .flow-desc:last-child { margin-bottom: 0; }
+
+    /* ============ CHECKLIST ============ */
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 0.93rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .checklist li::before {
+      content: "☐";
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ============ FOOTER ============ */
+    .doc-footer {
+      margin-top: 80px;
+      padding: 32px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+    }
+
+    .doc-footer-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      margin-bottom: 8px;
+    }
+
+    .doc-footer-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 1024px) {
+      .main { padding: 60px 40px 100px; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform var(--ease-smooth); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 80px 20px 80px; }
+      .theme-hud { top: 12px; right: 12px; padding: 4px 8px; }
+      .hero-title { font-size: 2rem; }
+      .section-title { font-size: 1.45rem; }
+      .tier-card { padding: 18px; }
+      .flow-step { grid-template-columns: 1fr; gap: 8px; }
+      .hero-meta { gap: 14px; font-size: 0.76rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- THEME HUD -->
+  <div class="theme-hud">
+    <div class="theme-btn-group">
+      <button class="theme-toggle-btn active" id="btn-dark" onclick="setTheme('dark')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        Dark
+      </button>
+      <button class="theme-toggle-btn" id="btn-light" onclick="setTheme('light')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Light
+      </button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-eyebrow">Process Document</div>
+      <div class="brand-title">Solo Workflow</div>
+      <div class="brand-sub">BusVerse Real · v1.0</div>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li><span class="nav-category">Reality Check</span></li>
+      <li class="nav-item"><a href="#intro"><span class="nav-num">—</span><span>Introduction</span></a></li>
+      <li class="nav-item"><a href="#reality"><span class="nav-num">01</span><span>What Changes When Solo</span></a></li>
+
+      <li><span class="nav-category">Foundation</span></li>
+      <li class="nav-item"><a href="#setup"><span class="nav-num">02</span><span>Setup &amp; Accounts</span></a></li>
+      <li class="nav-item"><a href="#folders"><span class="nav-num">03</span><span>Folder Structure</span></a></li>
+
+      <li><span class="nav-category">Documentation</span></li>
+      <li class="nav-item"><a href="#tier1"><span class="nav-num">04</span><span>Tier 1 — Foundation Docs</span></a></li>
+      <li class="nav-item"><a href="#tier2"><span class="nav-num">05</span><span>Tier 2 — Feature Docs</span></a></li>
+      <li class="nav-item"><a href="#tier3"><span class="nav-num">06</span><span>Tier 3 — Design &amp; UI Docs</span></a></li>
+      <li class="nav-item"><a href="#tier4"><span class="nav-num">07</span><span>Tier 4 — Security &amp; Ops Docs</span></a></li>
+      <li class="nav-item"><a href="#tier5"><span class="nav-num">08</span><span>Tier 5 — Business &amp; Legal</span></a></li>
+      <li class="nav-item"><a href="#tier6"><span class="nav-num">09</span><span>Tier 6 — College Report</span></a></li>
+      <li class="nav-item"><a href="#tier7"><span class="nav-num">10</span><span>Tier 7 — Growth Docs</span></a></li>
+
+      <li><span class="nav-category">Non-Doc Work</span></li>
+      <li class="nav-item"><a href="#code"><span class="nav-num">11</span><span>Code Scaffolds</span></a></li>
+      <li class="nav-item"><a href="#config"><span class="nav-num">12</span><span>Configuration Files</span></a></li>
+      <li class="nav-item"><a href="#cicd"><span class="nav-num">13</span><span>CI/CD Pipelines</span></a></li>
+      <li class="nav-item"><a href="#infra"><span class="nav-num">14</span><span>Infrastructure</span></a></li>
+      <li class="nav-item"><a href="#seed"><span class="nav-num">15</span><span>Seed Data</span></a></li>
+      <li class="nav-item"><a href="#tests"><span class="nav-num">16</span><span>Test Suites</span></a></li>
+      <li class="nav-item"><a href="#assets"><span class="nav-num">17</span><span>Design Assets</span></a></li>
+      <li class="nav-item"><a href="#integrations"><span class="nav-num">18</span><span>Integrations</span></a></li>
+      <li class="nav-item"><a href="#legal"><span class="nav-num">19</span><span>Legal &amp; Compliance</span></a></li>
+      <li class="nav-item"><a href="#support"><span class="nav-num">20</span><span>Support Infrastructure</span></a></li>
+
+      <li><span class="nav-category">Gaps</span></li>
+      <li class="nav-item"><a href="#gaps"><span class="nav-num">21</span><span>Hidden Gaps</span></a></li>
+      <li class="nav-item"><a href="#failure"><span class="nav-num">22</span><span>Failure Modes</span></a></li>
+      <li class="nav-item"><a href="#business"><span class="nav-num">23</span><span>Business Gaps</span></a></li>
+      <li class="nav-item"><a href="#product"><span class="nav-num">24</span><span>Product Gaps</span></a></li>
+      <li class="nav-item"><a href="#emotional"><span class="nav-num">25</span><span>Emotional Gaps</span></a></li>
+
+      <li><span class="nav-category">Execution</span></li>
+      <li class="nav-item"><a href="#order"><span class="nav-num">26</span><span>Order of Execution</span></a></li>
+      <li class="nav-item"><a href="#discipline"><span class="nav-num">27</span><span>Solo Discipline Rules</span></a></li>
+      <li class="nav-item"><a href="#checklist"><span class="nav-num">28</span><span>Master Checklist</span></a></li>
+      <li class="nav-item"><a href="#next"><span class="nav-num">29</span><span>What To Do Next</span></a></li>
+    </ul>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <header class="doc-hero">
+      <div class="hero-badge">PROCESS DOCUMENT // v1.0</div>
+      <h1 class="hero-title">Solo Developer Workflow</h1>
+      <p class="hero-lead">
+        The complete operating manual for building BusVerse as a solo founder. Every document to write, every artifact to produce, every gap to fill, every rule to follow. Ordered by dependency, not by time. No timelines — just "do this before that."
+      </p>
+      <div class="hero-meta">
+        <span><strong>Version:</strong> 1.0</span>
+        <span><strong>Status:</strong> Active</span>
+        <span><strong>Owner:</strong> Founder</span>
+        <span><strong>Team size:</strong> 1</span>
+      </div>
+    </header>
+
+    <!-- INTRO -->
+    <section class="section-wrap" id="intro">
+      <div class="section-header">
+        <span class="section-tag">Overview</span>
+        <h2 class="section-title">Introduction</h2>
+        <p class="section-desc">
+          You are building BusVerse Real alone. No team, no code review, no on-call rotation. This changes everything about how you work — but it does not change the fundamentals. Git discipline still matters. Testing still matters. Backups still matter. Documentation still matters. These things exist to protect you from yourself. Solo developers who skip them eventually lose data, ship broken code, or burn out.
+        </p>
+      </div>
+
+      <div class="callout callout-warn">
+        <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <p><strong>Solo is not an excuse.</strong> It is a reason to be more disciplined, not less. Nobody catches your mistakes. You must catch them yourself — through tests, backups, and documentation.</p>
+      </div>
+    </section>
+
+    <!-- 01 — REALITY CHECK -->
+    <section class="section-wrap" id="reality">
+      <div class="section-header">
+        <span class="section-tag">Section 01</span>
+        <h2 class="section-title">What Changes When Solo</h2>
+        <p class="section-desc">Understand what you lose. Then compensate for it.</p>
+      </div>
+
+      <div class="table-frame">
+        <table>
+          <thead>
+            <tr><th>Enterprise Practice</th><th>Solo Replacement</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Code review by peers</td><td>Self-review before every commit</td></tr>
+            <tr><td>QA team tests</td><td>You write tests + manual QA</td></tr>
+            <tr><td>DevOps team deploys</td><td>You deploy via CI/CD</td></tr>
+            <tr><td>Support team handles tickets</td><td>You handle support</td></tr>
+            <tr><td>PM writes specs</td><td>You write specs + code</td></tr>
+            <tr><td>On-call rotation</td><td>You are on-call 24/7</td></tr>
+            <tr><td>Standups</td><td>Daily self-check</td></tr>
+            <tr><td>Sprint planning</td><td>Weekly self-planning</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-info">
+        <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="16" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <p><strong>What does NOT change:</strong> Git discipline. Testing discipline. Backup discipline. Documentation discipline. Security discipline. Staging before production. All of these exist to protect you from yourself.</p>
+      </div>
+    </section>
+
+    <!-- 02 — SETUP -->
+    <section class="section-wrap" id="setup">
+      <div class="section-header">
+        <span class="section-tag">Section 02</span>
+        <h2 class="section-title">Setup &amp; Accounts</h2>
+        <p class="section-desc">Before any code, before any docs, get these accounts and tools ready.</p>
+      </div>
+
+      <h3>Identity &amp; Accounts</h3>
+      <ul class="checklist">
+        <li>Domain registered — <code>busverse.app</code></li>
+        <li>Business email — <code>hello@</code>, <code>support@</code></li>
+        <li>GitHub account with private repo <code>busverse-real</code></li>
+        <li>Cloud account — Railway / Render / AWS / GCP</li>
+        <li>Payment gateway sandbox — Razorpay / PhonePe</li>
+        <li>SMS provider — MSG91 / Twilio / Kaleyra</li>
+        <li>Email provider — SendGrid / AWS SES</li>
+        <li>Map provider — Google Maps / Mapbox / OSM</li>
+        <li>Firebase project for push notifications</li>
+        <li>Sentry account for error tracking</li>
+        <li>PostHog / Mixpanel for analytics</li>
+        <li>BetterStack / UptimeRobot for uptime monitoring</li>
+        <li>Bitwarden / 1Password for password management</li>
+        <li>2FA enabled on every account above</li>
+      </ul>
+
+      <h3>Local Environment</h3>
+      <ul class="checklist">
+        <li>Node.js installed (LTS version)</li>
+        <li>PostgreSQL installed locally</li>
+        <li>Redis installed locally</li>
+        <li>Git configured with SSH keys</li>
+        <li>VS Code with extensions (ESLint, Prettier, Prisma, GitLens)</li>
+        <li>Docker for reproducible setup</li>
+        <li>Postman / Insomnia for API testing</li>
+      </ul>
+    </section>
+
+    <!-- 03 — FOLDERS -->
+    <section class="section-wrap" id="folders">
+      <div class="section-header">
+        <span class="section-tag">Section 03</span>
+        <h2 class="section-title">Folder Structure</h2>
+        <p class="section-desc">One structure, used from day one. Future-you knows exactly where to find or write any document.</p>
+      </div>
+
+      <pre style="background: var(--code-bg); border: 1px solid var(--code-border); border-radius: var(--radius-md); padding: 20px; overflow-x: auto; font-family: var(--font-mono); font-size: 12.5px; color: var(--code-text); line-height: 1.65;">docs/
+├── 00-overview/
+├── 01-architecture/
+├── 02-database/
+├── 03-api/
+├── 04-frontend/
+├── 05-flows/
+├── 06-design/
+├── 07-security/
+├── 08-operations/
+├── 09-business/
+├── 10-legal/
+├── 11-college/
+├── decisions/          ← ADRs (architecture decisions)
+├── runbooks/           ← incident response
+└── assets/             ← images, diagrams</pre>
+
+      <div class="callout callout-info">
+        <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="16" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <p><strong>Why this structure:</strong> Numbered prefixes keep folders in order. Categories match how a developer thinks. <code>decisions/</code> and <code>runbooks/</code> are separate because they're consulted differently — one before coding, one during incidents.</p>
+      </div>
+    </section>
+
+    <!-- 04 — TIER 1 -->
+    <section class="section-wrap" id="tier1">
+      <div class="section-header">
+        <span class="section-tag">Section 04 // Tier 1</span>
+        <h2 class="section-title">Foundation Docs</h2>
+        <p class="section-desc">Nothing works without these. Write them before writing any product code.</p>
+      </div>
+
+      <div class="tier-card">
+        <div class="tier-header">
+          <span class="tier-badge tier-critical">Critical</span>
+          <span class="tier-title">Foundation Documents</span>
+          <span class="tier-count">7 docs</span>
+        </div>
+        <ul class="doc-list">
+          <li><span class="doc-num">01</span><span class="doc-name">World Rules</span><span class="doc-reason">— What BusVerse is/isn't. Real vs simulated. Money flow.</span></li>
+          <li><span class="doc-num">02</span><span class="doc-name">MVP Scope</span><span class="doc-reason">— Absolute minimum to launch. What's in, what's out.</span></li>
+          <li><span class="doc-num">03</span><span class="doc-name">Tech Stack Decision</span><span class="doc-reason">— Every choice with reasoning. ADR-style.</span></li>
+          <li><span class="doc-num">04</span><span class="doc-name">Database Schema</span><span class="doc-reason">— Every table, column, type, index, relation.</span></li>
+          <li><span class="doc-num">05</span><span class="doc-name">Environment Setup Guide</span><span class="doc-reason">— How to run project on fresh machine.</span></li>
+          <li><span class="doc-num">06</span><span class="doc-name">API Specification v1</span><span class="doc-reason">— Every endpoint with request/response.</span></li>
+          <li><span class="doc-num">07</span><span class="doc-name">WebSocket Events Catalog</span><span class="doc-reason">— Every event, payload, room, frequency.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 05 — TIER 2 -->
+    <section class="section-wrap" id="tier2">
+      <div class="section-header">
+        <span class="section-tag">Section 05 // Tier 2</span>
+        <h2 class="section-title">Feature Docs</h2>
+        <p class="section-desc">Built alongside code. Each doc corresponds to a feature you're actively building.</p>
+      </div>
+
+      <div class="tier-card">
+        <div class="tier-header">
+          <span class="tier-badge tier-high">High</span>
+          <span class="tier-title">Feature Specifications</span>
+          <span class="tier-count">13 docs</span>
+        </div>
+        <ul class="doc-list">
+          <li><span class="doc-num">08</span><span class="doc-name">Auth Flow</span><span class="doc-reason">— Signup, OTP, login, refresh, logout.</span></li>
+          <li><span class="doc-num">09</span><span class="doc-name">Seat Locking Algorithm</span><span class="doc-reason">— Redis NX + Postgres fallback.</span></li>
+          <li><span class="doc-num">10</span><span class="doc-name">Payment Adapter Spec</span><span class="doc-reason">— Simulated/sandbox/live modes.</span></li>
+          <li><span class="doc-num">11</span><span class="doc-name">Refund Engine Spec</span><span class="doc-reason">— Policy rules, triggers, webhooks.</span></li>
+          <li><span class="doc-num">12</span><span class="doc-name">Ticket &amp; QR Spec</span><span class="doc-reason">— Signing, validation, scan results.</span></li>
+          <li><span class="doc-num">13</span><span class="doc-name">GPS Ingestion Pipeline</span><span class="doc-reason">— Driver phone to passenger map.</span></li>
+          <li><span class="doc-num">14</span><span class="doc-name">ETA Calculation Algorithm</span><span class="doc-reason">— Position + traffic + historical.</span></li>
+          <li><span class="doc-num">15</span><span class="doc-name">Notification System</span><span class="doc-reason">— SMS, email, push. Trigger matrix.</span></li>
+          <li><span class="doc-num">16</span><span class="doc-name">Search &amp; Ranking</span><span class="doc-reason">— Filter logic, sort, ranking factors.</span></li>
+          <li><span class="doc-num">17</span><span class="doc-name">Operator Onboarding Flow</span><span class="doc-reason">— Signup → KYC → approval → first bus.</span></li>
+          <li><span class="doc-num">18</span><span class="doc-name">Admin Approval Workflow</span><span class="doc-reason">— What needs approval, audit trail.</span></li>
+          <li><span class="doc-num">19</span><span class="doc-name">RBAC Permission Matrix</span><span class="doc-reason">— Every role × every action.</span></li>
+          <li><span class="doc-num">20</span><span class="doc-name">Audit Log Specification</span><span class="doc-reason">— What's logged, format, retention.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 06 — TIER 3 -->
+    <section class="section-wrap" id="tier3">
+      <div class="section-header">
+        <span class="section-tag">Section 06 // Tier 3</span>
+        <h2 class="section-title">Design &amp; UI Docs</h2>
+        <p class="section-desc">Visual specification for every screen and component.</p>
+      </div>
+
+      <div class="tier-card">
+        <div class="tier-header">
+          <span class="tier-badge tier-medium">Medium</span>
+          <span class="tier-title">Design System &amp; Screens</span>
+          <span class="tier-count">10 docs</span>
+        </div>
+        <ul class="doc-list">
+          <li><span class="doc-num">21</span><span class="doc-name">Design System</span><span class="doc-reason">— Colors, typography, components, motion.</span></li>
+          <li><span class="doc-num">22</span><span class="doc-name">Wireframes — Passenger</span><span class="doc-reason">— Home, search, seat, pay, ticket, track.</span></li>
+          <li><span class="doc-num">23</span><span class="doc-name">Wireframes — Driver</span><span class="doc-reason">— HUD, scanner, manifest, trip summary.</span></li>
+          <li><span class="doc-num">24</span><span class="doc-name">Wireframes — Operator</span><span class="doc-reason">— Dashboard, fleet, routes, schedules.</span></li>
+          <li><span class="doc-num">25</span><span class="doc-name">Wireframes — Admin</span><span class="doc-reason">— Approvals, disputes, users, CCTV.</span></li>
+          <li><span class="doc-num">26</span><span class="doc-name">Wireframes — Support</span><span class="doc-reason">— Tickets, chat, refunds, lookups.</span></li>
+          <li><span class="doc-num">27</span><span class="doc-name">Screen Flow Map</span><span class="doc-reason">— Navigation paths between screens.</span></li>
+          <li><span class="doc-num">28</span><span class="doc-name">Component Library Spec</span><span class="doc-reason">— Every component: variants, states, props.</span></li>
+          <li><span class="doc-num">29</span><span class="doc-name">Content Style Guide</span><span class="doc-reason">— Voice, tone, error copy, microcopy.</span></li>
+          <li><span class="doc-num">30</span><span class="doc-name">Icon Set</span><span class="doc-reason">— All icons, sizes, usage rules.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 07 — TIER 4 -->
+    <section class="section-wrap" id="tier4">
+      <div class="section-header">
+        <span class="section-tag">Section 07 // Tier 4</span>
+        <h2 class="section-title">Security &amp; Operations Docs</h2>
+        <p class="section-desc">What keeps the platform safe, monitored, and recoverable.</p>
+      </div>
+
+      <div class="tier-card">
+        <div class="tier-header">
+          <span class="tier-badge tier-high">High</span>
+          <span class="tier-title">Security, DevOps, Analytics</span>
+          <span class="tier-count">11 docs</span>
+        </div>
+        <ul class="doc-list">
+          <li><span class="doc-num">31</span><span class="doc-name">Security Architecture</span><span class="doc-reason">— Auth, encryption, rate limiting, secrets, PII.</span></li>
+          <li><span class="doc-num">32</span><span class="doc-name">Threat Model</span><span class="doc-reason">— What can go wrong, who attacks, mitigation.</span></li>
+          <li><span class="doc-num">33</span><span class="doc-name">Incident Response Runbooks</span><span class="doc-reason">— Playbook for each failure type.</span></li>
+          <li><span class="doc-num">34</span><span class="doc-name">Backup &amp; Recovery Procedure</span><span class="doc-reason">— Frequency, retention, restore steps.</span></li>
+          <li><span class="doc-num">35</span><span class="doc-name">Deployment Architecture</span><span class="doc-reason">— Staging, production, CI/CD, rollback.</span></li>
+          <li><span class="doc-num">36</span><span class="doc-name">Monitoring &amp; Alerting Spec</span><span class="doc-reason">— What's monitored, thresholds, escalation.</span></li>
+          <li><span class="doc-num">37</span><span class="doc-name">Feature Flag Strategy</span><span class="doc-reason">— Naming, lifecycle, kill switches.</span></li>
+          <li><span class="doc-num">38</span><span class="doc-name">Rollback Procedure</span><span class="doc-reason">— Step-by-step revert in under 5 min.</span></li>
+          <li><span class="doc-num">39</span><span class="doc-name">Analytics Event Taxonomy</span><span class="doc-reason">— Every event: name, properties, where.</span></li>
+          <li><span class="doc-num">40</span><span class="doc-name">Performance Budget</span><span class="doc-reason">— Load time, bundle size, API latency targets.</span></li>
+          <li><span class="doc-num">41</span><span class="doc-name">Cost Projection</span><span class="doc-reason">— Monthly cost + scaling estimates.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 08 — TIER 5 -->
+    <section class="section-wrap" id="tier5">
+      <div class="section-header">
+        <span class="section-tag">Section 08 // Tier 5</span>
+        <h2 class="section-title">Business &amp; Legal Docs</h2>
+        <p class="section-desc">How BusVerse earns, complies, and stays out of legal trouble.</p>
+      </div>
+
+      <div class="tier-card">
+        <div class="tier-header">
+          <span class="tier-badge tier-medium">Medium</span>
+          <span class="tier-title">Business, Legal, Risk</span>
+          <span class="tier-count">12 docs</span>
+        </div>
+        <ul class="doc-list">
+          <li><span class="doc-num">42</span><span class="doc-name">Business Model</span><span class="doc-reason">— Revenue streams, unit economics, break-even.</span></li>
+          <li><span class="doc-num">43</span><span class="doc-name">Competitor Analysis</span><span class="doc-reason">— RedBus, AbhiBus, Paytm Bus. Gaps filled.</span></li>
+          <li><span class="doc-num">44</span><span class="doc-name">User Personas</span><span class="doc-reason">— Who uses BusVerse. Needs, frustrations, goals.</span></li>
+          <li><span class="doc-num">45</span><span class="doc-name">Customer Journey Map</span><span class="doc-reason">— Discovery → booking → travel → review.</span></li>
+          <li><span class="doc-num">46</span><span class="doc-name">GTM Strategy</span><span class="doc-reason">— How to get first 100 users.</span></li>
+          <li><span class="doc-num">47</span><span class="doc-name">Operator Agreement</span><span class="doc-reason">— Contract with bus operators.</span></li>
+          <li><span class="doc-num">48</span><span class="doc-name">Driver Agreement</span><span class="doc-reason">— Contract with drivers.</span></li>
+          <li><span class="doc-num">49</span><span class="doc-name">Terms of Service</span><span class="doc-reason">— Legal terms for passengers.</span></li>
+          <li><span class="doc-num">50</span><span class="doc-name">Privacy Policy</span><span class="doc-reason">— Data collection, usage, rights.</span></li>
+          <li><span class="doc-num">51</span><span class="doc-name">Refund &amp; Cancellation Policy</span><span class="doc-reason">— Public-facing policy.</span></li>
+          <li><span class="doc-num">52</span><span class="doc-name">Legal &amp; Compliance Checklist</span><span class="doc-reason">— GST, DPDP, aggregator licence, insurance.</span></li>
+          <li><span class="doc-num">53</span><span class="doc-name">Risk Register</span><span class="doc-reason">— Top 10 risks + mitigation plans.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 09 — TIER 6 -->
+    <section class="section-wrap" id="tier6">
+      <div class="section-header">
+        <span class="section-tag">Section 09 // Tier 6</span>
+        <h2 class="section-title">College Report Docs</h2>
+        <p class="section-desc">Everything required for academic submission.</p>
+      </div>
+
+      <div class="tier-card">
+        <div class="tier-header">
+          <span class="tier-badge tier-college">College</span>
+          <span class="tier-title">Academic Submission</span>
+          <span class="tier-count">27 docs</span>
+        </div>
+        <ul class="doc-list">
+          <li><span class="doc-num">54</span><span class="doc-name">Cover Page</span><span class="doc-reason">— Name, roll no, college, guide, date.</span></li>
+          <li><span class="doc-num">55</span><span class="doc-name">Certificate</span><span class="doc-reason">— Signed by guide + HOD.</span></li>
+          <li><span class="doc-num">56</span><span class="doc-name">Declaration</span><span class="doc-reason">— "I declare this is my work."</span></li>
+          <li><span class="doc-num">57</span><span class="doc-name">Acknowledgement</span><span class="doc-reason">— Thank guide, college, family.</span></li>
+          <li><span class="doc-num">58</span><span class="doc-name">Table of Contents</span><span class="doc-reason">— Auto-generated from chapters.</span></li>
+          <li><span class="doc-num">59</span><span class="doc-name">Introduction</span><span class="doc-reason">— What BusVerse is.</span></li>
+          <li><span class="doc-num">60</span><span class="doc-name">Problem Statement</span><span class="doc-reason">— Why it exists.</span></li>
+          <li><span class="doc-num">61</span><span class="doc-name">Objectives</span><span class="doc-reason">— What it aims to do.</span></li>
+          <li><span class="doc-num">62</span><span class="doc-name">System Requirements</span><span class="doc-reason">— Hardware, software, network.</span></li>
+          <li><span class="doc-num">63</span><span class="doc-name">Technology Used</span><span class="doc-reason">— Every tool + reason.</span></li>
+          <li><span class="doc-num">64</span><span class="doc-name">System Analysis &amp; Design</span><span class="doc-reason">— High-level design.</span></li>
+          <li><span class="doc-num">65</span><span class="doc-name">Database Design / ER Diagram</span><span class="doc-reason">— Formal ER.</span></li>
+          <li><span class="doc-num">66</span><span class="doc-name">DFD — Level 0</span><span class="doc-reason">— Context diagram.</span></li>
+          <li><span class="doc-num">67</span><span class="doc-name">DFD — Level 1</span><span class="doc-reason">— Major processes.</span></li>
+          <li><span class="doc-num">68</span><span class="doc-name">DFD — Level 2</span><span class="doc-reason">— Sub-processes.</span></li>
+          <li><span class="doc-num">69</span><span class="doc-name">UML — Use Case Diagram</span><span class="doc-reason">— Actors + use cases.</span></li>
+          <li><span class="doc-num">70</span><span class="doc-name">UML — Class Diagram</span><span class="doc-reason">— Classes + relationships.</span></li>
+          <li><span class="doc-num">71</span><span class="doc-name">UML — Sequence Diagrams</span><span class="doc-reason">— Booking, payment, tracking.</span></li>
+          <li><span class="doc-num">72</span><span class="doc-name">UML — Activity Diagrams</span><span class="doc-reason">— Booking flow, cancellation.</span></li>
+          <li><span class="doc-num">73</span><span class="doc-name">Module Description</span><span class="doc-reason">— Every module explained.</span></li>
+          <li><span class="doc-num">74</span><span class="doc-name">Screenshots</span><span class="doc-reason">— Every major screen.</span></li>
+          <li><span class="doc-num">75</span><span class="doc-name">Test Cases Document</span><span class="doc-reason">— Unit, integration, UAT.</span></li>
+          <li><span class="doc-num">76</span><span class="doc-name">Results / Output</span><span class="doc-reason">— Evidence of working features.</span></li>
+          <li><span class="doc-num">77</span><span class="doc-name">Conclusion</span><span class="doc-reason">— What was achieved.</span></li>
+          <li><span class="doc-num">78</span><span class="doc-name">Future Scope</span><span class="doc-reason">— What's next.</span></li>
+          <li><span class="doc-num">79</span><span class="doc-name">References / Bibliography</span><span class="doc-reason">— Sources cited.</span></li>
+          <li><span class="doc-num">80</span><span class="doc-name">Appendix</span><span class="doc-reason">— Sample code, sample data.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 10 — TIER 7 -->
+    <section class="section-wrap" id="tier7">
+      <div class="section-header">
+        <span class="section-tag">Section 10 // Tier 7</span>
+        <h2 class="section-title">Growth Docs</h2>
+        <p class="section-desc">Post-launch. Needed only after the product works.</p>
+      </div>
+
+      <div class="tier-card">
+        <div class="tier-header">
+          <span class="tier-badge tier-growth">Growth</span>
+          <span class="tier-title">Scale &amp; Expansion</span>
+          <span class="tier-count">6 docs</span>
+        </div>
+        <ul class="doc-list">
+          <li><span class="doc-num">81</span><span class="doc-name">Scaling Plan</span><span class="doc-reason">— What breaks at 10k, 100k users.</span></li>
+          <li><span class="doc-num">82</span><span class="doc-name">Marketing Playbook</span><span class="doc-reason">— Campaigns, channels, messaging.</span></li>
+          <li><span class="doc-num">83</span><span class="doc-name">Support Playbook</span><span class="doc-reason">— Common issues, resolutions, macros.</span></li>
+          <li><span class="doc-num">84</span><span class="doc-name">Investor Pitch Deck</span><span class="doc-reason">— If raising money.</span></li>
+          <li><span class="doc-num">85</span><span class="doc-name">Localization Plan</span><span class="doc-reason">— Languages, priority, rollout.</span></li>
+          <li><span class="doc-num">86</span><span class="doc-name">Accessibility Audit</span><span class="doc-reason">— WCAG compliance checklist.</span></li>
+        </ul>
+      </div>
+
+      <div class="callout callout-success">
+        <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        <p><strong>Total documentation:</strong> 86 docs across 7 tiers. Do not attempt to write them all. Write them just-in-time, when the corresponding work begins.</p>
+      </div>
+    </section>
+
+    <!-- 11 — CODE SCAFFOLDS -->
+    <section class="section-wrap" id="code">
+      <div class="section-header">
+        <span class="section-tag">Section 11</span>
+        <h2 class="section-title">Code Scaffolds</h2>
+        <p class="section-desc">Not docs — actual code repositories and folders you'll create.</p>
+      </div>
+
+      <ul class="checklist">
+        <li>Backend repo — API server, DB layer, services</li>
+        <li>Frontend repos — Passenger PWA, Driver app, Operator panel, Admin panel, Support panel</li>
+        <li>Shared packages — TypeScript types, validators, utils</li>
+        <li>Migrations folder — versioned DB changes</li>
+        <li>Seeds folder — test data for local + staging</li>
+        <li>Scripts folder — db reset, seed, migrate, deploy</li>
+      </ul>
+    </section>
+
+    <!-- 12 — CONFIG FILES -->
+    <section class="section-wrap" id="config">
+      <div class="section-header">
+        <span class="section-tag">Section 12</span>
+        <h2 class="section-title">Configuration Files</h2>
+        <p class="section-desc">Every project needs these. Set them up correctly once.</p>
+      </div>
+
+      <ul class="checklist">
+        <li><code>.env.example</code> — every environment variable documented</li>
+        <li><code>.gitignore</code> — never commit secrets, node_modules, build artifacts</li>
+        <li><code>.editorconfig</code> — consistent formatting across editors</li>
+        <li><code>.eslintrc</code> — linting rules</li>
+        <li><code>.prettierrc</code> — formatting rules</li>
+        <li><code>tsconfig.json</code> — TypeScript config</li>
+        <li><code>docker-compose.yml</code> — local Postgres + Redis</li>
+        <li><code>Dockerfile</code> — production build</li>
+        <li><code>.github/workflows/</code> — CI/CD pipelines</li>
+        <li><code>postman/</code> — API collection + environments</li>
+      </ul>
+    </section>
+
+    <!-- 13 — CI/CD -->
+    <section class="section-wrap" id="cicd">
+      <div class="section-header">
+        <span class="section-tag">Section 13</span>
+        <h2 class="section-title">CI/CD Pipelines</h2>
+        <p class="section-desc">Automated checks and deployments. Never deploy by hand.</p>
+      </div>
+
+      <div class="table-frame">
+        <table>
+          <thead>
+            <tr><th>Pipeline</th><th>Trigger</th><th>Purpose</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Lint</strong></td><td>Every PR</td><td>Enforce code style</td></tr>
+            <tr><td><strong>Test</strong></td><td>Every PR</td><td>Unit + integration tests</td></tr>
+            <tr><td><strong>Build</strong></td><td>Every PR</td><td>Verify app builds</td></tr>
+            <tr><td><strong>Deploy to staging</strong></td><td>Merge to develop</td><td>Test in realistic env</td></tr>
+            <tr><td><strong>Deploy to production</strong></td><td>Merge to main</td><td>Manual approval</td></tr>
+            <tr><td><strong>DB migration</strong></td><td>Before deploy</td><td>Schema changes</td></tr>
+            <tr><td><strong>Smoke test</strong></td><td>After deploy</td><td>Verify critical paths</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 14 — INFRA -->
+    <section class="section-wrap" id="infra">
+      <div class="section-header">
+        <span class="section-tag">Section 14</span>
+        <h2 class="section-title">Infrastructure</h2>
+        <p class="section-desc">The environments, servers, and services that host BusVerse.</p>
+      </div>
+
+      <ul class="checklist">
+        <li>Staging environment — separate DB, Redis, gateway sandbox</li>
+        <li>Production environment — separate DB, Redis, live gateway</li>
+        <li>Backup automation — daily snapshot, 30-day retention</li>
+        <li>Monitoring stack — logs, metrics, traces</li>
+        <li>Alerting — email/Slack/phone</li>
+        <li>CDN setup — Cloudflare</li>
+        <li>DNS — A, CNAME, TXT (SPF, DKIM, DMARC)</li>
+        <li>SSL — auto-renewing certificates</li>
+      </ul>
+    </section>
+
+    <!-- 15 — SEED -->
+    <section class="section-wrap" id="seed">
+      <div class="section-header">
+        <span class="section-tag">Section 15</span>
+        <h2 class="section-title">Seed Data</h2>
+        <p class="section-desc">Realistic test data for local development and staging.</p>
+      </div>
+
+      <ul class="checklist">
+        <li>Routes — 5–8 real intercity routes</li>
+        <li>Stands — 5–10 per route, real coordinates</li>
+        <li>Bus models — Mini, Standard, Luxury, Double Decker, Sleeper</li>
+        <li>Buses — 20 with registration, insurance, fitness</li>
+        <li>Drivers — 10 with license, KYC</li>
+        <li>Operators — 3–5 companies</li>
+        <li>Schedules — generated for next 30 days</li>
+        <li>Users — 10 test passengers</li>
+        <li>Bookings — 50 sample bookings across states</li>
+        <li>Promo codes — 5 sample codes</li>
+      </ul>
+    </section>
+
+    <!-- 16 — TESTS -->
+    <section class="section-wrap" id="tests">
+      <div class="section-header">
+        <span class="section-tag">Section 16</span>
+        <h2 class="section-title">Test Suites</h2>
+        <p class="section-desc">Every category of test you need. Because nobody else will catch your bugs.</p>
+      </div>
+
+      <ul class="checklist">
+        <li>Unit tests — services, utilities, algorithms</li>
+        <li>Integration tests — API + DB together</li>
+        <li>E2E tests — Playwright / Cypress flows</li>
+        <li>Load tests — k6 / Artillery scripts</li>
+        <li>Security tests — dependency audit, OWASP scan</li>
+        <li>Manual QA checklist — before every release</li>
+      </ul>
+    </section>
+
+    <!-- 17 — ASSETS -->
+    <section class="section-wrap" id="assets">
+      <div class="section-header">
+        <span class="section-tag">Section 17</span>
+        <h2 class="section-title">Design Assets</h2>
+        <p class="section-desc">Everything visual you need to produce.</p>
+      </div>
+
+      <ul class="checklist">
+        <li>Figma file — all screens, components, design tokens</li>
+        <li>Logo pack — SVG, PNG, favicon, brand variations</li>
+        <li>Icon pack — SVG set with usage rules</li>
+        <li>Illustration pack — empty states, onboarding</li>
+        <li>Marketing assets — OG images, social cards, app store</li>
+        <li>Sample screenshots — for docs + college report</li>
+      </ul>
+    </section>
+
+    <!-- 18 — INTEGRATIONS -->
+    <section class="section-wrap" id="integrations">
+      <div class="section-header">
+        <span class="section-tag">Section 18</span>
+        <h2 class="section-title">Integrations</h2>
+        <p class="section-desc">Third-party services that BusVerse depends on.</p>
+      </div>
+
+      <ul class="checklist">
+        <li>Payment gateway — sandbox + live credentials</li>
+        <li>SMS provider — DLT-registered templates</li>
+        <li>Email provider — DKIM/SPF verified domain</li>
+        <li>Push notifications — FCM keys</li>
+        <li>Map provider — API key with usage limits</li>
+        <li>Error tracking — Sentry DSN</li>
+        <li>Analytics — PostHog key</li>
+      </ul>
+    </section>
+
+    <!-- 19 — LEGAL -->
+    <section class="section-wrap" id="legal">
+      <div class="section-header">
+        <span class="section-tag">Section 19</span>
+        <h2 class="section-title">Legal &amp; Compliance</h2>
+        <p class="section-desc">Non-code, non-design. But without these, BusVerse cannot legally operate.</p>
+      </div>
+
+      <ul class="checklist">
+        <li>Pvt Ltd incorporation — PAN, TAN, GST</li>
+        <li>Trademark — BusVerse name + logo</li>
+        <li>Domain ownership — verified</li>
+        <li>Terms of Service — published</li>
+        <li>Privacy Policy — published</li>
+        <li>Refund Policy — published</li>
+        <li>Cookie Policy — if tracking cookies</li>
+        <li>Grievance Officer — appointed + published</li>
+      </ul>
+    </section>
+
+    <!-- 20 — SUPPORT -->
+    <section class="section-wrap" id="support">
+      <div class="section-header">
+        <span class="section-tag">Section 20</span>
+        <h2 class="section-title">Support Infrastructure</h2>
+        <p class="section-desc">How users reach you when something goes wrong.</p>
+      </div>
+
+      <ul class="checklist">
+        <li>Support email — <code>support@busverse.app</code></li>
+        <li>Support phone — for emergencies</li>
+        <li>Support chat — in-app</li>
+        <li>FAQ page — public</li>
+        <li>Help center — searchable</li>
+        <li>Status page — uptime + incidents</li>
+      </ul>
+    </section>
+
+    <!-- 21 — GAPS -->
+    <section class="section-wrap" id="gaps">
+      <div class="section-header">
+        <span class="section-tag">Section 21</span>
+        <h2 class="section-title">Hidden Gaps</h2>
+        <p class="section-desc">Things not yet captured. These kill projects quietly.</p>
+      </div>
+
+      <div class="rule-grid">
+        <div class="rule-item"><span><strong>Assumptions Log</strong> — every assumption that could be wrong</span></div>
+        <div class="rule-item"><span><strong>Risk Register</strong> — top 10 risks + mitigation</span></div>
+        <div class="rule-item"><span><strong>Dependency Map</strong> — what blocks what</span></div>
+        <div class="rule-item"><span><strong>Open Questions Log</strong> — things you don't know yet</span></div>
+        <div class="rule-item"><span><strong>Change Log</strong> — public log of platform changes</span></div>
+        <div class="rule-item"><span><strong>Post-Mortem Template</strong> — after every incident</span></div>
+      </div>
+    </section>
+
+    <!-- 22 — FAILURE MODES -->
+    <section class="section-wrap" id="failure">
+      <div class="section-header">
+        <span class="section-tag">Section 22</span>
+        <h2 class="section-title">Failure Modes</h2>
+        <p class="section-desc">What happens when each system fails. Documented before it happens.</p>
+      </div>
+
+      <div class="rule-grid">
+        <div class="rule-item"><span><strong>Failure Mode Analysis</strong> — behavior when each service fails</span></div>
+        <div class="rule-item"><span><strong>Circuit Breaker Strategy</strong> — when to fail fast vs. retry</span></div>
+        <div class="rule-item"><span><strong>Graceful Degradation</strong> — what works when X is down</span></div>
+        <div class="rule-item"><span><strong>Data Corruption Recovery</strong> — what if DB corrupts</span></div>
+        <div class="rule-item"><span><strong>On-Call Playbook</strong> — your phone alert setup</span></div>
+        <div class="rule-item"><span><strong>Maintenance Window Plan</strong> — deploy without downtime</span></div>
+        <div class="rule-item"><span><strong>Communication Templates</strong> — user notifications during outages</span></div>
+      </div>
+    </section>
+
+    <!-- 23 — BUSINESS GAPS -->
+    <section class="section-wrap" id="business">
+      <div class="section-header">
+        <span class="section-tag">Section 23</span>
+        <h2 class="section-title">Business Gaps</h2>
+        <p class="section-desc">Financial clarity you must have before launch.</p>
+      </div>
+
+      <div class="rule-grid">
+        <div class="rule-item"><span><strong>Unit Economics</strong> — cost per booking, cost per user</span></div>
+        <div class="rule-item"><span><strong>Customer Acquisition Cost (CAC)</strong></span></div>
+        <div class="rule-item"><span><strong>Lifetime Value (LTV)</strong></span></div>
+        <div class="rule-item"><span><strong>Break-Even Analysis</strong> — bookings needed to cover costs</span></div>
+        <div class="rule-item"><span><strong>Cash Flow Projection</strong></span></div>
+        <div class="rule-item"><span><strong>Pricing Strategy</strong> — fee vs. subscription vs. ads</span></div>
+      </div>
+    </section>
+
+    <!-- 24 — PRODUCT GAPS -->
+    <section class="section-wrap" id="product">
+      <div class="section-header">
+        <span class="section-tag">Section 24</span>
+        <h2 class="section-title">Product Gaps</h2>
+        <p class="section-desc">How you decide what to build next.</p>
+      </div>
+
+      <div class="rule-grid">
+        <div class="rule-item"><span><strong>North Star Metric</strong> — the single number that matters</span></div>
+        <div class="rule-item"><span><strong>KPI Dashboard</strong> — daily/weekly metrics</span></div>
+        <div class="rule-item"><span><strong>Feature Prioritization Framework</strong> — how you decide next</span></div>
+        <div class="rule-item"><span><strong>User Feedback Loop</strong> — how feedback reaches you</span></div>
+        <div class="rule-item"><span><strong>A/B Testing Plan</strong> — what to test first</span></div>
+      </div>
+    </section>
+
+    <!-- 25 — EMOTIONAL GAPS -->
+    <section class="section-wrap" id="emotional">
+      <div class="section-header">
+        <span class="section-tag">Section 25</span>
+        <h2 class="section-title">Emotional &amp; Founder Gaps</h2>
+        <p class="section-desc">Solo founders burn out. These protect you.</p>
+      </div>
+
+      <div class="rule-grid">
+        <div class="rule-item"><span><strong>Weekly Reflection Log</strong> — what worked, what didn't</span></div>
+        <div class="rule-item"><span><strong>Learning Log</strong> — new things learned</span></div>
+        <div class="rule-item"><span><strong>Motivation Log</strong> — why you're building this</span></div>
+        <div class="rule-item"><span><strong>Support Network</strong> — who you talk to when stuck</span></div>
+        <div class="rule-item"><span><strong>Exit Criteria</strong> — when to stop or pivot</span></div>
+      </div>
+    </section>
+
+    <!-- 26 — ORDER -->
+    <section class="section-wrap" id="order">
+      <div class="section-header">
+        <span class="section-tag">Section 26</span>
+        <h2 class="section-title">Order of Execution</h2>
+        <p class="section-desc">Dependency-based. Each step builds on the previous. No timelines — just sequence.</p>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">01</div>
+        <div class="flow-body">
+          <div class="flow-title">Foundation</div>
+          <div class="flow-desc">Accounts + 2FA. Domain. Repo + folder structure. Environment setup. <code>README.md</code> + <code>CONTRIBUTING.md</code>.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">02</div>
+        <div class="flow-body">
+          <div class="flow-title">Decisions</div>
+          <div class="flow-desc">World Rules. MVP Scope. Tech Stack Decision. First ADRs.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">03</div>
+        <div class="flow-body">
+          <div class="flow-title">Data Foundation</div>
+          <div class="flow-desc">Database Schema. Environment Setup Guide. Migrations. Seed scripts.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">04</div>
+        <div class="flow-body">
+          <div class="flow-title">API Foundation</div>
+          <div class="flow-desc">API Spec v1. WebSocket Catalog. Error Catalog. Auth Flow. Build auth endpoints. Deploy staging.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">05</div>
+        <div class="flow-body">
+          <div class="flow-title">Core Features</div>
+          <div class="flow-desc">Seat Locking Algorithm. Search &amp; Ranking. Booking Flow. Payment Adapter (sandbox). Refund Engine. Ticket &amp; QR. Test end-to-end.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">06</div>
+        <div class="flow-body">
+          <div class="flow-title">Real-Time</div>
+          <div class="flow-desc">GPS Pipeline. ETA Algorithm. WebSocket Events. Driver App. Passenger Tracking UI.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">07</div>
+        <div class="flow-body">
+          <div class="flow-title">Panels</div>
+          <div class="flow-desc">Operator Onboarding Flow. Operator Panel. Admin Approval Workflow. Admin Panel. Support Panel. RBAC Matrix. Audit Log.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">08</div>
+        <div class="flow-body">
+          <div class="flow-title">Design</div>
+          <div class="flow-desc">Wireframes (all panels). Screen Flow Map. Component Library Spec. Content Style Guide. Icon Set.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">09</div>
+        <div class="flow-body">
+          <div class="flow-title">Security</div>
+          <div class="flow-desc">Security Architecture. Threat Model. Rate Limiting. Secrets Management. Backup &amp; Recovery. Incident Runbooks.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">10</div>
+        <div class="flow-body">
+          <div class="flow-title">Production</div>
+          <div class="flow-desc">Deployment Architecture. CI/CD Pipelines. Monitoring &amp; Alerting. Feature Flags. Rollback Procedure. Cost Projection. Live payment mode.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">11</div>
+        <div class="flow-body">
+          <div class="flow-title">Business</div>
+          <div class="flow-desc">Business Model. Competitor Analysis. User Personas. Customer Journey. GTM Strategy.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">12</div>
+        <div class="flow-body">
+          <div class="flow-title">Legal</div>
+          <div class="flow-desc">Operator Agreement. Driver Agreement. ToS. Privacy Policy. Refund Policy. Legal &amp; Compliance Checklist. Trademark.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">13</div>
+        <div class="flow-body">
+          <div class="flow-title">College Report</div>
+          <div class="flow-desc">Cover through Appendix. All 27 college-specific documents including DFDs, UMLs, test cases, screenshots.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">14</div>
+        <div class="flow-body">
+          <div class="flow-title">Launch</div>
+          <div class="flow-desc">Beta users. Bug fixes. Support FAQ. Public launch.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">15</div>
+        <div class="flow-body">
+          <div class="flow-title">Post-Launch</div>
+          <div class="flow-desc">Analytics review. Scaling Plan. Marketing Playbook. Support Playbook. Localization. Accessibility Audit.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 27 — DISCIPLINE -->
+    <section class="section-wrap" id="discipline">
+      <div class="section-header">
+        <span class="section-tag">Section 27</span>
+        <h2 class="section-title">Solo Discipline Rules</h2>
+        <p class="section-desc">Non-negotiable. These protect you from yourself.</p>
+      </div>
+
+      <h3>Git Discipline</h3>
+      <div class="rule-grid">
+        <div class="rule-item"><span>Commit after every working change</span></div>
+        <div class="rule-item"><span>Push daily — local-only code is lost code</span></div>
+        <div class="rule-item"><span>Use branches even solo — main is always deployable</span></div>
+        <div class="rule-item"><span>Never force-push to main</span></div>
+        <div class="rule-item"><span>Tag releases — <code>v0.1.0</code>, <code>v0.2.0</code></span></div>
+        <div class="rule-item"><span>Write meaningful commit messages</span></div>
+      </div>
+
+      <h3>Testing Discipline</h3>
+      <div class="rule-grid">
+        <div class="rule-item"><span>Write tests before you need them — especially payments, seats, refunds</span></div>
+        <div class="rule-item"><span>Test on real devices — simulators lie</span></div>
+        <div class="rule-item"><span>Manual QA after every feature</span></div>
+        <div class="rule-item"><span>Load test before launch — at least 100 concurrent users</span></div>
+        <div class="rule-item"><span>Never skip the refund test</span></div>
+      </div>
+
+      <h3>Backup Discipline</h3>
+      <div class="rule-grid">
+        <div class="rule-item"><span>Daily automated DB backups</span></div>
+        <div class="rule-item"><span>Monthly restore drill — untested backups are useless</span></div>
+        <div class="rule-item"><span>Backup off-site — not just same cloud region</span></div>
+        <div class="rule-item"><span>Keep 30 days minimum</span></div>
+        <div class="rule-item"><span>Test restore before launch day</span></div>
+      </div>
+
+      <h3>Documentation Discipline</h3>
+      <div class="rule-grid">
+        <div class="rule-item"><span>Write ADRs before big decisions</span></div>
+        <div class="rule-item"><span>Document every environment variable</span></div>
+        <div class="rule-item"><span>Keep README up to date</span></div>
+        <div class="rule-item"><span>Write runbooks for incidents before they happen</span></div>
+        <div class="rule-item"><span>Log every bug in a bug log doc</span></div>
+      </div>
+
+      <h3>Security Discipline</h3>
+      <div class="rule-grid">
+        <div class="rule-item"><span>2FA on every account</span></div>
+        <div class="rule-item"><span>Secrets in password manager, never in code</span></div>
+        <div class="rule-item"><span>Never log PII — mask phone, email, ID</span></div>
+        <div class="rule-item"><span>Rate limit every endpoint</span></div>
+        <div class="rule-item"><span>Verify every webhook signature</span></div>
+        <div class="rule-item"><span>Rotate API keys quarterly</span></div>
+      </div>
+
+      <h3>Burnout Prevention</h3>
+      <div class="rule-grid">
+        <div class="rule-item"><span>Take one full day off per week — no code, no email</span></div>
+        <div class="rule-item"><span>No deploying on Fridays</span></div>
+        <div class="rule-item"><span>Sleep before big decisions</span></div>
+        <div class="rule-item"><span>If stuck for 2 hours, take a break</span></div>
+        <div class="rule-item"><span>Ask for help (Discord, Reddit, mentor)</span></div>
+      </div>
+    </section>
+
+    <!-- 28 — CHECKLIST -->
+    <section class="section-wrap" id="checklist">
+      <div class="section-header">
+        <span class="section-tag">Section 28</span>
+        <h2 class="section-title">Master Checklist</h2>
+        <p class="section-desc">Everything, organized. Check off as you go.</p>
+      </div>
+
+      <h3>Setup</h3>
+      <ul class="checklist">
+        <li>All accounts created</li>
+        <li>2FA enabled everywhere</li>
+        <li>Domain registered</li>
+        <li>Repo created</li>
+        <li>Folder structure</li>
+        <li>Environment running</li>
+        <li>Password manager setup</li>
+      </ul>
+
+      <h3>Decisions</h3>
+      <ul class="checklist">
+        <li>World Rules doc</li>
+        <li>MVP Scope doc</li>
+        <li>Tech Stack doc</li>
+        <li>First ADR</li>
+      </ul>
+
+      <h3>Data</h3>
+      <ul class="checklist">
+        <li>Database schema</li>
+        <li>Migrations</li>
+        <li>Seed scripts</li>
+        <li>Backup automation</li>
+      </ul>
+
+      <h3>API</h3>
+      <ul class="checklist">
+        <li>API spec</li>
+        <li>WebSocket catalog</li>
+        <li>Error catalog</li>
+        <li>Auth endpoints</li>
+        <li>Staging deployed</li>
+      </ul>
+
+      <h3>Core</h3>
+      <ul class="checklist">
+        <li>Seat locking</li>
+        <li>Search</li>
+        <li>Booking</li>
+        <li>Payment (sandbox)</li>
+        <li>Refund</li>
+        <li>Ticket + QR</li>
+        <li>Tested end-to-end</li>
+      </ul>
+
+      <h3>Real-Time</h3>
+      <ul class="checklist">
+        <li>GPS pipeline</li>
+        <li>ETA engine</li>
+        <li>Driver app</li>
+        <li>Passenger tracking</li>
+      </ul>
+
+      <h3>Panels</h3>
+      <ul class="checklist">
+        <li>Operator panel</li>
+        <li>Admin panel</li>
+        <li>Support panel</li>
+        <li>RBAC</li>
+        <li>Audit log</li>
+      </ul>
+
+      <h3>Design</h3>
+      <ul class="checklist">
+        <li>Wireframes (all)</li>
+        <li>Flow map</li>
+        <li>Component library</li>
+        <li>Content guide</li>
+        <li>Icon set</li>
+      </ul>
+
+      <h3>Security</h3>
+      <ul class="checklist">
+        <li>Security architecture</li>
+        <li>Threat model</li>
+        <li>Rate limiting</li>
+        <li>Secrets managed</li>
+        <li>Runbooks written</li>
+      </ul>
+
+      <h3>Production</h3>
+      <ul class="checklist">
+        <li>CI/CD</li>
+        <li>Monitoring</li>
+        <li>Alerts</li>
+        <li>Feature flags</li>
+        <li>Rollback tested</li>
+        <li>Backup drill done</li>
+        <li>Live payment mode</li>
+      </ul>
+
+      <h3>Business &amp; Legal</h3>
+      <ul class="checklist">
+        <li>Business model</li>
+        <li>Personas</li>
+        <li>GTM plan</li>
+        <li>Unit economics</li>
+        <li>Operator Agreement</li>
+        <li>Driver Agreement</li>
+        <li>ToS</li>
+        <li>Privacy Policy</li>
+        <li>Refund Policy</li>
+        <li>Compliance checklist</li>
+        <li>Trademark filed</li>
+      </ul>
+
+      <h3>College</h3>
+      <ul class="checklist">
+        <li>All report modules</li>
+        <li>Screenshots</li>
+        <li>Diagrams (DFD, UML, ER)</li>
+        <li>Test cases</li>
+        <li>Guide review</li>
+        <li>Final submission</li>
+      </ul>
+
+      <h3>Launch &amp; Beyond</h3>
+      <ul class="checklist">
+        <li>Beta users onboarded</li>
+        <li>Critical bugs fixed</li>
+        <li>Support FAQ ready</li>
+        <li>Public launch</li>
+        <li>Analytics review</li>
+        <li>Scaling plan</li>
+        <li>Marketing</li>
+        <li>Support playbook</li>
+      </ul>
+    </section>
+
+    <!-- 29 — NEXT -->
+    <section class="section-wrap" id="next">
+      <div class="section-header">
+        <span class="section-tag">Section 29</span>
+        <h2 class="section-title">What To Do Next</h2>
+        <p class="section-desc">You have this workflow. Now execute it.</p>
+      </div>
+
+      <div class="callout callout-danger">
+        <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <p><strong>The trap:</strong> Trying to write all 86 docs before building anything. The fix: write docs <em>just-in-time</em>, not just-in-case.</p>
+      </div>
+
+      <div class="table-frame">
+        <table>
+          <thead>
+            <tr><th>You want to...</th><th>Write this doc first</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Start coding the backend</td><td><strong>Database Schema</strong></td></tr>
+            <tr><td>Start coding the frontend</td><td><strong>API Spec + Wireframes</strong></td></tr>
+            <tr><td>Deploy to staging</td><td><strong>Environment Setup Guide</strong></td></tr>
+            <tr><td>Handle real money</td><td><strong>Security Architecture</strong></td></tr>
+            <tr><td>Get operators to sign up</td><td><strong>Operator Agreement + Business Model</strong></td></tr>
+            <tr><td>Submit college report</td><td><strong>College Report Modules + Diagrams</strong></td></tr>
+            <tr><td>Go live</td><td><strong>Operational Runbooks + Monitoring</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-success">
+        <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        <p><strong>Immediate next three things:</strong> (1) Set up foundation — accounts, repo, environment. (2) Write World Rules (done ✓) + MVP Scope. (3) Write Database Schema — unblocks all backend work.</p>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <div class="doc-footer">
+      <div class="doc-footer-title">BusVerse Real · Solo Developer Workflow</div>
+      <p class="doc-footer-text">v1.0 · Active · 86 docs across 7 tiers · Solo founder operating manual</p>
+    </div>
+
+  </main>
+
+  <script>
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const darkBtn = document.getElementById('btn-dark');
+      const lightBtn = document.getElementById('btn-light');
+      if (theme === 'dark') {
+        darkBtn.classList.add('active');
+        lightBtn.classList.remove('active');
+      } else {
+        lightBtn.classList.add('active');
+        darkBtn.classList.remove('active');
+      }
+    }
+
+    // Active nav on scroll
+    const sections = document.querySelectorAll('.section-wrap');
+    const navLinks = document.querySelectorAll('.nav-item a');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(sec => {
+        const top = sec.offsetTop - 140;
+        if (pageYOffset >= top) current = sec.getAttribute('id');
+      });
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) link.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
+

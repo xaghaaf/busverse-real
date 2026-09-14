@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BusVerse — App Walkthrough & Diagrams</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  window.mermaid = mermaid;
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#f5f5f5',
+      primaryTextColor: '#0a0a0a',
+      primaryBorderColor: '#0a0a0a',
+      lineColor: '#777777',
+      secondaryColor: '#ebebeb',
+      tertiaryColor: '#ffffff',
+      background: '#ffffff',
+      mainBkg: '#ffffff',
+      nodeBorder: '#0a0a0a',
+      clusterBkg: '#f5f5f5',
+      clusterBorder: '#cccccc',
+      titleColor: '#0a0a0a',
+      edgeLabelBackground: '#ffffff',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontSize: '14px'
+    },
+    flowchart: { curve: 'basis', padding: 16 },
+    sequence: { actorMargin: 50, messageMargin: 30, boxMargin: 8 },
+    gantt: { fontSize: 12, sectionFontSize: 13 }
+  });
+</script>
+<style>
+    :root {
+        --black: #0a0a0a;
+        --grey-900: #1a1a1a;
+        --grey-800: #2a2a2a;
+        --grey-700: #3d3d3d;
+        --grey-600: #555;
+        --grey-500: #777;
+        --grey-400: #999;
+        --grey-300: #bbb;
+        --grey-200: #d9d9d9;
+        --grey-100: #ebebeb;
+        --grey-50: #f5f5f5;
+        --white: #ffffff;
+        --sidebar-w: 320px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        background: var(--white);
+        color: var(--grey-900);
+        line-height: 1.7;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* ============ SIDEBAR ============ */
+    .sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        width: var(--sidebar-w);
+        height: 100vh;
+        background: var(--black);
+        color: var(--grey-300);
+        overflow-y: auto;
+        padding: 32px 0 60px;
+        z-index: 100;
+        transition: transform 0.3s ease;
+        border-right: 1px solid var(--grey-800);
+    }
+
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: var(--grey-900); }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--grey-700); border-radius: 3px; }
+
+    .sidebar-header {
+        padding: 0 28px 24px;
+        border-bottom: 1px solid var(--grey-800);
+        margin-bottom: 20px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--white);
+        letter-spacing: -0.5px;
+        margin-bottom: 4px;
+    }
+
+    .sidebar-header .version {
+        font-size: 0.75rem;
+        color: var(--grey-500);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 500;
+    }
+
+    .nav { list-style: none; }
+    .nav-item { margin: 0; }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 28px;
+        color: var(--grey-400);
+        text-decoration: none;
+        font-size: 0.86rem;
+        transition: all 0.15s ease;
+        border-left: 2px solid transparent;
+        line-height: 1.45;
+    }
+
+    .nav-link:hover {
+        color: var(--white);
+        background: var(--grey-900);
+        border-left-color: var(--grey-500);
+    }
+
+    .nav-link.active {
+        color: var(--white);
+        background: var(--grey-900);
+        border-left-color: var(--white);
+        font-weight: 600;
+    }
+
+    .nav-num {
+        font-family: "SF Mono", Monaco, Consolas, monospace;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--grey-600);
+        min-width: 22px;
+        flex-shrink: 0;
+    }
+
+    .nav-link.active .nav-num { color: var(--grey-400); }
+
+    .nav-parent {
+        display: block;
+        padding: 16px 28px 6px;
+        color: var(--grey-600);
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+        margin-top: 6px;
+    }
+
+    /* ============ MOBILE ============ */
+    .menu-btn {
+        display: none;
+        position: fixed;
+        top: 16px; left: 16px;
+        z-index: 200;
+        background: var(--black);
+        color: var(--white);
+        border: none;
+        width: 44px; height: 44px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+
+    .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 99;
+    }
+
+    .overlay.active { display: block; }
+
+    /* ============ MAIN ============ */
+    .main {
+        margin-left: var(--sidebar-w);
+        max-width: 980px;
+        padding: 60px 64px 120px;
+    }
+
+    /* ============ TYPOGRAPHY ============ */
+    h1.doc-title {
+        font-size: 2.6rem;
+        font-weight: 800;
+        letter-spacing: -1.2px;
+        line-height: 1.1;
+        margin-bottom: 12px;
+        color: var(--black);
+    }
+
+    .doc-subtitle {
+        font-size: 1.05rem;
+        color: var(--grey-600);
+        margin-bottom: 6px;
+    }
+
+    .doc-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 20px 0 28px;
+        margin-bottom: 40px;
+        border-bottom: 2px solid var(--black);
+        font-size: 0.82rem;
+        color: var(--grey-500);
+    }
+
+    .doc-meta span strong {
+        color: var(--grey-900);
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 1.85rem;
+        font-weight: 800;
+        letter-spacing: -0.6px;
+        color: var(--black);
+        margin: 72px 0 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--grey-200);
+    }
+
+    h2:first-of-type { margin-top: 0; }
+
+    h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--grey-900);
+        margin: 40px 0 14px;
+        letter-spacing: -0.3px;
+        padding-top: 12px;
+    }
+
+    p {
+        margin-bottom: 16px;
+        color: var(--grey-700);
+    }
+
+    ul, ol {
+        margin: 0 0 20px 22px;
+        color: var(--grey-700);
+    }
+
+    li {
+        margin-bottom: 8px;
+        padding-left: 4px;
+    }
+
+    li::marker { color: var(--grey-400); }
+
+    strong { color: var(--grey-900); font-weight: 700; }
+
+    code {
+        background: var(--grey-100);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "SF Mono", Monaco, Consolas, monospace;
+        font-size: 0.85em;
+        color: var(--grey-900);
+    }
+
+    /* ============ DIAGRAM CONTAINER ============ */
+    .diagram-block {
+        background: var(--grey-50);
+        border: 1px solid var(--grey-200);
+        border-radius: 12px;
+        padding: 32px 28px;
+        margin: 24px 0 32px;
+        position: relative;
+        overflow-x: auto;
+    }
+
+    .diagram-label {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        font-family: "SF Mono", Monaco, Consolas, monospace;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--grey-500);
+        background: var(--white);
+        padding: 4px 10px;
+        border-radius: 100px;
+        border: 1px solid var(--grey-200);
+    }
+
+    .mermaid {
+        display: flex;
+        justify-content: center;
+        min-height: 100px;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+
+    .mermaid svg {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    /* ============ CHART BLOCK ============ */
+    .chart-block {
+        background: var(--white);
+        border: 1px solid var(--grey-200);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 24px 0;
+        position: relative;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--grey-100);
+    }
+
+    .chart-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--black);
+        letter-spacing: -0.2px;
+    }
+
+    .chart-desc {
+        font-size: 0.78rem;
+        color: var(--grey-500);
+        margin-top: 2px;
+    }
+
+    .chart-canvas-wrap {
+        position: relative;
+        height: 280px;
+        width: 100%;
+    }
+
+    /* ============ APP GRID ============ */
+    .app-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin: 24px 0 36px;
+    }
+
+    .app-card {
+        border: 1px solid var(--grey-200);
+        border-radius: 10px;
+        padding: 18px 20px;
+        background: var(--white);
+        transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .app-card:hover {
+        border-color: var(--black);
+        transform: translateY(-2px);
+    }
+
+    .app-card-num {
+        font-family: "SF Mono", Monaco, Consolas, monospace;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--grey-400);
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+    }
+
+    .app-card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--black);
+        margin-bottom: 6px;
+        letter-spacing: -0.2px;
+    }
+
+    .app-card-role {
+        font-size: 0.82rem;
+        color: var(--grey-500);
+        line-height: 1.5;
+    }
+
+    /* ============ STAT ROW ============ */
+    .stat-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin: 20px 0 32px;
+    }
+
+    .stat-box {
+        border: 1px solid var(--grey-200);
+        border-radius: 10px;
+        padding: 18px 20px;
+        background: var(--white);
+    }
+
+    .stat-box-num {
+        font-size: 1.9rem;
+        font-weight: 800;
+        color: var(--black);
+        letter-spacing: -1.2px;
+        line-height: 1;
+        margin-bottom: 6px;
+    }
+
+    .stat-box-label {
+        font-size: 0.7rem;
+        color: var(--grey-500);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+    }
+
+    /* ============ CALLOUT ============ */
+    .callout {
+        background: var(--grey-50);
+        border: 1px solid var(--grey-200);
+        border-left: 4px solid var(--black);
+        padding: 18px 22px;
+        border-radius: 0 8px 8px 0;
+        margin: 24px 0;
+    }
+
+    .callout p:last-child { margin-bottom: 0; }
+
+    .callout-dark {
+        background: var(--black);
+        color: var(--grey-200);
+        border-left-color: var(--grey-400);
+    }
+
+    .callout-dark p { color: var(--grey-200); }
+    .callout-dark strong { color: var(--white); }
+
+    /* ============ TABLE ============ */
+    .table-wrap {
+        overflow-x: auto;
+        margin: 24px 0;
+        border: 1px solid var(--grey-200);
+        border-radius: 8px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+        min-width: 480px;
+    }
+
+    th {
+        background: var(--black);
+        color: var(--white);
+        text-align: left;
+        padding: 12px 16px;
+        font-weight: 600;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--grey-100);
+        color: var(--grey-700);
+        vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--grey-50); }
+
+    /* ============ END NOTE ============ */
+    .end-note {
+        margin-top: 80px;
+        padding: 32px;
+        background: var(--black);
+        color: var(--grey-200);
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .end-note h3 {
+        color: var(--white);
+        margin: 0 0 12px;
+        font-size: 1.4rem;
+        padding-top: 0;
+    }
+
+    .end-note p { color: var(--grey-400); margin: 0; }
+
+    /* ============ PROGRESS ============ */
+    .progress {
+        position: fixed;
+        top: 0; left: 0;
+        height: 2px;
+        background: var(--black);
+        z-index: 300;
+        transition: width 0.1s;
+        width: 0;
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 1024px) {
+        .main { padding: 60px 40px 100px; }
+        .app-grid { grid-template-columns: repeat(2, 1fr); }
+        .stat-row { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            width: 280px;
+        }
+        .sidebar.open { transform: translateX(0); }
+        .menu-btn { display: flex; }
+        .main {
+            margin-left: 0;
+            padding: 76px 22px 80px;
+            max-width: 100%;
+        }
+        h1.doc-title { font-size: 2rem; }
+        h2 { font-size: 1.5rem; margin-top: 48px; }
+        .app-grid { grid-template-columns: 1fr; }
+        .stat-row { grid-template-columns: repeat(2, 1fr); }
+        .diagram-block { padding: 24px 12px; }
+        .diagram-label { position: static; display: inline-block; margin-bottom: 12px; }
+        .chart-canvas-wrap { height: 220px; }
+        .doc-meta { gap: 12px; font-size: 0.78rem; }
+    }
+
+    @media (max-width: 400px) {
+        .main { padding: 70px 16px 60px; }
+        h1.doc-title { font-size: 1.7rem; }
+        .stat-row { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+<div class="overlay" id="overlay"></div>
+
+<!-- ============ SIDEBAR ============ -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h1>BusVerse</h1>
+        <div class="version">Walkthrough · Diagrams</div>
+    </div>
+
+    <ul class="nav">
+        <li class="nav-item"><span class="nav-parent">Overview</span></li>
+        <li class="nav-item"><a class="nav-link" href="#intro"><span class="nav-num">—</span>Introduction</a></li>
+        <li class="nav-item"><a class="nav-link" href="#apps"><span class="nav-num">01</span>Six Apps Overview</a></li>
+        <li class="nav-item"><a class="nav-link" href="#architecture"><span class="nav-num">02</span>System Architecture</a></li>
+        <li class="nav-item"><a class="nav-link" href="#modules"><span class="nav-num">03</span>Module Map</a></li>
+
+        <li class="nav-item"><span class="nav-parent">Flows</span></li>
+        <li class="nav-item"><a class="nav-link" href="#journey"><span class="nav-num">04</span>Passenger Journey</a></li>
+        <li class="nav-item"><a class="nav-link" href="#booking"><span class="nav-num">05</span>Booking Lifecycle</a></li>
+        <li class="nav-item"><a class="nav-link" href="#seats"><span class="nav-num">06</span>Seat States</a></li>
+        <li class="nav-item"><a class="nav-link" href="#payments"><span class="nav-num">07</span>Payment &amp; Refund Flow</a></li>
+
+        <li class="nav-item"><span class="nav-parent">Technical</span></li>
+        <li class="nav-item"><a class="nav-link" href="#erd"><span class="nav-num">08</span>Database ER Diagram</a></li>
+        <li class="nav-item"><a class="nav-link" href="#realtime"><span class="nav-num">09</span>Real-Time Architecture</a></li>
+        <li class="nav-item"><a class="nav-link" href="#deploy"><span class="nav-num">10</span>Deployment Architecture</a></li>
+
+        <li class="nav-item"><span class="nav-parent">Dashboards</span></li>
+        <li class="nav-item"><a class="nav-link" href="#analytics"><span class="nav-num">11</span>Analytics Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="#roadmap"><span class="nav-num">12</span>Build Roadmap</a></li>
+    </ul>
+</nav>
+
+<!-- ============ MAIN ============ -->
+<main class="main">
+
+    <h1 class="doc-title">BusVerse</h1>
+    <p class="doc-subtitle">A visual walkthrough of the platform — apps, panels, flows, architecture, and dashboards.</p>
+
+    <div class="doc-meta">
+        <span><strong>Version:</strong> 1.0</span>
+        <span><strong>Type:</strong> Walkthrough · Diagrams</span>
+        <span><strong>Apps:</strong> 6</span>
+        <span><strong>Modules:</strong> 39</span>
+    </div>
+
+    <!-- ============ INTRO ============ -->
+    <h2 id="intro">Introduction</h2>
+    <p>This document is a visual tour of BusVerse Real. It shows <strong>how the apps connect, how data flows, how the system is built, and how everything fits together</strong>. Every diagram is generated live in the browser using the right tool for the job.</p>
+
+    <div class="callout">
+        <p><strong>Tools used:</strong> Mermaid for architecture, flows, state machines, ER diagrams, and Gantt charts. Chart.js for analytics dashboards. Inline SVG for deployment topology. Each diagram is labelled with the tool used.</p>
+    </div>
+
+    <div class="stat-row">
+        <div class="stat-box">
+            <div class="stat-box-num">6</div>
+            <div class="stat-box-label">Apps &amp; Panels</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-num">39</div>
+            <div class="stat-box-label">Modules</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-num">404</div>
+            <div class="stat-box-label">Features</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-num">3</div>
+            <div class="stat-box-label">Phases</div>
+        </div>
+    </div>
+
+    <!-- ============ 01 — APPS ============ -->
+    <h2 id="apps">01 · Six Apps Overview</h2>
+    <p>BusVerse Real runs on <strong>six separate applications</strong>, each serving a distinct audience. They share a single backend but present completely different interfaces.</p>
+
+    <div class="app-grid">
+        <div class="app-card">
+            <div class="app-card-num">01</div>
+            <div class="app-card-title">Passenger App</div>
+            <div class="app-card-role">Web + PWA. For travelers to search, book, pay, track, and board.</div>
+        </div>
+        <div class="app-card">
+            <div class="app-card-num">02</div>
+            <div class="app-card-title">Driver App</div>
+            <div class="app-card-role">Mobile (React Native / Flutter). For drivers to stream GPS, scan QR, manage trips.</div>
+        </div>
+        <div class="app-card">
+            <div class="app-card-num">03</div>
+            <div class="app-card-title">Operator Panel</div>
+            <div class="app-card-role">Web. For bus operators to manage fleet, routes, schedules, drivers, and revenue.</div>
+        </div>
+        <div class="app-card">
+            <div class="app-card-num">04</div>
+            <div class="app-card-title">Admin Panel</div>
+            <div class="app-card-role">Web. For BusVerse team to approve, oversee, arbitrate, and control the platform.</div>
+        </div>
+        <div class="app-card">
+            <div class="app-card-num">05</div>
+            <div class="app-card-title">Support Panel</div>
+            <div class="app-card-role">Web. For support agents to handle tickets, chat, refunds, and escalations.</div>
+        </div>
+        <div class="app-card">
+            <div class="app-card-num">06</div>
+            <div class="app-card-title">Shared Backend</div>
+            <div class="app-card-role">Not an app — the API, WebSocket, database, and simulation that powers all five.</div>
+        </div>
+    </div>
+
+    <div class="diagram-block">
+        <div class="diagram-label">Mermaid · Flowchart</div>
+        <div class="mermaid">
+flowchart TB
+    classDef passenger fill:#ffffff,stroke:#0a0a0a,stroke-width:2px,color:#0a0a0a
+    classDef driver fill:#f5f5f5,stroke:#0a0a0a,stroke-width:2px,color:#0a0a0a
+    classDef operator fill:#ebebeb,stroke:#0a0a0a,stroke-width:2px,color:#0a0a0a
+    classDef admin fill:#0a0a0a,stroke:#0a0a0a,stroke-width:2px,color:#ffffff
+    classDef support fill:#d9d9d9,stroke:#0a0a0a,stroke-width:2px,color:#0a0a0a
+    classDef backend fill:#ffffff,stroke:#0a0a0a,stroke-width:3px,color:#0a0a0a
+
+    PA[Passenger App<br/>Web + PWA]:::passenger
+    DR[Driver App<br/>Mobile]:::driver
+    OP[Operator Panel<br/>Web]:::operator
+    AD[Admin Panel<br/>Web]:::admin
+    SU[Support Panel<br/>Web]:::support
+
+    API[Shared Backend<br/>API · WebSocket · DB · Simulation]:::backend
+
+    PA -->|Search · Book · Pay| API
+    DR -->|GPS · QR Scan · Trips| API
+    OP -->|Fleet · Routes · Revenue| API
+    AD -->|Approve · Oversee · Finance| API
+    SU -->|Tickets · Chat · Refunds| API
+
+    API --> PG[Payment Gateways<br/>Razorpay · PhonePe · Paytm]
+    API --> MAP[Maps & Traffic<br/>Google · TomTom · OSM]
+    API --> MSG[SMS & Email<br/>MSG91 · SendGrid]
+    API --> CERT[CERT-In · GST · KYC]
+        </div>
+    </div>
+
+    <!-- ============ 02 — ARCHITECTURE ============ -->
+    <h2 id="architecture">02 · System Architecture</h2>
+    <p>The high-level architecture — from client apps down to database, cache, and external services.</p>
+
+    <div class="diagram-block">
+        <div class="diagram-label">Mermaid · Architecture</div>
+        <div class="mermaid">
+flowchart TB
+    subgraph Clients["Client Layer"]
+        C1[Passenger App]
+        C2[Driver App]
+        C3[Operator Panel]
+        C4[Admin Panel]
+        C5[Support Panel]
+    end
+
+    subgraph Edge["Edge Layer"]
+        CDN[CDN<br/>Cloudflare]
+        LB[Load Balancer]
+        DDoS[DDoS Protection]
+    end
+
+    subgraph Services["Application Services"]
+        AUTH[Auth Service]
+        BOOK[Booking Service]
+        PAY[Payment Service]
+        TRACK[Tracking Service]
+        NOTIF[Notification Service]
+        ADMIN[Admin Service]
+    end
+
+    subgraph Data["Data Layer"]
+        DB[(PostgreSQL<br/>Source of Truth)]
+        REDIS[(Redis<br/>Locks · Sessions · Cache)]
+        S3[(Object Storage<br/>PDFs · Images · CCTV)]
+    end
+
+    subgraph External["External Services"]
+        PGW[Payment Gateways]
+        GMAP[Maps & Traffic]
+        SMS[SMS / Email]
+    end
+
+    Clients --> CDN
+    CDN --> DDoS
+    DDoS --> LB
+    LB --> Services
+
+    AUTH --> DB
+    AUTH --> REDIS
+    BOOK --> DB
+    BOOK --> REDIS
+    PAY --> DB
+    PAY --> PGW
+    TRACK --> REDIS
+    TRACK --> GMAP
+    NOTIF --> SMS
+    ADMIN --> DB
+
+    Services --> S3
+        </div>
+    </div>
+
+    <!-- ============ 03 — MODULES ============ -->
+    <h2 id="modules">03 · Module Map</h2>
+    <p>All 39 modules grouped into three tiers — Core, Critical, High. This is the complete feature surface of the platform.</p>
+
+    <div class="diagram-block">
+        <div class="diagram-label">Mermaid · Mindmap</div>
+        <div class="mermaid">
+mindmap
+  root((BusVerse<br/>39 Modules))
+    Core
+      Auth & Identity
+      Search & Discovery
+      Booking Flow
+      Payments
+      Tickets & QR
+      Cancellation
+      Live Tracking
+      Driver App
+      Operator Panel
+      Admin Panel
+      Support Panel
+      Notifications
+      Safety
+      Real-Time Infra
+      Compliance
+      Analytics
+      Multi-City
+      Government Bus
+      Test Mode
+      DevOps
+    Critical
+      Waitlist
+      Promo Engine
+      Fraud Detection
+      Corporate B2B
+      Travel Agent
+      Dispute Resolution
+      Operator Rating
+      Charter Hire
+      Boarding Pass
+      Infrastructure
+    High Priority
+      Loyalty
+      Referral
+      Reviews
+      Price Alerts
+      Dynamic Pricing
+      Rebooking
+      Substitution
+      Overbooking
+      Navigation
+        </div>
+    </div>
+
+    <!-- ============ 04 — JOURNEY ============ -->
+    <h2 id="journey">04 · Passenger Journey</h2>
+    <p>A complete passenger journey — from the first search to the moment the driver scans the ticket. This is what a real user experiences, end to end.</p>
+
+    <div class="diagram-block">
+        <div class="diagram-label">Mermaid · Sequence</div>
+        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant P as Passenger
+    participant A as BusVerse App
+    participant S as Server
+    participant R as Redis
+    participant PG as Payment Gateway
+    participant D as Driver
+
+    P->>A: Open app, search route
+    A->>S: GET /search
+    S-->>A: List of buses
+    A-->>P: Show results + map
+
+    P->>A: Select bus & seat
+    A->>S: POST /seats/lock
+    S->>R: SET NX seat_lock
+    R-->>S: Lock acquired
+    S-->>A: Locked for 5 min
+    A-->>P: Seat held (countdown)
+
+    P->>A: Pay via UPI
+    A->>PG: Create payment
+    PG-->>A: Payment success
+    A->>S: POST /bookings/confirm
+    S->>R: Delete lock
+    S->>S: Create booking + ticket
+    S-->>A: Booking confirmed
+    A-->>P: Ticket with QR
+
+    Note over P,D: Day of travel
+    P->>D: Show QR at boarding
+    D->>S: POST /tickets/scan
+    S-->>D: ✅ Valid ticket
+    D-->>P: Checked in
+        </div>
+    </div>
+
+    <!-- ============ 05 — BOOKING ============ -->
+    <h2 id="booking">05 · Booking Lifecycle</h2>
+    <p>Every possible state a booking can be in — from initial search to final settlement. This is the state machine the backend enforces.</p>
+
+    <div class="diagram-block">
+        <div class="diagram-label">Mermaid · State Diagram</div>
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> Searching
+    Searching --> Selected: pick bus
+    Selected --> Locked: select seat
+    Locked --> Released: lock expires
+    Released --> [*]
+    Locked --> Paid: payment success
+    Locked --> Failed: payment fails
+    Failed --> Locked: retry payment
+    Paid --> Confirmed: booking created
+    Confirmed --> CheckedIn: QR scanned
+    CheckedIn --> Completed: trip ends
+    Confirmed --> UserCancelled: user cancels
+    Confirmed --> OperatorCancelled: operator cancels
+    Confirmed --> NoShow: passenger absent
+    UserCancelled --> Refunded: refund issued
+    OperatorCancelled --> Refunded: 100% refund
+    Completed --> [*]
+    Refunded --> [*]
+    NoShow --> [*]
+        </div>
+    </div>
+
+    <!-- ============ 06 — SEATS ============ -->
+    <h2 id="seats">06 · Seat States</h2>
+    <p>Every seat has a single state at any moment. The atomic lock prevents two users from holding the same seat at the same time.</p>
+
+    <div class="diagram-block">
+        <div class="diagram-label">Mermaid · State Diagram</div>
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> Available
+    Available --> Locked: user selects
+    Locked --> Booked: payment success
+    Locked --> Available: lock expires (5 min)
+    Locked --> Available: payment fails
+    Booked --> Occupied: passenger boards
+    Occupied --> Available: trip ends
+    Available --> Blocked: admin disables
+    Blocked --> Available: admin enables
+    Booked --> [*]
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>State</th><th>Visible As</th><th>Meaning</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Available</td><td>Green</td><td>Anyone can select</td></tr>
+                <tr><td>Locked by me</td><td>Blue</td><td>You hold the lock</td></tr>
+                <tr><td>Locked by other</td><td>Yellow</td><td>Someone else is paying</td></tr>
+                <tr><td>Booked</td><td>Red</td><td>Confirmed booking</td></tr>
+                <tr><td>Blocked</td><td>Grey</td><td>Admin-disabled</td></tr>
+                <tr><td>Female-only</td><td>Pink</td><td>Reserved for female passengers</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============ 07 — PAYMENTS ============ -->
+    <h2 id="payments">07 · Payment &amp; Refund Flow</h2>
+    <p>How a payment moves through the gateway and how refunds are automatically triggered by the refund engine.</p>
+
+    <div class="diagram-block">
+        <div class="diagram-label">Mermaid · Sequence</div>
+        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant A as App
+    participant S as Server
+    participant PA as Payment Adapter
+    participant GW as Gateway
+
+    Note over U,GW: Payment Flow
+    U->>A: Choose payment method
+    A->>S: POST /payments/create
+    S->>PA: createOrder(amount)
+    PA->>GW: Create order (idempotent key)
+    GW-->>PA: Order ID
+    PA-->>A: Checkout session
+    U->>GW: Enter UPI PIN
+    GW-->>S: Webhook: payment.success
+    S->>S: Confirm booking + issue ticket
+    S-->>U: Ticket delivered
+
+    Note over U,GW: Refund Flow
+    U->>A: Cancel booking
+    A->>S: POST /bookings/cancel
+    S->>S: Check refund policy
+    S->>PA: createRefund(amount)
+    PA->>GW: POST /refunds
+    GW-->>PA: Refund initiated
+    GW-->>S: Webhook: refund.processed
+    S-->>U: Refund confirmed (3-7 days)
+        </div>
+    </div>
+
+    <!-- ============ 08 — ERD ============ -->
+    <h2 id="erd">08 · Database ER Diagram</h2>
+    <p>The core tables that power BusVerse. Users, operators, buses, routes, schedules, bookings, tickets, payments, and refunds — all connected.</p>
+
+    <div class="diagram-block">
+        <div class="diagram-label">Mermaid · ER Diagram</div>
+        <div class="mermaid">
+erDiagram
+    USERS ||--o{ BOOKINGS : places
+    USERS ||--o{ PAYMENTS : makes
+    USERS ||--o{ SEAT_LOCKS : holds
+    OPERATORS ||--o{ BUSES : owns
+    OPERATORS ||--o{ ROUTES : creates
+    OPERATORS ||--o{ DRIVERS : employs
+    OPERATORS ||--o{ SETTLEMENTS : receives
+    BUSES ||--o{ SCHEDULES : operates
+    ROUTES ||--o{ SCHEDULES : follows
+    ROUTES ||--o{ STANDS : contains
+    DRIVERS ||--o{ SCHEDULES : drives
+    SCHEDULES ||--o{ BOOKINGS : has
+    SCHEDULES ||--o{ SEAT_LOCKS : reserves
+    BOOKINGS ||--|| TICKETS : generates
+    BOOKINGS ||--o{ REFUNDS : triggers
+    PAYMENTS ||--o{ REFUNDS : refunds_via
+
+    USERS {
+        uuid id PK
+        string phone UK
+        string email
+        string name
+        timestamp created_at
+    }
+
+    OPERATORS {
+        uuid id PK
+        string company_name
+        string gstin UK
+        string status
+    }
+
+    BUSES {
+        uuid id PK
+        uuid operator_id FK
+        string registration UK
+        int capacity
+        string model
+    }
+
+    ROUTES {
+        uuid id PK
+        uuid operator_id FK
+        string name
+        decimal distance
+    }
+
+    STANDS {
+        uuid id PK
+        uuid route_id FK
+        string name
+        decimal lat
+        decimal lng
+        int sequence
+    }
+
+    SCHEDULES {
+        uuid id PK
+        uuid bus_id FK
+        uuid route_id FK
+        uuid driver_id FK
+        timestamp departure
+        int fare
+    }
+
+    DRIVERS {
+        uuid id PK
+        uuid operator_id FK
+        string license
+        string status
+    }
+
+    BOOKINGS {
+        uuid id PK
+        uuid user_id FK
+        uuid schedule_id FK
+        string seat
+        string status
+        int amount
+    }
+
+    TICKETS {
+        uuid id PK
+        uuid booking_id FK
+        string qr_signature
+        string status
+    }
+
+    PAYMENTS {
+        uuid id PK
+        uuid booking_id FK
+        string gateway
+        int amount
+        string status
+    }
+
+    REFUNDS {
+        uuid id PK
+        uuid payment_id FK
+        int amount
+        string reason
+        string status
+    }
+
+    SEAT_LOCKS {
+        uuid id PK
+        uuid schedule_id FK
+        string seat
+        uuid user_id FK
+        timestamp expires_at
+    }
+
+    SETTLEMENTS {
+        uuid id PK
+        uuid operator_id FK
+        int amount
+        timestamp period_end
+    }
+        </div>
+    </div>
+
+    <!-- ============ 09 — REALTIME ============ -->
+    <h2 id="realtime">09 · Real-Time Architecture</h2>
+    <p>How GPS data, seat updates, and notifications flow from driver phones to passenger screens in real time.</p>
+
+    <div class="diagram-block">
+        <div class="diagram-label">Mermaid · Flowchart</div>
+        <div class="mermaid">
+flowchart LR
+    classDef source fill:#f5f5f5,stroke:#0a0a0a,stroke-width:2px
+    classDef server fill:#0a0a0a,stroke:#0a0a0a,color:#ffffff,stroke-width:2px
+    classDef store fill:#ebebeb,stroke:#0a0a0a,stroke-width:2px
+    classDef client fill:#ffffff,stroke:#0a0a0a,stroke-width:2px
+
+    D[Driver Phone<br/>GPS every 10s]:::source
+    WS[WebSocket Server<br/>Socket.IO]:::server
+    R[(Redis<br/>Pub/Sub)]:::store
+    EB[ETA Engine]:::server
+    TR[Traffic API]:::source
+    DB[(PostgreSQL<br/>Positions)]:::store
+
+    P1[Passenger 1<br/>Tracking Trip A]:::client
+    P2[Passenger 2<br/>Tracking Trip A]:::client
+    PA[Passenger App<br/>Live Map]:::client
+    OP[Operator Panel<br/>Fleet View]:::client
+
+    D -->|POST /gps| WS
+    WS --> R
+    WS --> DB
+    WS --> EB
+    TR --> EB
+    EB --> R
+    R --> P1
+    R --> P2
+    R --> PA
+    R --> OP
+        </div>
+    </div>
+
+    <!-- ============ 10 — DEPLOY ============ -->
+    <h2 id="deploy">10 · Deployment Architecture</h2>
+    <p>How the platform is deployed in production. Multi-region, load-balanced, monitored, and backed up.</p>
+
+    <div class="diagram-block">
+        <div class="diagram-label">Inline SVG · Topology</div>
+        <svg viewBox="0 0 900 640" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-width:900px;display:block;margin:0 auto;font-family:-apple-system,sans-serif;">
+            <!-- Users layer -->
+            <rect x="40" y="30" width="820" height="80" rx="10" fill="#f5f5f5" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="450" y="58" text-anchor="middle" font-size="12" font-weight="700" fill="#555" letter-spacing="1.5">USERS</text>
+
+            <rect x="80" y="68" width="130" height="34" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="145" y="90" text-anchor="middle" font-size="12" font-weight="600" fill="#0a0a0a">Passengers</text>
+
+            <rect x="240" y="68" width="130" height="34" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="305" y="90" text-anchor="middle" font-size="12" font-weight="600" fill="#0a0a0a">Drivers</text>
+
+            <rect x="400" y="68" width="130" height="34" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="465" y="90" text-anchor="middle" font-size="12" font-weight="600" fill="#0a0a0a">Operators</text>
+
+            <rect x="560" y="68" width="130" height="34" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="625" y="90" text-anchor="middle" font-size="12" font-weight="600" fill="#0a0a0a">Admin &amp; Support</text>
+
+            <!-- Arrow -->
+            <line x1="450" y1="110" x2="450" y2="150" stroke="#0a0a0a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+            <!-- Edge layer -->
+            <rect x="40" y="150" width="820" height="80" rx="10" fill="#ebebeb" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="450" y="178" text-anchor="middle" font-size="12" font-weight="700" fill="#555" letter-spacing="1.5">EDGE LAYER</text>
+
+            <rect x="80" y="188" width="180" height="34" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="170" y="210" text-anchor="middle" font-size="12" font-weight="600" fill="#0a0a0a">CDN (Cloudflare)</text>
+
+            <rect x="280" y="188" width="180" height="34" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="370" y="210" text-anchor="middle" font-size="12" font-weight="600" fill="#0a0a0a">DDoS Protection</text>
+
+            <rect x="480" y="188" width="180" height="34" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="570" y="210" text-anchor="middle" font-size="12" font-weight="600" fill="#0a0a0a">Load Balancer</text>
+
+            <!-- Arrow -->
+            <line x1="450" y1="230" x2="450" y2="270" stroke="#0a0a0a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+            <!-- App services -->
+            <rect x="40" y="270" width="820" height="120" rx="10" fill="#f5f5f5" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="450" y="298" text-anchor="middle" font-size="12" font-weight="700" fill="#555" letter-spacing="1.5">APPLICATION SERVICES (AUTO-SCALED)</text>
+
+            <rect x="70" y="315" width="150" height="60" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="145" y="340" text-anchor="middle" font-size="12" font-weight="700" fill="#0a0a0a">Auth</text>
+            <text x="145" y="358" text-anchor="middle" font-size="10" fill="#777">JWT · OTP</text>
+
+            <rect x="230" y="315" width="150" height="60" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="305" y="340" text-anchor="middle" font-size="12" font-weight="700" fill="#0a0a0a">Booking</text>
+            <text x="305" y="358" text-anchor="middle" font-size="10" fill="#777">Seats · Locks</text>
+
+            <rect x="390" y="315" width="150" height="60" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="465" y="340" text-anchor="middle" font-size="12" font-weight="700" fill="#0a0a0a">Payment</text>
+            <text x="465" y="358" text-anchor="middle" font-size="10" fill="#777">Refund Engine</text>
+
+            <rect x="550" y="315" width="150" height="60" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="625" y="340" text-anchor="middle" font-size="12" font-weight="700" fill="#0a0a0a">Tracking</text>
+            <text x="625" y="358" text-anchor="middle" font-size="10" fill="#777">WebSocket · GPS</text>
+
+            <rect x="710" y="315" width="130" height="60" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="775" y="340" text-anchor="middle" font-size="12" font-weight="700" fill="#0a0a0a">Admin</text>
+            <text x="775" y="358" text-anchor="middle" font-size="10" fill="#777">CCTV · Audit</text>
+
+            <!-- Arrow -->
+            <line x1="450" y1="390" x2="450" y2="430" stroke="#0a0a0a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+            <!-- Data layer -->
+            <rect x="40" y="430" width="820" height="80" rx="10" fill="#ebebeb" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="450" y="458" text-anchor="middle" font-size="12" font-weight="700" fill="#555" letter-spacing="1.5">DATA LAYER</text>
+
+            <rect x="80" y="472" width="200" height="34" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="180" y="494" text-anchor="middle" font-size="12" font-weight="600" fill="#0a0a0a">PostgreSQL (Primary)</text>
+
+            <rect x="300" y="472" width="200" height="34" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="400" y="494" text-anchor="middle" font-size="12" font-weight="600" fill="#0a0a0a">Redis (Cache · Locks)</text>
+
+            <rect x="520" y="472" width="180" height="34" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="610" y="494" text-anchor="middle" font-size="12" font-weight="600" fill="#0a0a0a">Object Storage (S3)</text>
+
+            <rect x="720" y="472" width="120" height="34" rx="6" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="780" y="494" text-anchor="middle" font-size="12" font-weight="600" fill="#0a0a0a">Backups</text>
+
+            <!-- Arrow -->
+            <line x1="450" y1="510" x2="450" y2="550" stroke="#0a0a0a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+            <!-- External -->
+            <rect x="40" y="550" width="820" height="60" rx="10" fill="#0a0a0a" stroke="#0a0a0a" stroke-width="1.5"/>
+            <text x="450" y="576" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff" letter-spacing="1.5">EXTERNAL INTEGRATIONS</text>
+            <text x="450" y="596" text-anchor="middle" font-size="11" fill="#bbb">Razorpay · PhonePe · Paytm · Google Maps · MSG91 · SendGrid</text>
+
+            <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#0a0a0a"/>
+                </marker>
+            </defs>
+        </svg>
+    </div>
+
+    <!-- ============ 11 — ANALYTICS ============ -->
+    <h2 id="analytics">11 · Analytics Dashboard</h2>
+    <p>Sample visualisations of the kinds of data the Admin and Operator panels would show. These are rendered live with Chart.js.</p>
+
+    <div class="chart-block">
+        <div class="chart-header">
+            <div>
+                <div class="chart-title">Bookings Over Time</div>
+                <div class="chart-desc">Daily bookings across 14 days — showing weekday vs weekend patterns</div>
+            </div>
+            <div class="diagram-label" style="position:static;">Chart.js · Line</div>
+        </div>
+        <div class="chart-canvas-wrap">
+            <canvas id="chartBookings"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-block">
+        <div class="chart-header">
+            <div>
+                <div class="chart-title">Revenue by Route</div>
+                <div class="chart-desc">Top 6 routes by total revenue (in ₹ lakhs)</div>
+            </div>
+            <div class="diagram-label" style="position:static;">Chart.js · Bar</div>
+        </div>
+        <div class="chart-canvas-wrap">
+            <canvas id="chartRevenue"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-block">
+        <div class="chart-header">
+            <div>
+                <div class="chart-title">Payment Method Mix</div>
+                <div class="chart-desc">How passengers pay — UPI dominates, as expected in India</div>
+            </div>
+            <div class="diagram-label" style="position:static;">Chart.js · Doughnut</div>
+        </div>
+        <div class="chart-canvas-wrap">
+            <canvas id="chartPayments"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-block">
+        <div class="chart-header">
+            <div>
+                <div class="chart-title">On-Time Performance</div>
+                <div class="chart-desc">Percentage of trips arriving on time, per month — operators improving over time</div>
+            </div>
+            <div class="diagram-label" style="position:static;">Chart.js · Line</div>
+        </div>
+        <div class="chart-canvas-wrap">
+            <canvas id="chartOnTime"></canvas>
+        </div>
+    </div>
+
+    <!-- ============ 12 — ROADMAP ============ -->
+    <h2 id="roadmap">12 · Build Roadmap</h2>
+    <p>The 18-month roadmap from MVP to full platform. Three phases — Launch, Growth, Scale.</p>
+
+    <div class="diagram-block">
+        <div class="diagram-label">Mermaid · Gantt</div>
+        <div class="mermaid">
+gantt
+    title BusVerse Real — Build Roadmap
+    dateFormat YYYY-MM-DD
+    axisFormat %b %Y
+    excludes weekends
+
+    section Phase 1 — MVP
+    Foundation & Auth          :p1a, 2026-01-01, 45d
+    Search & Booking Flow      :p1b, after p1a, 45d
+    Payments & Tickets         :p1c, after p1b, 40d
+    Driver App                 :p1d, after p1c, 45d
+    Operator & Admin Panels    :p1e, after p1d, 45d
+    Testing & Beta Launch      :p1f, after p1e, 30d
+
+    section Phase 2 — Growth
+    Corporate & Agent Portals  :p2a, after p1f, 60d
+    Loyalty & Referral         :p2b, after p2a, 45d
+    Dynamic Pricing            :p2c, after p2b, 30d
+    Dispute Resolution         :p2d, after p2c, 30d
+
+    section Phase 3 — Scale
+    Bus Substitution & Overbook:p3a, after p2d, 45d
+    Government Bus Integration :p3b, after p3a, 60d
+    Advanced Analytics         :p3c, after p3b, 30d
+        </div>
+    </div>
+
+    <div class="callout callout-dark">
+        <p><strong>Phase 1 (Months 1–6):</strong> Core booking, payments, ticketing, driver app, operator + admin panels. The MVP that proves the model.</p>
+    </div>
+
+    <div class="callout callout-dark">
+        <p><strong>Phase 2 (Months 7–12):</strong> Corporate B2B, travel agents, loyalty, referral, dynamic pricing, dispute resolution. The growth engine.</p>
+    </div>
+
+    <div class="callout callout-dark">
+        <p><strong>Phase 3 (Months 13–18):</strong> Bus substitution, overbooking, government bus integration, advanced analytics. The scale layer.</p>
+    </div>
+
+    <div class="end-note">
+        <h3>End of Walkthrough</h3>
+        <p>BusVerse Real · 6 Apps · 39 Modules · 404 Features</p>
+    </div>
+
+</main>
+
+<script>
+    // Mobile menu
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    menuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+    });
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+        });
+    });
+
+    // Scroll progress
+    const progress = document.getElementById('progress');
+    window.addEventListener('scroll', () => {
+        const h = document.documentElement;
+        const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+        progress.style.width = scrolled + '%';
+    });
+
+    // Active nav
+    const sections = document.querySelectorAll('h2[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(l => l.classList.remove('active'));
+                const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+                if (active) active.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-15% 0px -75% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+
+    // ============ CHART.JS SETUP ============
+    const chartDefaults = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                labels: {
+                    font: { family: '-apple-system, sans-serif', size: 12 },
+                    color: '#555'
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: { color: '#ebebeb' },
+                ticks: { color: '#777', font: { size: 11 } }
+            },
+            y: {
+                grid: { color: '#ebebeb' },
+                ticks: { color: '#777', font: { size: 11 } }
+            }
+        }
+    };
+
+    // Bookings line chart
+    new Chart(document.getElementById('chartBookings'), {
+        type: 'line',
+        data: {
+            labels: ['D1','D2','D3','D4','D5','D6','D7','D8','D9','D10','D11','D12','D13','D14'],
+            datasets: [{
+                label: 'Bookings',
+                data: [120, 145, 132, 158, 172, 210, 245, 138, 155, 168, 175, 195, 268, 285],
+                borderColor: '#0a0a0a',
+                backgroundColor: 'rgba(10,10,10,0.06)',
+                borderWidth: 2.5,
+                tension: 0.35,
+                fill: true,
+                pointBackgroundColor: '#0a0a0a',
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            ...chartDefaults,
+            plugins: { ...chartDefaults.plugins, legend: { display: false } }
+        }
+    });
+
+    // Revenue bar chart
+    new Chart(document.getElementById('chartRevenue'), {
+        type: 'bar',
+        data: {
+            labels: ['Delhi → Jaipur', 'Mumbai → Pune', 'Blr → Mysore', 'Chennai → Pondy', 'Hyd → Warangal', 'Delhi → Agra'],
+            datasets: [{
+                label: 'Revenue (₹ lakhs)',
+                data: [18.4, 22.1, 14.6, 9.8, 7.2, 12.3],
+                backgroundColor: '#0a0a0a',
+                borderRadius: 6,
+                barThickness: 32
+            }]
+        },
+        options: {
+            ...chartDefaults,
+            plugins: { ...chartDefaults.plugins, legend: { display: false } },
+            scales: {
+                x: { ...chartDefaults.scales.x, ticks: { ...chartDefaults.scales.x.ticks, maxRotation: 30, minRotation: 0 } },
+                y: chartDefaults.scales.y
+            }
+        }
+    });
+
+    // Payment mix doughnut
+    new Chart(document.getElementById('chartPayments'), {
+        type: 'doughnut',
+        data: {
+            labels: ['UPI', 'Cards', 'Netbanking', 'Wallets', 'EMI'],
+            datasets: [{
+                data: [68, 14, 8, 7, 3],
+                backgroundColor: ['#0a0a0a', '#3d3d3d', '#777', '#bbb', '#ebebeb'],
+                borderColor: '#ffffff',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        font: { family: '-apple-system, sans-serif', size: 12 },
+                        color: '#555',
+                        padding: 16,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                }
+            }
+        }
+    });
+
+    // On-time performance line
+    new Chart(document.getElementById('chartOnTime'), {
+        type: 'line',
+        data: {
+            labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+            datasets: [
+                {
+                    label: 'On-Time %',
+                    data: [72, 75, 78, 76, 81, 84, 83, 86, 88, 87, 90, 92],
+                    borderColor: '#0a0a0a',
+                    backgroundColor: 'rgba(10,10,10,0.06)',
+                    borderWidth: 2.5,
+                    tension: 0.35,
+                    fill: true,
+                    pointBackgroundColor: '#0a0a0a',
+                    pointRadius: 4
+                }
+            ]
+        },
+        options: {
+            ...chartDefaults,
+            plugins: { ...chartDefaults.plugins, legend: { display: false } },
+            scales: {
+                x: chartDefaults.scales.x,
+                y: {
+                    ...chartDefaults.scales.y,
+                    min: 60,
+                    max: 100,
+                    ticks: { ...chartDefaults.scales.y.ticks, callback: v => v + '%' }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
