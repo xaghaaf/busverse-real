@@ -1,6 +1,6 @@
 # BusVerse Real
 
-Virtual bus booking and simulation platform.
+bus booking platform.
 
 ## Structure
 
